@@ -1,0 +1,34 @@
+# Configuration des scénarios de simulation
+scenarios:
+  default:
+    apport:
+      total: 200000
+      repartition:
+        immobilier: 70  # pourcentage
+        epargne_precaution: 15
+        investissement_risque: 15
+    
+    credit:
+      taux: 3.50  # pourcentage
+      duree: 20   # années
+      assurance: 0.34  # pourcentage
+
+    rendements:
+      epargne_precaution: 3.0  # Livret A actuel
+      investissement_risque: 7.0  # Moyenne historique conservatrice
+      evolution_immobilier: 1.5  # Pourcentage annuel moyen
+
+    parametres_simulation:
+      horizon: 10  # années
+      inflation: 2.0  # pourcentage annuel
+      frequence_calcul: "mensuelle"
+      
+    charges_evolution:
+      copropriete: 2.0  # pourcentage annuel
+      taxe_fonciere: 2.5
+      energie: 3.0
+
+    seuils_alertes:
+      endettement_max: 35  # pourcentage des revenus
+      perte_max_investissement: 30  # pourcentage
+      reserve_securite_min: 15000  # euros 

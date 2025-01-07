@@ -1,0 +1,94 @@
+# Liste des biens immobiliers
+properties:
+  saint-ouen-2024-001:
+    adresse: 118 Avenue Gabriel Peri, 93400 Saint-Ouen-Sur-Seine
+    bien:
+      type: T2
+      surface: 47
+      etage: 1
+      orientation: est
+      pieces:
+        sejour_cuisine: null
+        chambre: null
+      dpe: C
+      ges: null
+      cave: true
+    prix:
+      annonce: 332000
+      hors_honoraires: 332000
+      m2: 7064
+      honoraires:
+        montant: 0
+        pourcentage: 0
+      negociable: true
+      raison: "déménagement contraint"
+    metros:
+      - ligne: L13
+        station: Garibaldi
+        distance: 350
+      - ligne: L14
+        station: Saint-Ouen
+        distance: 900
+    charges:
+      mensuelles: 164
+      taxe_fonciere: 665
+      energie: 68
+      chauffage: non inclus
+    copro:
+      lots: null
+    atouts:
+      - parquet chêne massif
+      - douche italienne
+      - cuisine équipée
+      - calme (sur cour)
+      - poutres apparentes
+      - potentiel T3
+    vigilance:
+      - cave en mauvais état
+      - structure cave à vérifier
+    contact: direct propriétaire
+
+  paris19-2024-001:
+    adresse: 4 rue Mathis, 75019 Paris
+    bien:
+      type: T2
+      surface: 37
+      etage: "1/6"
+      orientation: null
+      pieces:
+        sejour_cuisine: 20
+        chambre: 13
+      dpe: E
+      ges: D
+      cave: false
+    prix:
+      annonce: 250000
+      hors_honoraires: 240000
+      m2: 6757
+      honoraires:
+        montant: 10000
+        pourcentage: 4.17
+      negociable: null
+      locatif:
+        potentiel: 1184
+        type: meublé
+    metros:
+      - ligne: M7
+        station: Crimée
+        distance: 0
+    charges:
+      mensuelles: 195
+      taxe_fonciere: null
+      energie: null
+      chauffage: inclus collectif
+    copro:
+      lots: 30
+    atouts:
+      - cuisine US
+      - proche canal de l'Ourcq
+      - pistes cyclables
+      - commerces variés
+      - prêt à habiter/louer
+      - bon potentiel locatif
+    vigilance: []
+    contact: agence (Aline 9h-19h) 
