@@ -65,25 +65,37 @@ def scenario_simulation(properties, config):
     )
     
     # Paramètres de simulation
-    col1, col2 = st.columns(2)
+    col1, col2, col3 = st.columns(3)
     
     with col1:
-        st.subheader("Apport et Répartition")
-        apport = st.slider("Apport total (€)", 0, 300000, config.apport_total)
-        repartition_immo = st.slider("% Immobilier", 0, 100, int(config.repartition_immobilier))
+        st.subheader("Paramètres Simulation")
+        montant_total = st.slider("À investir (€)", 0, 300000, config.apport_total)
+        apport_immo = st.slider("Apport appartement (€)", 0, montant_total, int(montant_total * config.repartition_immobilier / 100))
+        horizon = st.slider("Horizon simulation (années)", 5, 30, config.horizon_simulation)
         
     with col2:
         st.subheader("Paramètres Crédit")
         taux = st.slider("Taux crédit (%)", 0.0, 10.0, config.taux_credit)
-        duree = st.slider("Durée (années)", 5, 30, config.duree_credit)
+        duree = st.slider("Durée crédit (années)", 5, 25, config.duree_credit)
+        appreciation = st.slider("Valorisation annuelle (%)", -2.0, 5.0, config.evolution_immobilier)
+
+    with col3:
+        st.subheader("Paramètres Épargne")
+        rdt_securise = st.slider("Rendement sécurisé (%)", 0.0, 5.0, config.rendement_epargne)
+        rdt_risque = st.slider("Rendement dynamique (%)", 2.0, 12.0, config.rendement_investissement)
+        repartition_epargne = st.slider("Part sécurisée (%)", 0, 100, 50)
     
     # Mise à jour de la configuration
-    config.apport_total = apport
-    config.repartition_immobilier = repartition_immo
-    config.repartition_epargne = (100 - repartition_immo) / 2
-    config.repartition_investissement = (100 - repartition_immo) / 2
+    config.apport_total = montant_total
+    config.repartition_immobilier = (apport_immo / montant_total) * 100 if montant_total > 0 else 0
+    config.repartition_epargne = (100 - config.repartition_immobilier) * (repartition_epargne / 100)
+    config.repartition_investissement = (100 - config.repartition_immobilier) * (1 - repartition_epargne / 100)
     config.taux_credit = taux
     config.duree_credit = duree
+    config.horizon_simulation = horizon
+    config.evolution_immobilier = appreciation
+    config.rendement_epargne = rdt_securise
+    config.rendement_investissement = rdt_risque
     
     # Création et exécution du scénario
     scenario = Scenario(properties[selected_property], config)
@@ -93,24 +105,50 @@ def scenario_simulation(properties, config):
     # Affichage des métriques
     col1, col2, col3 = st.columns(3)
     col1.metric("Mensualité crédit", f"{metrics['mensualite_credit']:.2f}€")
+    
+    # Charges totales avec détail
     col2.metric("Charges totales", f"{metrics['charges_totales']:.2f}€")
-    col3.metric("Rendement total", f"{metrics['rendement_total']:.2f}%")
+    charges_detail = f"""
+    <small>
+    Crédit: {metrics['mensualite_credit']:.2f}€<br>
+    Copropriété: {properties[selected_property].charges_mensuelles:.2f}€<br>
+    Énergie: {properties[selected_property].energie if properties[selected_property].energie else 0:.2f}€
+    </small>
+    """
+    col2.markdown(charges_detail, unsafe_allow_html=True)
+    
+    # Rendement avec détail
+    col3.metric("Rendement annuel moyen", f"{metrics['rendement_total']:.2f}%")
+    rendement_detail = f"""
+    <small>
+    Patrimoine initial: {metrics['patrimoine_initial']:,.0f}€<br>
+    Patrimoine final: {metrics['patrimoine_final']:,.0f}€<br>
+    Horizon: {config.horizon_simulation} ans
+    </small>
+    """
+    col3.markdown(rendement_detail, unsafe_allow_html=True)
     
     # Graphique d'évolution du patrimoine
     df_evolution = pd.DataFrame({
-        'Mois': range(len(simulation['patrimoine_total'])),
+        'Années': [i/12 for i in range(len(simulation['patrimoine_total']))],
         'Patrimoine Total': simulation['patrimoine_total'],
         'Valeur Bien': simulation['valeur_bien'],
-        'Capital Restant': simulation['capital_restant'],
-        'Épargne': simulation['epargne'],
-        'Investissement': simulation['investissement']
+        'Capital Restant Dû': simulation['capital_restant'],
+        'Épargne Sécurisée': simulation['epargne'],
+        'Épargne Dynamique': simulation['investissement']
     })
     
-    fig = px.line(df_evolution.melt(id_vars=['Mois'], 
+    fig = px.line(df_evolution.melt(id_vars=['Années'], 
                                   value_vars=['Patrimoine Total', 'Valeur Bien', 
-                                            'Capital Restant', 'Épargne', 'Investissement']),
-                  x='Mois', y='value', color='variable',
-                  title="Évolution du Patrimoine")
+                                            'Capital Restant Dû', 'Épargne Sécurisée', 'Épargne Dynamique']),
+                  x='Années', y='value', color='variable',
+                  title="Évolution du Patrimoine",
+                  labels={'value': 'Valeur (€)'})
+    
+    # Formatage des axes
+    fig.update_xaxes(tickformat='.0f')  # Pas de décimales pour les années
+    fig.update_yaxes(tickformat=',d')   # Format des montants avec séparateur de milliers
+    
     st.plotly_chart(fig)
 
 def main():
@@ -120,13 +158,13 @@ def main():
     properties, config = load_data()
     
     # Tabs pour la navigation
-    tab1, tab2 = st.tabs(["Comparaison des Biens", "Simulation"])
+    tab1, tab2 = st.tabs(["Simulation", "Comparaison des Biens"])
     
     with tab1:
-        property_comparison(properties)
+        scenario_simulation(properties, config)
     
     with tab2:
-        scenario_simulation(properties, config)
+        property_comparison(properties)
 
 if __name__ == "__main__":
     main() 
