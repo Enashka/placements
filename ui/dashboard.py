@@ -132,11 +132,11 @@ def scenario_simulation(properties, config):
         montant_dynamique = montant_hors_immo * (1 - repartition_epargne / 100)
         
         rdt_securise = st.number_input(
-            "Rendement sécurisé (%)", 
+            "Taux placement sécurisé (%)", 
             0.0, 5.0, config.rendement_epargne, step=0.1, format="%.1f"
         )
         rdt_risque = st.number_input(
-            f"Rendement dynamique (%) - {montant_dynamique:,.0f}€", 
+            "Taux placement dynamique (%)", 
             2.0, 12.0, config.rendement_investissement, step=0.1, format="%.1f"
         )
     
@@ -189,9 +189,9 @@ def scenario_simulation(properties, config):
         Mensualités: {mensualite_hors_assurance:.2f}€<br>
         Assurance prêt ({config.taux_assurance}%): {assurance_mensuelle:.2f}€<br>
         <br>
-        Copropriété: {properties[selected_property].charges_mensuelles:.2f}€<br>
-        Énergie: {properties[selected_property].energie if properties[selected_property].energie else 0:.2f}€<br>
-        Taxe foncière: {properties[selected_property].taxe_fonciere/12 if properties[selected_property].taxe_fonciere else 0:.2f}€ ({properties[selected_property].taxe_fonciere if properties[selected_property].taxe_fonciere else 0:.0f}€/an)
+        Copropriété: {'<span style="color: red">' if properties[selected_property].charges_mensuelles == 0 else ''}{properties[selected_property].charges_mensuelles:.2f}€{'</span>' if properties[selected_property].charges_mensuelles == 0 else ''}<br>
+        Énergie: {'<span style="color: red">' if not properties[selected_property].energie else ''}{properties[selected_property].energie if properties[selected_property].energie else 0:.2f}€{'</span>' if not properties[selected_property].energie else ''}<br>
+        Taxe foncière: {'<span style="color: red">' if not properties[selected_property].taxe_fonciere else ''}{properties[selected_property].taxe_fonciere/12 if properties[selected_property].taxe_fonciere else 0:.2f}€ ({properties[selected_property].taxe_fonciere if properties[selected_property].taxe_fonciere else 0:.0f}€/an){'</span>' if not properties[selected_property].taxe_fonciere else ''}
         </small>
         """
         st.markdown(charges_detail, unsafe_allow_html=True)
