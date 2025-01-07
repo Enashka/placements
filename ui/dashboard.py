@@ -166,19 +166,29 @@ Notaire (8%): {frais_notaire:,.0f}€<br>
         penalites = capital_restant_horizon * 0.03 if horizon < config.duree_credit else 0
 
         patrimoine_detail = f"""<small>
-Patrimoine initial: {metrics['patrimoine_initial']:,.0f}€<br>
-Patrimoine à {horizon} ans<br>
-Épargne: {epargne_horizon:,.0f}€<br>
-Bien évalué à: {valeur_bien_horizon:,.0f}€<br>
+
+<b>Épargne</b><br>
+<span style="font-size: 1.5rem">{epargne_horizon:,.0f}€</span><br>
+
+<b>Immobilier</b><br>
+Bien évalué à:<br>
+<span style="font-size: 1.5rem">{valeur_bien_horizon:,.0f}€</span><br>
 Si revente<br>
 """
         if horizon < config.duree_credit:
             patrimoine_detail += f"""Capital restant dû: -{capital_restant_horizon:,.0f}€<br>
 Pénalités (3%): -{penalites:,.0f}€<br>
 """
+        total_revente = valeur_bien_horizon - capital_restant_horizon - penalites - frais_agence_revente
+        plus_value_immo = total_revente - properties[selected_property].prix
+
         patrimoine_detail += f"""Frais d'agence (5%): -{frais_agence_revente:,.0f}€<br>
-Total: {valeur_bien_horizon - capital_restant_horizon - penalites - frais_agence_revente + epargne_horizon:,.0f}€<br>
-Plus-value: {(valeur_bien_horizon - capital_restant_horizon - penalites - frais_agence_revente + epargne_horizon) - metrics['patrimoine_initial']:+,.0f}€</small>"""
+Total revente:<br>
+<span style="font-size: 1.5rem">{total_revente:,.0f}€</span><br>
+Plus-value immobilière: {plus_value_immo:+,.0f}€<br><br>
+
+<b>Patrimoine total à {horizon} ans:</b><br>
+<span style="font-size: 1.5rem">{total_revente + epargne_horizon:,.0f}€</span></small>"""
 
         st.markdown(patrimoine_detail, unsafe_allow_html=True)
     
