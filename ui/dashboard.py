@@ -115,7 +115,7 @@ def scenario_simulation(properties, config):
         horizon = st.number_input("Horizon simulation (années)", 5, 30, config.horizon_simulation, step=1)
 
     with col2:
-        st.subheader("Mensualités")
+        st.subheader("Crédit")
         # Calcul du montant du prêt basé sur le coût total
         montant_pret = cout_total - apport_immo
         taux = st.number_input("Taux crédit (%)", 0.0, 10.0, config.taux_credit, step=0.05, format="%.2f")
