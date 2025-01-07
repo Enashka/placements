@@ -46,14 +46,15 @@ class Scenario:
     LIVRET_A_PLAFOND = 23000
     LDD_PLAFOND = 12000
     
-    def __init__(self, property: Property, config: ScenarioConfig):
+    def __init__(self, property: Property, config: ScenarioConfig, cout_total: float = None):
         self.property = property
         self.config = config
+        self.cout_total = cout_total if cout_total is not None else property.prix
         
     def calculate_monthly_payment(self) -> float:
         """Calcule la mensualité totale (crédit + assurance)."""
         apport_immo = self.config.apport_total * (self.config.repartition_immobilier / 100)
-        montant_pret = self.property.prix - apport_immo
+        montant_pret = self.cout_total - apport_immo
         
         # Mensualité crédit
         taux_mensuel = self.config.taux_credit / 12 / 100
@@ -107,7 +108,7 @@ class Scenario:
         investissement = self.config.apport_total * (self.config.repartition_investissement / 100)
         
         # Calcul du prêt
-        montant_pret = self.property.prix - apport_immo
+        montant_pret = self.cout_total - apport_immo
         mensualite = self.calculate_monthly_payment()
         
         # Arrays pour stocker l'évolution
@@ -118,7 +119,7 @@ class Scenario:
         patrimoine_total = np.zeros(nb_mois + 1)
         
         # Valeurs initiales
-        valeur_bien[0] = self.property.prix
+        valeur_bien[0] = self.cout_total
         capital_restant[0] = montant_pret
         epargne_evolution[0] = epargne
         investissement_evolution[0] = investissement

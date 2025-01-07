@@ -115,7 +115,9 @@ def scenario_simulation(properties, config):
         horizon = st.slider("Horizon simulation (années)", 5, 30, config.horizon_simulation)
 
     with col2:
-        st.subheader("Crédit")
+        st.subheader("Mensualités")
+        # Calcul du montant du prêt basé sur le coût total
+        montant_pret = cout_total - apport_immo
         taux = st.slider("Taux crédit (%)", 0.0, 10.0, config.taux_credit)
         duree = st.slider("Durée crédit (années)", 5, 25, config.duree_credit)
         appreciation = st.slider("Valorisation annuelle (%)", -2.0, 5.0, config.evolution_immobilier)
@@ -138,7 +140,7 @@ def scenario_simulation(properties, config):
             2.0, 12.0, config.rendement_investissement
         )
     
-    # Mise à jour de la configuration
+    # Mise à jour de la configuration avec le coût total
     config.apport_total = montant_total
     config.repartition_immobilier = (apport_immo / montant_total) * 100 if montant_total > 0 else 0
     config.repartition_epargne = (100 - config.repartition_immobilier) * (repartition_epargne / 100)
@@ -150,8 +152,8 @@ def scenario_simulation(properties, config):
     config.rendement_epargne = rdt_securise
     config.rendement_investissement = rdt_risque
     
-    # Création et exécution du scénario
-    scenario = Scenario(properties[selected_property], config)
+    # Création et exécution du scénario avec le coût total
+    scenario = Scenario(properties[selected_property], config, cout_total=cout_total)
     simulation = scenario.simulate_patrimoine()
     metrics = scenario.calculate_metrics()
     
@@ -175,10 +177,18 @@ def scenario_simulation(properties, config):
                         (properties[selected_property].energie if properties[selected_property].energie else 0) +
                         (properties[selected_property].taxe_fonciere/12 if properties[selected_property].taxe_fonciere else 0))
         
+        # Calcul de l'assurance mensuelle
+        montant_pret = cout_total - apport_immo
+        assurance_mensuelle = (montant_pret * config.taux_assurance / 100) / 12
+        mensualite_hors_assurance = metrics['mensualite_credit'] - assurance_mensuelle
+
         st.metric("Charges totales", f"{total_charges:.2f}€")
         charges_detail = f"""
         <small>
-        Crédit: {metrics['mensualite_credit']:.2f}€<br>
+        <b>(Prêt: {montant_pret:,.0f}€)</b><br>
+        Mensualités: {mensualite_hors_assurance:.2f}€<br>
+        Assurance prêt ({config.taux_assurance}%): {assurance_mensuelle:.2f}€<br>
+        <br>
         Copropriété: {properties[selected_property].charges_mensuelles:.2f}€<br>
         Énergie: {properties[selected_property].energie if properties[selected_property].energie else 0:.2f}€<br>
         Taxe foncière: {properties[selected_property].taxe_fonciere/12 if properties[selected_property].taxe_fonciere else 0:.2f}€ ({properties[selected_property].taxe_fonciere if properties[selected_property].taxe_fonciere else 0:.0f}€/an)
