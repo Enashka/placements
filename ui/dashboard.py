@@ -11,6 +11,10 @@ sys.path.append(str(Path(__file__).parent.parent))
 from models.property import Property
 from models.scenario import Scenario, ScenarioConfig
 
+# Constantes pour les plafonds des livrets
+LIVRET_A_PLAFOND = 23000
+LDD_PLAFOND = 12000
+
 def load_data():
     """Charge les données des biens et la configuration."""
     properties = Property.load_properties('data/properties.yaml')
@@ -68,22 +72,44 @@ def scenario_simulation(properties, config):
     col1, col2, col3 = st.columns(3)
     
     with col1:
-        st.subheader("Paramètres Simulation")
+        st.markdown("""
+        <style>
+        div[data-testid="stHorizontalBlock"] > div:nth-child(1) {
+            background-color: rgb(38, 39, 48);
+            padding: 1rem;
+            border-radius: 0.5rem;
+        }
+        </style>
+        """, unsafe_allow_html=True)
+        
+        st.subheader("Simulation")
         montant_total = st.slider("À investir (€)", 0, 300000, config.apport_total)
         apport_immo = st.slider("Apport appartement (€)", 0, montant_total, int(montant_total * config.repartition_immobilier / 100))
         horizon = st.slider("Horizon simulation (années)", 5, 30, config.horizon_simulation)
-        
+
     with col2:
-        st.subheader("Paramètres Crédit")
+        st.subheader("Crédit")
         taux = st.slider("Taux crédit (%)", 0.0, 10.0, config.taux_credit)
         duree = st.slider("Durée crédit (années)", 5, 25, config.duree_credit)
         appreciation = st.slider("Valorisation annuelle (%)", -2.0, 5.0, config.evolution_immobilier)
 
     with col3:
-        st.subheader("Paramètres Épargne")
-        rdt_securise = st.slider("Rendement sécurisé (%)", 0.0, 5.0, config.rendement_epargne)
-        rdt_risque = st.slider("Rendement dynamique (%)", 2.0, 12.0, config.rendement_investissement)
+        st.subheader("Épargne")
+        # Calcul des montants
+        montant_hors_immo = montant_total - apport_immo
         repartition_epargne = st.slider("Part sécurisée (%)", 0, 100, 50)
+        
+        montant_securise = montant_hors_immo * (repartition_epargne / 100)
+        montant_dynamique = montant_hors_immo * (1 - repartition_epargne / 100)
+        
+        rdt_securise = st.slider(
+            "Rendement sécurisé (%)", 
+            0.0, 5.0, config.rendement_epargne
+        )
+        rdt_risque = st.slider(
+            f"Rendement dynamique (%) - {montant_dynamique:,.0f}€", 
+            2.0, 12.0, config.rendement_investissement
+        )
     
     # Mise à jour de la configuration
     config.apport_total = montant_total
@@ -102,31 +128,60 @@ def scenario_simulation(properties, config):
     simulation = scenario.simulate_patrimoine()
     metrics = scenario.calculate_metrics()
     
-    # Affichage des métriques
-    col1, col2, col3 = st.columns(3)
-    col1.metric("Mensualité crédit", f"{metrics['mensualite_credit']:.2f}€")
+    # Affichage des métriques dans la colonne de gauche
+    with col1:
+        st.metric("Rendement annuel moyen", f"{metrics['rendement_total']:.2f}%")
+        rendement_detail = f"""
+        <small>
+        Patrimoine initial: {metrics['patrimoine_initial']:,.0f}€<br>
+        Patrimoine final: {metrics['patrimoine_final']:,.0f}€<br>
+        Horizon: {config.horizon_simulation} ans
+        </small>
+        """
+        st.markdown(rendement_detail, unsafe_allow_html=True)
     
-    # Charges totales avec détail
-    col2.metric("Charges totales", f"{metrics['charges_totales']:.2f}€")
-    charges_detail = f"""
-    <small>
-    Crédit: {metrics['mensualite_credit']:.2f}€<br>
-    Copropriété: {properties[selected_property].charges_mensuelles:.2f}€<br>
-    Énergie: {properties[selected_property].energie if properties[selected_property].energie else 0:.2f}€
-    </small>
-    """
-    col2.markdown(charges_detail, unsafe_allow_html=True)
+    # Affichage des charges dans la colonne du milieu
+    with col2:
+        st.metric("Charges totales", f"{metrics['charges_totales']:.2f}€")
+        charges_detail = f"""
+        <small>
+        Crédit: {metrics['mensualite_credit']:.2f}€<br>
+        Copropriété: {properties[selected_property].charges_mensuelles:.2f}€<br>
+        Énergie: {properties[selected_property].energie if properties[selected_property].energie else 0:.2f}€
+        </small>
+        """
+        st.markdown(charges_detail, unsafe_allow_html=True)
     
-    # Rendement avec détail
-    col3.metric("Rendement annuel moyen", f"{metrics['rendement_total']:.2f}%")
-    rendement_detail = f"""
-    <small>
-    Patrimoine initial: {metrics['patrimoine_initial']:,.0f}€<br>
-    Patrimoine final: {metrics['patrimoine_final']:,.0f}€<br>
-    Horizon: {config.horizon_simulation} ans
-    </small>
-    """
-    col3.markdown(rendement_detail, unsafe_allow_html=True)
+    # Affichage de la répartition dans la colonne de droite
+    with col3:
+        # Calcul de la répartition de l'épargne sécurisée
+        livret_a = min(montant_securise, LIVRET_A_PLAFOND)
+        reste_apres_livret_a = montant_securise - livret_a
+        ldd = min(reste_apres_livret_a, LDD_PLAFOND)
+        compte_terme = max(0, reste_apres_livret_a - ldd)
+        
+        # Calcul du rendement moyen de l'épargne sécurisée
+        rendement_moyen = 0
+        if montant_securise > 0:
+            rendement_moyen = (
+                (livret_a * config.rendement_epargne + 
+                 ldd * config.rendement_epargne + 
+                 compte_terme * (config.rendement_epargne - 2)) / montant_securise
+            )
+        
+        st.metric("Rendement épargne moyen", f"{rendement_moyen:.2f}%")
+        repartition_detail = f"""
+        <small>
+        Épargne sécurisée :<br>
+        • Livret A ({config.rendement_epargne}%) : {livret_a:,.0f}€<br>
+        • LDD ({config.rendement_epargne}%) : {ldd:,.0f}€<br>
+        {f"• Compte à terme ({config.rendement_epargne-2}%) : {compte_terme:,.0f}€<br>" if compte_terme > 0 else ""}
+        <br>
+        Épargne dynamique :<br>
+        • PEA ({config.rendement_investissement}%) : {montant_dynamique:,.0f}€
+        </small>
+        """
+        st.markdown(repartition_detail, unsafe_allow_html=True)
     
     # Graphique d'évolution du patrimoine
     df_evolution = pd.DataFrame({

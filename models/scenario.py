@@ -43,6 +43,9 @@ class ScenarioConfig:
         )
 
 class Scenario:
+    LIVRET_A_PLAFOND = 23000
+    LDD_PLAFOND = 12000
+    
     def __init__(self, property: Property, config: ScenarioConfig):
         self.property = property
         self.config = config
@@ -61,6 +64,38 @@ class Scenario:
         mensualite_assurance = (montant_pret * self.config.taux_assurance / 100) / 12
         
         return round(mensualite + mensualite_assurance, 2)
+
+    def simulate_epargne_securisee(self, montant_initial, mois):
+        """Simule l'évolution de l'épargne sécurisée en tenant compte des plafonds"""
+        # Répartition initiale
+        livret_a = min(montant_initial, self.LIVRET_A_PLAFOND)
+        reste_apres_livret_a = montant_initial - livret_a
+        
+        ldd = min(reste_apres_livret_a, self.LDD_PLAFOND)
+        reste_apres_ldd = reste_apres_livret_a - ldd
+        
+        # Le reste va sur un compte à terme ou livret bancaire avec une performance moindre
+        compte_terme = reste_apres_ldd
+        
+        evolution = np.zeros(mois)
+        for m in range(mois):
+            if m == 0:
+                evolution[m] = montant_initial
+            else:
+                # Livret A et LDD à taux plein
+                livret_a *= (1 + self.config.rendement_epargne/12/100)
+                livret_a = min(livret_a, self.LIVRET_A_PLAFOND)
+                
+                ldd *= (1 + self.config.rendement_epargne/12/100)
+                ldd = min(ldd, self.LDD_PLAFOND)
+                
+                # Compte à terme avec rendement réduit (environ 2% de moins)
+                if compte_terme > 0:
+                    compte_terme *= (1 + (self.config.rendement_epargne-2)/12/100)
+                
+                evolution[m] = livret_a + ldd + compte_terme
+        
+        return evolution
 
     def simulate_patrimoine(self) -> Dict[str, List[float]]:
         """Simule l'évolution du patrimoine sur l'horizon défini."""
@@ -101,7 +136,7 @@ class Scenario:
             capital_restant[mois] = max(0, capital_restant[mois-1] - capital_amorti)
             
             # Évolution épargne et investissements
-            epargne_evolution[mois] = epargne_evolution[mois-1] * (1 + self.config.rendement_epargne/12/100)
+            epargne_evolution[mois] = self.simulate_epargne_securisee(epargne, mois)[mois-1]
             investissement_evolution[mois] = investissement_evolution[mois-1] * (1 + self.config.rendement_investissement/12/100)
             
             # Patrimoine total
