@@ -66,7 +66,6 @@ def scenario_simulation(properties, config):
     col_sim_top, col_select = st.columns([1, 2])
     
     with col_sim_top:
-        st.subheader("Simulation")
         montant_total = st.number_input("Total à investir (€)", 0, 1000000, config.apport_total, step=1000)
         apport_immo = st.number_input("Apport appartement (€)", 0, montant_total, int(montant_total * config.repartition_immobilier / 100), step=1000)
         horizon = st.number_input("Horizon simulation (années)", 5, 30, config.horizon_simulation, step=1)
@@ -197,17 +196,16 @@ Plus-value: {(valeur_bien_horizon - capital_restant_horizon - penalites - frais_
         mensualite_hors_assurance = metrics['mensualite_credit'] - assurance_mensuelle
 
         st.metric("Charges totales", f"{total_charges:.2f}€")
-        charges_detail = f"""
+        charges_detail = f"""<div style="margin-top: -1rem">
         <small>
         <b>(Prêt: {montant_pret:,.0f}€)</b><br>
         Mensualités: {mensualite_hors_assurance:.2f}€<br>
         Assurance prêt ({config.taux_assurance}%): {assurance_mensuelle:.2f}€<br>
-        <br>
         Copropriété: {'<span style="color: red">' if properties[selected_property].charges_mensuelles == 0 else ''}{properties[selected_property].charges_mensuelles:.2f}€{'</span>' if properties[selected_property].charges_mensuelles == 0 else ''}<br>
         Énergie: {'<span style="color: red">' if not properties[selected_property].energie else ''}{properties[selected_property].energie if properties[selected_property].energie else 0:.2f}€{'</span>' if not properties[selected_property].energie else ''}<br>
         Taxe foncière: {'<span style="color: red">' if not properties[selected_property].taxe_fonciere else ''}{properties[selected_property].taxe_fonciere/12 if properties[selected_property].taxe_fonciere else 0:.2f}€ ({properties[selected_property].taxe_fonciere if properties[selected_property].taxe_fonciere else 0:.0f}€/an){'</span>' if not properties[selected_property].taxe_fonciere else ''}
         </small>
-        """
+        </div>"""
         st.markdown(charges_detail, unsafe_allow_html=True)
     
     # Affichage de la répartition dans la colonne de droite
@@ -230,17 +228,16 @@ Plus-value: {(valeur_bien_horizon - capital_restant_horizon - penalites - frais_
             )
         
         st.metric("Rendement épargne moyen", f"{rendement_moyen:.2f}%")
-        repartition_detail = f"""
-        <small>
-        Épargne sécurisée :<br>
-        • Livret A ({config.rendement_epargne}%) : {livret_a:,.0f}€<br>
-        • LDD ({config.rendement_epargne}%) : {ldd:,.0f}€<br>
-        {f"• Compte à terme ({config.rendement_epargne-2}%) : {compte_terme:,.0f}€<br>" if compte_terme > 0 else ""}
-        <br>
-        Épargne dynamique :<br>
-        • PEA ({config.rendement_investissement}%) : {montant_dynamique:,.0f}€
-        </small>
-        """
+        repartition_detail = f"""<div style="margin-top: -1rem">
+<small>
+Épargne sécurisée :<br>
+• Livret A ({config.rendement_epargne}%) : {livret_a:,.0f}€<br>
+• LDD ({config.rendement_epargne}%) : {ldd:,.0f}€<br>
+{f"• Compte à terme ({config.rendement_epargne-2}%) : {compte_terme:,.0f}€<br>" if compte_terme > 0 else ""}
+Épargne dynamique :<br>
+• PEA ({config.rendement_investissement}%) : {montant_dynamique:,.0f}€
+</small>
+</div>"""
         st.markdown(repartition_detail, unsafe_allow_html=True)
     
     # Graphique d'évolution du patrimoine
