@@ -62,15 +62,15 @@ def scenario_simulation(properties, config):
     """Interface de simulation des scénarios."""
     st.header("Simulation des Scénarios")
     
-    # Première ligne avec 2 colonnes
-    col_sim_top, col_select = st.columns([1, 2])
+    # Création des colonnes principales (1:2 ratio)
+    col_gauche, col_droite = st.columns([1, 2])
     
-    with col_sim_top:
+    with col_gauche:
         montant_total = st.number_input("Total à investir (€)", 0, 1000000, config.apport_total, step=1000)
         apport_immo = st.number_input("Apport appartement (€)", 0, montant_total, int(montant_total * config.repartition_immobilier / 100), step=1000)
         horizon = st.number_input("Horizon simulation (années)", 5, 30, config.horizon_simulation, step=1)
 
-    with col_select:
+    with col_droite:
         # Sélection du bien
         selected_property = st.selectbox(
             "Sélectionner un bien",
@@ -78,32 +78,53 @@ def scenario_simulation(properties, config):
             format_func=lambda x: properties[x].adresse
         )
         
-        # Calcul et affichage des détails du projet
-        honoraires = properties[selected_property].prix - properties[selected_property].prix_hors_honoraires
+        # Sous-colonnes pour détails et négociation
+        col_details, col_negociation = st.columns(2)
         
-        # Si les frais d'agence sont à la charge de l'acquéreur, ils sont soumis aux frais de notaire
+        with col_negociation:
+            # Ajout du slider pour la négociation
+            negociation = st.slider(
+                "Négociation (%)",
+                min_value=0,
+                max_value=15,
+                value=0,
+                step=1,
+                help="Pourcentage de remise négociée sur le prix"
+            )
+        
+        # Calculs communs
+        honoraires = properties[selected_property].prix - properties[selected_property].prix_hors_honoraires
+        prix_negocie = properties[selected_property].prix * (1 - negociation/100)
+        
+        # Calcul des frais de notaire et du coût total
         if properties[selected_property].frais_agence_acquereur:
-            base_frais_notaire = properties[selected_property].prix
+            base_frais_notaire = prix_negocie
             frais_notaire = base_frais_notaire * 0.08
-            cout_total = properties[selected_property].prix + frais_notaire
+            cout_total = prix_negocie + frais_notaire
             frais_agence_note = "(charge acquéreur)"
         else:
-            base_frais_notaire = properties[selected_property].prix_hors_honoraires
+            base_frais_notaire = properties[selected_property].prix_hors_honoraires * (1 - negociation/100)
             frais_notaire = base_frais_notaire * 0.08
-            cout_total = properties[selected_property].prix + frais_notaire
+            cout_total = prix_negocie + frais_notaire
             frais_agence_note = "(en direct)" if honoraires == 0 else "(charge vendeur)"
-
-        st.markdown(f"""<small>
-Prix: {properties[selected_property].prix_hors_honoraires:,.0f}€<br>
+        
+        with col_details:
+            st.markdown(f"""<small>
+Prix initial: {properties[selected_property].prix_hors_honoraires:,.0f}€<br>
 Frais d'agence: {honoraires:,.0f}€ {frais_agence_note}<br>
+Prix négocié: {prix_negocie:,.0f}€ <span style="color: {'#32CD32' if negociation > 0 else '#666666'}">(-{negociation}%)</span><br>
 Notaire (8%): {frais_notaire:,.0f}€<br>
-Coût du projet: {cout_total:,.0f}€
+<b>Coût total: {cout_total:,.0f}€</b>
+</small>""", unsafe_allow_html=True)
+
+        with col_negociation:
+            st.markdown(f"""<small>
 </small>""", unsafe_allow_html=True)
 
     # Deuxième ligne avec 3 colonnes
-    col1, col2, col3 = st.columns(3)
+    col_credit, col_epargne, col_resultats = st.columns(3)
     
-    with col2:
+    with col_credit:
         st.markdown('<p style="color: #ff4b4b; font-size: 1.25rem; font-weight: 600">Crédit</p>', unsafe_allow_html=True)
         # Calcul du montant du prêt basé sur le coût total
         montant_pret = cout_total - apport_immo
@@ -111,7 +132,7 @@ Coût du projet: {cout_total:,.0f}€
         duree = st.number_input("Durée crédit (années)", 5, 25, config.duree_credit, step=1)
         appreciation = st.number_input("Valorisation annuelle (%)", -2.0, 5.0, config.evolution_immobilier, step=0.1, format="%.1f")
 
-    with col3:
+    with col_epargne:
         st.markdown('<p style="color: #ff4b4b; font-size: 1.25rem; font-weight: 600">Épargne</p>', unsafe_allow_html=True)
         # Calcul des montants
         montant_hors_immo = montant_total - apport_immo
@@ -146,16 +167,8 @@ Coût du projet: {cout_total:,.0f}€
     simulation = scenario.simulate_patrimoine()
     metrics = scenario.calculate_metrics()
     
-    with col1:
-        st.markdown("""
-        <style>
-        div[data-testid="stHorizontalBlock"] > div:nth-child(1) {
-            background-color: rgb(38, 39, 48);
-            padding: 1rem;
-            border-radius: 0.5rem;
-        }
-        </style>
-        """, unsafe_allow_html=True)
+    with col_resultats:
+        st.markdown(f'<p style="color: #ff4b4b; font-size: 1.25rem; font-weight: 600; margin: 0; padding: 0">Résultats à {horizon} ans</p>', unsafe_allow_html=True)
         
         # Récupération des valeurs nécessaires
         horizon_mois = horizon * 12
@@ -165,20 +178,18 @@ Coût du projet: {cout_total:,.0f}€
         frais_agence_revente = valeur_bien_horizon * 0.05  # Estimation 5% frais d'agence à la revente
         penalites = capital_restant_horizon * 0.03 if horizon < config.duree_credit else 0
 
-        patrimoine_detail = f"""<small>
-
-Résultats à {horizon} ans:<br><br>
+        patrimoine_detail = f"""<small><br>
 <b style="color: #ff4b4b">Épargne</b><br>
 <span style="font-size: 1.5rem">{epargne_horizon:,.0f}€</span><br>
 
 <b style="color: #ff4b4b">Immobilier</b><br>
 Bien évalué à:<br>
-<span style="font-size: 1.5rem">{valeur_bien_horizon:,.0f}€</span><br>
+<span style="font-size: 1.5rem">{valeur_bien_horizon:,.0f}€</span><br><br>
 Si revente<br>
 """
         if horizon < config.duree_credit:
-            patrimoine_detail += f"""Capital restant dû: -{capital_restant_horizon:,.0f}€<br>
-Pénalités (3%): -{penalites:,.0f}€<br>
+            patrimoine_detail += f"""<i style="color: #ff4b4b">Capital restant dû: -{capital_restant_horizon:,.0f}€<br>
+Pénalités (3%): -{penalites:,.0f}€</i><br>
 """
         total_revente = valeur_bien_horizon - capital_restant_horizon - penalites - frais_agence_revente
         plus_value_immo = total_revente - properties[selected_property].prix
@@ -188,13 +199,13 @@ Total revente:<br>
 <span style="font-size: 1.5rem">{total_revente:,.0f}€</span><br>
 Plus-value immobilière: {plus_value_immo:+,.0f}€<br><br>
 
-<b style="color: #ff4b4b">Patrimoine total:</b><br>
+<b style="color: #ff4b4b">Patrimoine final:</b><br>
 <span style="font-size: 2.5rem">{total_revente + epargne_horizon:,.0f}€</span></small>"""
 
         st.markdown(patrimoine_detail, unsafe_allow_html=True)
     
     # Affichage des charges dans la colonne du milieu
-    with col2:
+    with col_credit:
         # Calcul de vérification du total
         total_charges = (metrics['mensualite_credit'] + 
                         properties[selected_property].charges_mensuelles +
@@ -202,7 +213,6 @@ Plus-value immobilière: {plus_value_immo:+,.0f}€<br><br>
                         (properties[selected_property].taxe_fonciere/12 if properties[selected_property].taxe_fonciere else 0))
         
         # Calcul de l'assurance mensuelle
-        montant_pret = cout_total - apport_immo
         assurance_mensuelle = (montant_pret * config.taux_assurance / 100) / 12
         mensualite_hors_assurance = metrics['mensualite_credit'] - assurance_mensuelle
 
@@ -220,7 +230,7 @@ Plus-value immobilière: {plus_value_immo:+,.0f}€<br><br>
         st.markdown(charges_detail, unsafe_allow_html=True)
     
     # Affichage de la répartition dans la colonne de droite
-    with col3:
+    with col_epargne:
         # Calcul de la répartition de l'épargne sécurisée
         livret_a = min(montant_securise, LIVRET_A_PLAFOND)
         reste_apres_livret_a = montant_securise - livret_a
