@@ -65,11 +65,6 @@ def scenario_simulation(properties, config):
     # Création des colonnes principales (1:2 ratio)
     col_gauche, col_droite = st.columns([1, 2])
     
-    with col_gauche:
-        montant_total = st.number_input("Total à investir (€)", 0, 1000000, config.apport_total, step=1000)
-        apport_immo = st.number_input("Apport appartement (€)", 0, montant_total, int(montant_total * config.repartition_immobilier / 100), step=1000)
-        horizon = st.number_input("Horizon simulation (années)", 5, 30, config.horizon_simulation, step=1)
-
     with col_droite:
         # Sélection du bien
         selected_property = st.selectbox(
@@ -107,9 +102,14 @@ def scenario_simulation(properties, config):
             frais_notaire = base_frais_notaire * 0.08
             cout_total = prix_negocie + frais_notaire
             frais_agence_note = "(en direct)" if honoraires == 0 else "(charge vendeur)"
-        
-        with col_details:
-            st.markdown(f"""<small>
+    
+    with col_gauche:
+        montant_total = st.number_input("Total à investir (€)", min_value=0, max_value=1000000, value=int(config.apport_total), step=1000)
+        apport_immo = st.number_input("Apport appartement (€)", min_value=0, max_value=int(cout_total), value=int(config.apport_total * config.repartition_immobilier / 100), step=1000)
+        horizon = st.number_input("Horizon simulation (années)", 5, 30, config.horizon_simulation, step=1)
+
+    with col_details:
+        st.markdown(f"""<small>
 Prix initial: {properties[selected_property].prix_hors_honoraires:,.0f}€<br>
 Frais d'agence: {honoraires:,.0f}€ {frais_agence_note}<br>
 Prix négocié: {prix_negocie:,.0f}€ <span style="color: {'#32CD32' if negociation > 0 else '#666666'}">(-{negociation}%)</span><br>
@@ -117,20 +117,47 @@ Notaire (8%): {frais_notaire:,.0f}€<br>
 <b>Coût total: {cout_total:,.0f}€</b>
 </small>""", unsafe_allow_html=True)
 
-        with col_negociation:
-            st.markdown(f"""<small>
-</small>""", unsafe_allow_html=True)
-
     # Deuxième ligne avec 3 colonnes
     col_credit, col_epargne, col_resultats = st.columns(3)
     
     with col_credit:
         st.markdown('<p style="color: #ff4b4b; font-size: 1.25rem; font-weight: 600">Crédit</p>', unsafe_allow_html=True)
-        # Calcul du montant du prêt basé sur le coût total
-        montant_pret = cout_total - apport_immo
+        # Calcul du montant du prêt basé uniquement sur l'apport immobilier et le coût total
+        montant_pret = max(0, cout_total - apport_immo)  # Ne peut pas être négatif
         taux = st.number_input("Taux crédit (%)", 0.0, 10.0, config.taux_credit, step=0.05, format="%.2f")
         duree = st.number_input("Durée crédit (années)", 5, 25, config.duree_credit, step=1)
         appreciation = st.number_input("Valorisation annuelle (%)", -2.0, 5.0, config.evolution_immobilier, step=0.1, format="%.1f")
+
+        # Calcul simple des mensualités
+        taux_mensuel = taux / 12 / 100
+        nombre_mois = duree * 12
+        if taux_mensuel > 0:
+            mensualite = montant_pret * (taux_mensuel * (1 + taux_mensuel)**nombre_mois) / ((1 + taux_mensuel)**nombre_mois - 1)
+        else:
+            mensualite = montant_pret / nombre_mois
+            
+        # Calcul de l'assurance
+        assurance_mensuelle = (montant_pret * config.taux_assurance / 100) / 12
+        mensualite_totale = mensualite + assurance_mensuelle
+        
+        # Calcul des charges totales
+        total_charges = (mensualite_totale + 
+                        properties[selected_property].charges_mensuelles +
+                        (properties[selected_property].energie if properties[selected_property].energie else 0) +
+                        (properties[selected_property].taxe_fonciere/12 if properties[selected_property].taxe_fonciere else 0))
+
+        st.metric("Charges totales", f"{total_charges:.2f}€")
+        charges_detail = f"""<div style="margin-top: -1rem">
+        <small>
+        (Prêt: {montant_pret:,.0f}€)<br>
+        Mensualités: {mensualite:.2f}€<br>
+        Assurance prêt ({config.taux_assurance}%): {assurance_mensuelle:.2f}€<br>
+        Copropriété: {'<span style="color: red">' if properties[selected_property].charges_mensuelles == 0 else ''}{properties[selected_property].charges_mensuelles:.2f}€{'</span>' if properties[selected_property].charges_mensuelles == 0 else ''}<br>
+        Énergie: {'<span style="color: red">' if not properties[selected_property].energie else ''}{properties[selected_property].energie if properties[selected_property].energie else 0:.2f}€{'</span>' if not properties[selected_property].energie else ''}<br>
+        Taxe foncière: {'<span style="color: red">' if not properties[selected_property].taxe_fonciere else ''}{properties[selected_property].taxe_fonciere/12 if properties[selected_property].taxe_fonciere else 0:.2f}€ ({properties[selected_property].taxe_fonciere if properties[selected_property].taxe_fonciere else 0:.0f}€/an){'</span>' if not properties[selected_property].taxe_fonciere else ''}
+        </small>
+        </div>"""
+        st.markdown(charges_detail, unsafe_allow_html=True)
 
     with col_epargne:
         st.markdown('<p style="color: #ff4b4b; font-size: 1.25rem; font-weight: 600">Épargne</p>', unsafe_allow_html=True)
@@ -203,31 +230,6 @@ Plus-value immobilière: {plus_value_immo:+,.0f}€<br><br>
 <span style="font-size: 2.5rem">{total_revente + epargne_horizon:,.0f}€</span></small>"""
 
         st.markdown(patrimoine_detail, unsafe_allow_html=True)
-    
-    # Affichage des charges dans la colonne du milieu
-    with col_credit:
-        # Calcul de vérification du total
-        total_charges = (metrics['mensualite_credit'] + 
-                        properties[selected_property].charges_mensuelles +
-                        (properties[selected_property].energie if properties[selected_property].energie else 0) +
-                        (properties[selected_property].taxe_fonciere/12 if properties[selected_property].taxe_fonciere else 0))
-        
-        # Calcul de l'assurance mensuelle
-        assurance_mensuelle = (montant_pret * config.taux_assurance / 100) / 12
-        mensualite_hors_assurance = metrics['mensualite_credit'] - assurance_mensuelle
-
-        st.metric("Charges totales", f"{total_charges:.2f}€")
-        charges_detail = f"""<div style="margin-top: -1rem">
-        <small>
-        (Prêt: {montant_pret:,.0f}€)<br>
-        Mensualités: {mensualite_hors_assurance:.2f}€<br>
-        Assurance prêt ({config.taux_assurance}%): {assurance_mensuelle:.2f}€<br>
-        Copropriété: {'<span style="color: red">' if properties[selected_property].charges_mensuelles == 0 else ''}{properties[selected_property].charges_mensuelles:.2f}€{'</span>' if properties[selected_property].charges_mensuelles == 0 else ''}<br>
-        Énergie: {'<span style="color: red">' if not properties[selected_property].energie else ''}{properties[selected_property].energie if properties[selected_property].energie else 0:.2f}€{'</span>' if not properties[selected_property].energie else ''}<br>
-        Taxe foncière: {'<span style="color: red">' if not properties[selected_property].taxe_fonciere else ''}{properties[selected_property].taxe_fonciere/12 if properties[selected_property].taxe_fonciere else 0:.2f}€ ({properties[selected_property].taxe_fonciere if properties[selected_property].taxe_fonciere else 0:.0f}€/an){'</span>' if not properties[selected_property].taxe_fonciere else ''}
-        </small>
-        </div>"""
-        st.markdown(charges_detail, unsafe_allow_html=True)
     
     # Affichage de la répartition dans la colonne de droite
     with col_epargne:
