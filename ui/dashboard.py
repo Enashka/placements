@@ -110,7 +110,7 @@ def scenario_simulation(properties, config):
         """, unsafe_allow_html=True)
         
         st.subheader("Simulation")
-        montant_total = st.number_input("À investir (€)", 0, 1000000, config.apport_total, step=1000)
+        montant_total = st.number_input("Total à investir (€)", 0, 1000000, config.apport_total, step=1000)
         apport_immo = st.number_input("Apport appartement (€)", 0, montant_total, int(montant_total * config.repartition_immobilier / 100), step=1000)
         horizon = st.number_input("Horizon simulation (années)", 5, 30, config.horizon_simulation, step=1)
 
@@ -159,15 +159,14 @@ def scenario_simulation(properties, config):
     
     # Affichage des métriques dans la colonne de gauche
     with col1:
-        st.metric("Rendement annuel moyen", f"{metrics['rendement_total']:.2f}%")
         rendement_detail = f"""
         <small>
         Patrimoine initial: {metrics['patrimoine_initial']:,.0f}€<br>
-        Patrimoine final: {metrics['patrimoine_final']:,.0f}€<br>
-        Horizon: {config.horizon_simulation} ans
+        Patrimoine à {config.horizon_simulation} ans:
         </small>
         """
         st.markdown(rendement_detail, unsafe_allow_html=True)
+        st.metric("", f"{metrics['patrimoine_final']:,.0f}€")
     
     # Affichage des charges dans la colonne du milieu
     with col2:
