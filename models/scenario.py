@@ -109,6 +109,7 @@ class Scenario:
         
         # Calcul du prêt
         montant_pret = self.cout_total - apport_immo
+        # On ne prend que la mensualité du prêt, pas les autres charges
         mensualite = self.calculate_monthly_payment()
         
         # Arrays pour stocker l'évolution
@@ -130,7 +131,7 @@ class Scenario:
             # Évolution du bien
             valeur_bien[mois] = valeur_bien[mois-1] * (1 + self.config.evolution_immobilier/12/100)
             
-            # Évolution du prêt
+            # Évolution du prêt (uniquement le remboursement, pas les charges)
             taux_mensuel = self.config.taux_credit / 12 / 100
             interet = capital_restant[mois-1] * taux_mensuel
             capital_amorti = mensualite - interet
@@ -140,7 +141,7 @@ class Scenario:
             epargne_evolution[mois] = self.simulate_epargne_securisee(epargne, mois)[mois-1]
             investissement_evolution[mois] = investissement_evolution[mois-1] * (1 + self.config.rendement_investissement/12/100)
             
-            # Patrimoine total
+            # Patrimoine total (valeur bien - capital restant + épargne + investissements)
             patrimoine_total[mois] = (valeur_bien[mois] - capital_restant[mois] + 
                                     epargne_evolution[mois] + investissement_evolution[mois])
         

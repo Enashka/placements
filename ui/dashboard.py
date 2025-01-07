@@ -110,34 +110,34 @@ def scenario_simulation(properties, config):
         """, unsafe_allow_html=True)
         
         st.subheader("Simulation")
-        montant_total = st.slider("À investir (€)", 0, 300000, config.apport_total)
-        apport_immo = st.slider("Apport appartement (€)", 0, montant_total, int(montant_total * config.repartition_immobilier / 100))
-        horizon = st.slider("Horizon simulation (années)", 5, 30, config.horizon_simulation)
+        montant_total = st.number_input("À investir (€)", 0, 1000000, config.apport_total, step=1000)
+        apport_immo = st.number_input("Apport appartement (€)", 0, montant_total, int(montant_total * config.repartition_immobilier / 100), step=1000)
+        horizon = st.number_input("Horizon simulation (années)", 5, 30, config.horizon_simulation, step=1)
 
     with col2:
         st.subheader("Mensualités")
         # Calcul du montant du prêt basé sur le coût total
         montant_pret = cout_total - apport_immo
-        taux = st.slider("Taux crédit (%)", 0.0, 10.0, config.taux_credit)
-        duree = st.slider("Durée crédit (années)", 5, 25, config.duree_credit)
-        appreciation = st.slider("Valorisation annuelle (%)", -2.0, 5.0, config.evolution_immobilier)
+        taux = st.number_input("Taux crédit (%)", 0.0, 10.0, config.taux_credit, step=0.05, format="%.2f")
+        duree = st.number_input("Durée crédit (années)", 5, 25, config.duree_credit, step=1)
+        appreciation = st.number_input("Valorisation annuelle (%)", -2.0, 5.0, config.evolution_immobilier, step=0.1, format="%.1f")
 
     with col3:
         st.subheader("Épargne")
         # Calcul des montants
         montant_hors_immo = montant_total - apport_immo
-        repartition_epargne = st.slider("Part sécurisée (%)", 0, 100, 50)
+        repartition_epargne = st.number_input("Part sécurisée (%)", 0, 100, 50, step=5)
         
         montant_securise = montant_hors_immo * (repartition_epargne / 100)
         montant_dynamique = montant_hors_immo * (1 - repartition_epargne / 100)
         
-        rdt_securise = st.slider(
+        rdt_securise = st.number_input(
             "Rendement sécurisé (%)", 
-            0.0, 5.0, config.rendement_epargne
+            0.0, 5.0, config.rendement_epargne, step=0.1, format="%.1f"
         )
-        rdt_risque = st.slider(
+        rdt_risque = st.number_input(
             f"Rendement dynamique (%) - {montant_dynamique:,.0f}€", 
-            2.0, 12.0, config.rendement_investissement
+            2.0, 12.0, config.rendement_investissement, step=0.1, format="%.1f"
         )
     
     # Mise à jour de la configuration avec le coût total
