@@ -97,14 +97,14 @@ def scenario_simulation(properties, config):
 Prix: {properties[selected_property].prix_hors_honoraires:,.0f}€<br>
 Frais d'agence: {honoraires:,.0f}€ {frais_agence_note}<br>
 Notaire (8%): {frais_notaire:,.0f}€<br>
-<b>Coût du projet: {cout_total:,.0f}€</b>
+Coût du projet: {cout_total:,.0f}€
 </small>""", unsafe_allow_html=True)
 
     # Deuxième ligne avec 3 colonnes
     col1, col2, col3 = st.columns(3)
     
     with col2:
-        st.subheader("Crédit")
+        st.markdown('<p style="color: #ff4b4b; font-size: 1.25rem; font-weight: 600">Crédit</p>', unsafe_allow_html=True)
         # Calcul du montant du prêt basé sur le coût total
         montant_pret = cout_total - apport_immo
         taux = st.number_input("Taux crédit (%)", 0.0, 10.0, config.taux_credit, step=0.05, format="%.2f")
@@ -112,7 +112,7 @@ Notaire (8%): {frais_notaire:,.0f}€<br>
         appreciation = st.number_input("Valorisation annuelle (%)", -2.0, 5.0, config.evolution_immobilier, step=0.1, format="%.1f")
 
     with col3:
-        st.subheader("Épargne")
+        st.markdown('<p style="color: #ff4b4b; font-size: 1.25rem; font-weight: 600">Épargne</p>', unsafe_allow_html=True)
         # Calcul des montants
         montant_hors_immo = montant_total - apport_immo
         repartition_epargne = st.number_input("Part sécurisée (%)", 0, 100, 50, step=5)
@@ -167,10 +167,11 @@ Notaire (8%): {frais_notaire:,.0f}€<br>
 
         patrimoine_detail = f"""<small>
 
-<b>Épargne</b><br>
+Résultats à {horizon} ans:<br><br>
+<b style="color: #ff4b4b">Épargne</b><br>
 <span style="font-size: 1.5rem">{epargne_horizon:,.0f}€</span><br>
 
-<b>Immobilier</b><br>
+<b style="color: #ff4b4b">Immobilier</b><br>
 Bien évalué à:<br>
 <span style="font-size: 1.5rem">{valeur_bien_horizon:,.0f}€</span><br>
 Si revente<br>
@@ -187,8 +188,8 @@ Total revente:<br>
 <span style="font-size: 1.5rem">{total_revente:,.0f}€</span><br>
 Plus-value immobilière: {plus_value_immo:+,.0f}€<br><br>
 
-<b>Patrimoine total à {horizon} ans:</b><br>
-<span style="font-size: 1.5rem">{total_revente + epargne_horizon:,.0f}€</span></small>"""
+<b style="color: #ff4b4b">Patrimoine total:</b><br>
+<span style="font-size: 2.5rem">{total_revente + epargne_horizon:,.0f}€</span></small>"""
 
         st.markdown(patrimoine_detail, unsafe_allow_html=True)
     
@@ -208,7 +209,7 @@ Plus-value immobilière: {plus_value_immo:+,.0f}€<br><br>
         st.metric("Charges totales", f"{total_charges:.2f}€")
         charges_detail = f"""<div style="margin-top: -1rem">
         <small>
-        <b>(Prêt: {montant_pret:,.0f}€)</b><br>
+        (Prêt: {montant_pret:,.0f}€)<br>
         Mensualités: {mensualite_hors_assurance:.2f}€<br>
         Assurance prêt ({config.taux_assurance}%): {assurance_mensuelle:.2f}€<br>
         Copropriété: {'<span style="color: red">' if properties[selected_property].charges_mensuelles == 0 else ''}{properties[selected_property].charges_mensuelles:.2f}€{'</span>' if properties[selected_property].charges_mensuelles == 0 else ''}<br>
