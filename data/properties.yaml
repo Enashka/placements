@@ -22,6 +22,7 @@ properties:
         pourcentage: 0
       negociable: true
       raison: "déménagement contraint"
+      frais_agence_acquereur: false
     metros:
       - ligne: L13
         station: Garibaldi
@@ -72,6 +73,7 @@ properties:
       locatif:
         potentiel: 1184
         type: meublé
+      frais_agence_acquereur: true
     metros:
       - ligne: M7
         station: Crimée

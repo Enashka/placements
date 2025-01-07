@@ -24,6 +24,7 @@ class Property:
     metros: List[Metro]
     atouts: List[str]
     vigilance: List[str]
+    frais_agence_acquereur: bool  # True si les frais sont à la charge de l'acquéreur
 
     @classmethod
     def from_yaml(cls, property_id: str, data: Dict) -> 'Property':
@@ -50,7 +51,8 @@ class Property:
             ges=data['bien'].get('ges'),
             metros=metros,
             atouts=data['atouts'],
-            vigilance=data.get('vigilance', [])
+            vigilance=data.get('vigilance', []),
+            frais_agence_acquereur=data['prix'].get('frais_agence_acquereur', True)  # Par défaut à True
         )
 
     def cout_mensuel(self, montant_pret: float, taux: float, duree_annees: int) -> float:

@@ -69,6 +69,32 @@ def scenario_simulation(properties, config):
         format_func=lambda x: properties[x].adresse
     )
     
+    # Calcul et affichage des détails du projet
+    honoraires = properties[selected_property].prix - properties[selected_property].prix_hors_honoraires
+    
+    # Si les frais d'agence sont à la charge de l'acquéreur, ils sont soumis aux frais de notaire
+    if properties[selected_property].frais_agence_acquereur:
+        base_frais_notaire = properties[selected_property].prix
+        frais_notaire = base_frais_notaire * 0.08
+        cout_total = properties[selected_property].prix + frais_notaire
+        frais_agence_note = "(charge acquéreur)"
+    else:
+        base_frais_notaire = properties[selected_property].prix_hors_honoraires
+        frais_notaire = base_frais_notaire * 0.08
+        cout_total = properties[selected_property].prix + frais_notaire
+        frais_agence_note = "(en direct)" if honoraires == 0 else "(charge vendeur)"
+
+    st.markdown(f"""
+    <small>
+    Prix: {properties[selected_property].prix_hors_honoraires:,.0f}€<br>
+    Frais d'agence: {honoraires:,.0f}€ {frais_agence_note}<br>
+    Notaire (8%): {frais_notaire:,.0f}€<br>
+    <b>Coût du projet: {cout_total:,.0f}€</b>
+    </small>
+    """, unsafe_allow_html=True)
+
+    st.markdown("<br>", unsafe_allow_html=True)  # Espace entre les sections
+    
     # Paramètres de simulation
     col1, col2, col3 = st.columns(3)
     
@@ -170,11 +196,13 @@ def scenario_simulation(properties, config):
         
         # Calcul du rendement moyen de l'épargne sécurisée
         rendement_moyen = 0
-        if montant_securise > 0:
+        montant_total_epargne = montant_securise + montant_dynamique
+        if montant_total_epargne > 0:
             rendement_moyen = (
                 (livret_a * config.rendement_epargne + 
                  ldd * config.rendement_epargne + 
-                 compte_terme * (config.rendement_epargne - 2)) / montant_securise
+                 compte_terme * (config.rendement_epargne - 2) +
+                 montant_dynamique * config.rendement_investissement) / montant_total_epargne
             )
         
         st.metric("Rendement épargne moyen", f"{rendement_moyen:.2f}%")
