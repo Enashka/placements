@@ -62,58 +62,48 @@ def scenario_simulation(properties, config):
     """Interface de simulation des scénarios."""
     st.header("Simulation des Scénarios")
     
-    # Sélection du bien
-    selected_property = st.selectbox(
-        "Sélectionner un bien",
-        options=list(properties.keys()),
-        format_func=lambda x: properties[x].adresse
-    )
+    # Première ligne avec 2 colonnes
+    col_sim_top, col_select = st.columns([1, 2])
     
-    # Calcul et affichage des détails du projet
-    honoraires = properties[selected_property].prix - properties[selected_property].prix_hors_honoraires
-    
-    # Si les frais d'agence sont à la charge de l'acquéreur, ils sont soumis aux frais de notaire
-    if properties[selected_property].frais_agence_acquereur:
-        base_frais_notaire = properties[selected_property].prix
-        frais_notaire = base_frais_notaire * 0.08
-        cout_total = properties[selected_property].prix + frais_notaire
-        frais_agence_note = "(charge acquéreur)"
-    else:
-        base_frais_notaire = properties[selected_property].prix_hors_honoraires
-        frais_notaire = base_frais_notaire * 0.08
-        cout_total = properties[selected_property].prix + frais_notaire
-        frais_agence_note = "(en direct)" if honoraires == 0 else "(charge vendeur)"
-
-    st.markdown(f"""
-    <small>
-    Prix: {properties[selected_property].prix_hors_honoraires:,.0f}€<br>
-    Frais d'agence: {honoraires:,.0f}€ {frais_agence_note}<br>
-    Notaire (8%): {frais_notaire:,.0f}€<br>
-    <b>Coût du projet: {cout_total:,.0f}€</b>
-    </small>
-    """, unsafe_allow_html=True)
-
-    st.markdown("<br>", unsafe_allow_html=True)  # Espace entre les sections
-    
-    # Paramètres de simulation
-    col1, col2, col3 = st.columns(3)
-    
-    with col1:
-        st.markdown("""
-        <style>
-        div[data-testid="stHorizontalBlock"] > div:nth-child(1) {
-            background-color: rgb(38, 39, 48);
-            padding: 1rem;
-            border-radius: 0.5rem;
-        }
-        </style>
-        """, unsafe_allow_html=True)
-        
+    with col_sim_top:
         st.subheader("Simulation")
         montant_total = st.number_input("Total à investir (€)", 0, 1000000, config.apport_total, step=1000)
         apport_immo = st.number_input("Apport appartement (€)", 0, montant_total, int(montant_total * config.repartition_immobilier / 100), step=1000)
         horizon = st.number_input("Horizon simulation (années)", 5, 30, config.horizon_simulation, step=1)
 
+    with col_select:
+        # Sélection du bien
+        selected_property = st.selectbox(
+            "Sélectionner un bien",
+            options=list(properties.keys()),
+            format_func=lambda x: properties[x].adresse
+        )
+        
+        # Calcul et affichage des détails du projet
+        honoraires = properties[selected_property].prix - properties[selected_property].prix_hors_honoraires
+        
+        # Si les frais d'agence sont à la charge de l'acquéreur, ils sont soumis aux frais de notaire
+        if properties[selected_property].frais_agence_acquereur:
+            base_frais_notaire = properties[selected_property].prix
+            frais_notaire = base_frais_notaire * 0.08
+            cout_total = properties[selected_property].prix + frais_notaire
+            frais_agence_note = "(charge acquéreur)"
+        else:
+            base_frais_notaire = properties[selected_property].prix_hors_honoraires
+            frais_notaire = base_frais_notaire * 0.08
+            cout_total = properties[selected_property].prix + frais_notaire
+            frais_agence_note = "(en direct)" if honoraires == 0 else "(charge vendeur)"
+
+        st.markdown(f"""<small>
+Prix: {properties[selected_property].prix_hors_honoraires:,.0f}€<br>
+Frais d'agence: {honoraires:,.0f}€ {frais_agence_note}<br>
+Notaire (8%): {frais_notaire:,.0f}€<br>
+<b>Coût du projet: {cout_total:,.0f}€</b>
+</small>""", unsafe_allow_html=True)
+
+    # Deuxième ligne avec 3 colonnes
+    col1, col2, col3 = st.columns(3)
+    
     with col2:
         st.subheader("Crédit")
         # Calcul du montant du prêt basé sur le coût total
@@ -157,38 +147,41 @@ def scenario_simulation(properties, config):
     simulation = scenario.simulate_patrimoine()
     metrics = scenario.calculate_metrics()
     
-    # Affichage des métriques dans la colonne de gauche
     with col1:
-        # Récupération du capital restant à l'horizon
-        horizon_mois = config.horizon_simulation * 12
-        capital_restant_horizon = simulation['capital_restant'][horizon_mois]
-        
         st.markdown("""
         <style>
-        [data-testid="metric-container"] {
-            margin-top: -2rem;
+        div[data-testid="stHorizontalBlock"] > div:nth-child(1) {
+            background-color: rgb(38, 39, 48);
+            padding: 1rem;
+            border-radius: 0.5rem;
         }
         </style>
         """, unsafe_allow_html=True)
         
-        rendement_detail = f"""
-        <div style="margin-bottom: -2rem">
-        <small>
-        Patrimoine initial {metrics['patrimoine_initial']:,.0f}€<br>
-        Patrimoine à {config.horizon_simulation} ans
-        </small>
-        </div>
-        """
-        st.markdown(rendement_detail, unsafe_allow_html=True)
-        st.metric("", f"{metrics['patrimoine_final']:,.0f}€")
-        
-        if config.horizon_simulation < config.duree_credit:
-            st.markdown(f"""
-            <small>
-            <i>Capital restant dû: {capital_restant_horizon:,.0f}€</i><br>
-            <i style="color: orange">* Hors pénalités de remboursement anticipé (environ 3% du capital restant)</i>
-            </small>
-            """, unsafe_allow_html=True)
+        # Récupération des valeurs nécessaires
+        horizon_mois = horizon * 12
+        capital_restant_horizon = simulation['capital_restant'][horizon_mois]
+        valeur_bien_horizon = simulation['valeur_bien'][horizon_mois]
+        epargne_horizon = simulation['epargne'][horizon_mois] + simulation['investissement'][horizon_mois]
+        frais_agence_revente = valeur_bien_horizon * 0.05  # Estimation 5% frais d'agence à la revente
+        penalites = capital_restant_horizon * 0.03 if horizon < config.duree_credit else 0
+
+        patrimoine_detail = f"""<small>
+Patrimoine initial: {metrics['patrimoine_initial']:,.0f}€<br>
+Patrimoine à {horizon} ans<br>
+Épargne: {epargne_horizon:,.0f}€<br>
+Bien évalué à: {valeur_bien_horizon:,.0f}€<br>
+Si revente<br>
+"""
+        if horizon < config.duree_credit:
+            patrimoine_detail += f"""Capital restant dû: -{capital_restant_horizon:,.0f}€<br>
+Pénalités (3%): -{penalites:,.0f}€<br>
+"""
+        patrimoine_detail += f"""Frais d'agence (5%): -{frais_agence_revente:,.0f}€<br>
+Total: {valeur_bien_horizon - capital_restant_horizon - penalites - frais_agence_revente + epargne_horizon:,.0f}€<br>
+Plus-value: {(valeur_bien_horizon - capital_restant_horizon - penalites - frais_agence_revente + epargne_horizon) - metrics['patrimoine_initial']:+,.0f}€</small>"""
+
+        st.markdown(patrimoine_detail, unsafe_allow_html=True)
     
     # Affichage des charges dans la colonne du milieu
     with col2:
