@@ -159,14 +159,36 @@ def scenario_simulation(properties, config):
     
     # Affichage des métriques dans la colonne de gauche
     with col1:
+        # Récupération du capital restant à l'horizon
+        horizon_mois = config.horizon_simulation * 12
+        capital_restant_horizon = simulation['capital_restant'][horizon_mois]
+        
+        st.markdown("""
+        <style>
+        [data-testid="metric-container"] {
+            margin-top: -2rem;
+        }
+        </style>
+        """, unsafe_allow_html=True)
+        
         rendement_detail = f"""
+        <div style="margin-bottom: -2rem">
         <small>
-        Patrimoine initial: {metrics['patrimoine_initial']:,.0f}€<br>
-        Patrimoine à {config.horizon_simulation} ans:
+        Patrimoine initial {metrics['patrimoine_initial']:,.0f}€<br>
+        Patrimoine à {config.horizon_simulation} ans
         </small>
+        </div>
         """
         st.markdown(rendement_detail, unsafe_allow_html=True)
         st.metric("", f"{metrics['patrimoine_final']:,.0f}€")
+        
+        if config.horizon_simulation < config.duree_credit:
+            st.markdown(f"""
+            <small>
+            <i>Capital restant dû: {capital_restant_horizon:,.0f}€</i><br>
+            <i style="color: orange">* Hors pénalités de remboursement anticipé (environ 3% du capital restant)</i>
+            </small>
+            """, unsafe_allow_html=True)
     
     # Affichage des charges dans la colonne du milieu
     with col2:
