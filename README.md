@@ -30,7 +30,7 @@ pip install -r requirements.txt
 2. Configurer les scénarios dans `data/scenarios.yaml`
 3. Lancer l'interface :
 ```bash
-streamlit run ui/dashboard.py
+streamlit run ui/dashboard.py --server.runOnSave=true
 ```
 
 ## Fonctionnalités

@@ -35,6 +35,7 @@ def property_comparison(properties):
             'Prix': p.prix,
             'Prix/m²': p.prix_m2,
             'Charges': p.charges_mensuelles,
+            'Taxe Foncière': p.taxe_fonciere if p.taxe_fonciere else 0,
             'DPE': p.dpe,
             'Score Transport': p.score_transport()
         })
@@ -142,12 +143,19 @@ def scenario_simulation(properties, config):
     
     # Affichage des charges dans la colonne du milieu
     with col2:
-        st.metric("Charges totales", f"{metrics['charges_totales']:.2f}€")
+        # Calcul de vérification du total
+        total_charges = (metrics['mensualite_credit'] + 
+                        properties[selected_property].charges_mensuelles +
+                        (properties[selected_property].energie if properties[selected_property].energie else 0) +
+                        (properties[selected_property].taxe_fonciere/12 if properties[selected_property].taxe_fonciere else 0))
+        
+        st.metric("Charges totales", f"{total_charges:.2f}€")
         charges_detail = f"""
         <small>
         Crédit: {metrics['mensualite_credit']:.2f}€<br>
         Copropriété: {properties[selected_property].charges_mensuelles:.2f}€<br>
-        Énergie: {properties[selected_property].energie if properties[selected_property].energie else 0:.2f}€
+        Énergie: {properties[selected_property].energie if properties[selected_property].energie else 0:.2f}€<br>
+        Taxe foncière: {properties[selected_property].taxe_fonciere/12 if properties[selected_property].taxe_fonciere else 0:.2f}€ ({properties[selected_property].taxe_fonciere if properties[selected_property].taxe_fonciere else 0:.0f}€/an)
         </small>
         """
         st.markdown(charges_detail, unsafe_allow_html=True)

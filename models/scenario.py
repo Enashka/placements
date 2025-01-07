@@ -157,6 +157,8 @@ class Scenario:
         charges_totales = mensualite + self.property.charges_mensuelles
         if self.property.energie:
             charges_totales += self.property.energie
+        if self.property.taxe_fonciere:
+            charges_totales += self.property.taxe_fonciere / 12
             
         simulation = self.simulate_patrimoine()
         patrimoine_initial = simulation['patrimoine_total'][0]

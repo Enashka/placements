@@ -64,6 +64,8 @@ class Property:
         cout_total = mensualite + self.charges_mensuelles
         if self.energie:
             cout_total += self.energie
+        if self.taxe_fonciere:
+            cout_total += self.taxe_fonciere / 12
             
         return round(cout_total, 2)
 
