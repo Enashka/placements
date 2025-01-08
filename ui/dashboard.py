@@ -617,40 +617,69 @@ def property_details(properties):
 
 def display_property_details(property_data):
     """Affiche les détails d'un bien avec le style approprié."""
-    # Informations générales
-    st.markdown(f'<p style="color: gray;">ID:</p> {property_data.id}', unsafe_allow_html=True)
-    st.markdown(f'<p style="color: gray;">Adresse:</p> {property_data.adresse}', unsafe_allow_html=True)
-    st.markdown(f'<p style="color: gray;">Surface:</p> {property_data.surface} m²', unsafe_allow_html=True)
-    
-    # Prix et charges
-    st.markdown(f'<p style="color: gray;">Prix:</p> {property_data.prix:,.0f}€', unsafe_allow_html=True)
-    st.markdown(f'<p style="color: gray;">Prix/m²:</p> {property_data.prix_m2:,.0f}€', unsafe_allow_html=True)
-    st.markdown(f'<p style="color: gray;">Charges mensuelles:</p> {property_data.charges_mensuelles:,.0f}€', unsafe_allow_html=True)
-    
-    # DPE et GES
-    st.markdown(f'<p style="color: gray;">DPE:</p> {property_data.dpe if property_data.dpe else "Non spécifié"}', unsafe_allow_html=True)
-    st.markdown(f'<p style="color: gray;">GES:</p> {property_data.ges if property_data.ges else "Non spécifié"}', unsafe_allow_html=True)
-    
-    # Métros
-    st.markdown('<p style="color: gray;">Transports:</p>', unsafe_allow_html=True)
-    if property_data.metros:
-        for metro in property_data.metros:
-            st.markdown(f'• Ligne {metro.ligne} station {metro.station} à {metro.distance}m', unsafe_allow_html=True)
-    else:
-        st.markdown('<p style="color: gray;">Aucun transport renseigné</p>', unsafe_allow_html=True)
-    
-    # Atouts
-    st.markdown('<p style="color: gray;">Points forts:</p>', unsafe_allow_html=True)
-    for atout in property_data.atouts:
-        st.markdown(f'• {atout}', unsafe_allow_html=True)
-    
-    # Points de vigilance
-    st.markdown('<p style="color: gray;">Points de vigilance:</p>', unsafe_allow_html=True)
-    if property_data.vigilance:
-        for point in property_data.vigilance:
-            st.markdown(f'• {point}', unsafe_allow_html=True)
-    else:
-        st.markdown('<p style="color: gray;">Aucun point de vigilance signalé</p>', unsafe_allow_html=True)
+    # Style CSS pour le layout
+    st.markdown("""
+        <style>
+        .property-detail {
+            line-height: 1.5;
+        }
+        .property-label {
+            color: gray;
+            display: inline-block;
+            margin-right: 0.5rem;
+        }
+        .property-value {
+            display: inline-block;
+        }
+        .property-section {
+            margin-top: 1.5rem;
+        }
+        .section-title {
+            color: gray;
+            margin-bottom: 0.5rem;
+        }
+        </style>
+    """, unsafe_allow_html=True)
+
+    # Création de deux colonnes
+    col1, col2 = st.columns(2)
+
+    with col1:
+        # Informations générales
+        st.markdown('<div class="property-detail"><span class="property-label">ID:</span><span class="property-value">{}</span></div>'.format(property_data.id), unsafe_allow_html=True)
+        st.markdown('<div class="property-detail"><span class="property-label">Adresse:</span><span class="property-value">{}</span></div>'.format(property_data.adresse), unsafe_allow_html=True)
+        st.markdown('<div class="property-detail"><span class="property-label">Surface:</span><span class="property-value">{} m²</span></div>'.format(property_data.surface), unsafe_allow_html=True)
+        
+        # Prix et charges
+        st.markdown('<div class="property-detail"><span class="property-label">Prix:</span><span class="property-value">{:,.0f}€</span></div>'.format(property_data.prix), unsafe_allow_html=True)
+        st.markdown('<div class="property-detail"><span class="property-label">Prix/m²:</span><span class="property-value">{:,.0f}€</span></div>'.format(property_data.prix_m2), unsafe_allow_html=True)
+        st.markdown('<div class="property-detail"><span class="property-label">Charges mensuelles:</span><span class="property-value">{:,.0f}€</span></div>'.format(property_data.charges_mensuelles), unsafe_allow_html=True)
+        
+        # DPE et GES
+        st.markdown('<div class="property-detail"><span class="property-label">DPE:</span><span class="property-value">{}</span></div>'.format(property_data.dpe if property_data.dpe else "Non spécifié"), unsafe_allow_html=True)
+        st.markdown('<div class="property-detail"><span class="property-label">GES:</span><span class="property-value">{}</span></div>'.format(property_data.ges if property_data.ges else "Non spécifié"), unsafe_allow_html=True)
+        
+        # Métros
+        st.markdown('<div class="property-section"><div class="section-title">Transports:</div>', unsafe_allow_html=True)
+        if property_data.metros:
+            for metro in property_data.metros:
+                st.markdown(f'<div class="property-detail">• Ligne {metro.ligne} station {metro.station} à {metro.distance}m</div>', unsafe_allow_html=True)
+        else:
+            st.markdown('<div class="property-detail">Aucun transport renseigné</div>', unsafe_allow_html=True)
+
+    with col2:
+        # Points forts
+        st.markdown('<div class="property-detail"><span class="property-label">Points forts:</span></div>', unsafe_allow_html=True)
+        for atout in property_data.atouts:
+            st.markdown(f'<div class="property-detail">• {atout}</div>', unsafe_allow_html=True)
+        
+        # Points de vigilance
+        st.markdown('<div class="property-section"><div class="section-title">Points de vigilance:</div>', unsafe_allow_html=True)
+        if property_data.vigilance:
+            for point in property_data.vigilance:
+                st.markdown(f'<div class="property-detail">• {point}</div>', unsafe_allow_html=True)
+        else:
+            st.markdown('<div class="property-detail">Aucun point de vigilance signalé</div>', unsafe_allow_html=True)
 
 def main():
     st.title("Analyse Immobilière")
