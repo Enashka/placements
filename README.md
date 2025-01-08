@@ -16,72 +16,68 @@ source .venv/bin/activate  # Unix/MacOS
 ```bash
 pip install -r requirements.txt
 ```
+4. Configurer les variables d'environnement :
+   - Créer un fichier `.env` à la racine du projet
+   - Ajouter votre clé API OpenAI : `OPENAI_API_KEY=votre_clé_api`
 
 ## Structure du Projet
 
 ```
 ├── data/
-│   ├── properties.yaml      # Fiches des biens
-│   └── scenarios.yaml       # Configuration des scénarios
+│   ├── properties.json     # Base de données des biens
+│   ├── scenarios.yaml      # Configuration des scénarios
+│   └── renseignement-prompt.yaml  # Prompts pour l'API OpenAI
 ├── documentation/
-│   ├── doc.md              # Guide d'investissement
-│   ├── appartements.yaml   # Détails des biens
-│   └── ...                 # Autres documents de référence
+│   ├── doc.md             # Guide d'investissement
+│   └── ...                # Autres documents de référence
 ├── models/
-│   ├── property.py         # Classe Property
-│   └── scenario.py         # Classe Scenario
+│   ├── property.py        # Classe Property
+│   └── scenario.py        # Classe Scenario
 ├── ui/
-│   └── dashboard.py        # Interface Streamlit
+│   └── dashboard.py       # Interface Streamlit
 └── requirements.txt
 ```
 
 ## Utilisation
 
-1. Ajouter des biens dans `data/properties.yaml`
-2. Configurer les scénarios dans `data/scenarios.yaml`
-3. Lancer l'interface :
+1. Configurer les scénarios dans `data/scenarios.yaml`
+2. Lancer l'interface :
 ```bash
 streamlit run ui/dashboard.py --server.runOnSave=true
 ```
 
 ## Fonctionnalités
 
+### Gestion des Biens
+- Interface de gestion complète des biens immobiliers
+- Ajout de nouveaux biens via description en texte libre (utilisation de l'API OpenAI)
+- Modification et suppression des biens existants
+- Visualisation détaillée des caractéristiques de chaque bien
+
 ### Comparaison des Biens
-- Tableau comparatif
-- Visualisation radar des caractéristiques
+- Tableau comparatif des caractéristiques principales
+- Visualisation radar des points clés (prix/m², transport, DPE, atouts)
 - Score d'accessibilité des transports
 - Analyse des prix au m²
 
 ### Simulation Financière
 - Paramétrage de l'apport et sa répartition
-- Configuration du crédit
-- Projection du patrimoine
+- Configuration du crédit immobilier
+- Gestion de l'épargne (sécurisée et dynamique)
 - Calcul des mensualités et charges
+- Projection du patrimoine sur l'horizon choisi
 - Visualisation de l'évolution patrimoniale
 
 ## Configuration
 
-### Format des Biens (properties.yaml)
-```yaml
-properties:
-  id-bien:
-    adresse: ...
-    bien:
-      type: T2
-      surface: 47
-      etage: "1"
-      orientation: "est"
-      dpe: "C"
-      cave: true
-    prix:
-      annonce: 332000
-      hors_honoraires: 332000
-      m2: 7064
-    metros:
-      - ligne: M12
-        station: Station
-        distance: 350
-```
+### Format des Biens (properties.json)
+Les biens sont stockés au format JSON avec les informations suivantes :
+- Informations générales (adresse, surface, étage, etc.)
+- Prix et frais associés
+- Caractéristiques énergétiques (DPE, GES)
+- Transports à proximité
+- Charges et taxes
+- Points forts et points de vigilance
 
 ### Format des Scénarios (scenarios.yaml)
 ```yaml
@@ -97,21 +93,14 @@ scenarios:
     rendements:
       epargne_precaution: 3.0
       investissement_risque: 7.0
+      evolution_immobilier: 1.5
 ```
 
 ## Documentation
 
 Le dossier `documentation/` contient des ressources importantes :
 - `doc.md` : Guide complet sur les stratégies d'investissement
-- `appartements.yaml` : Fiches détaillées des biens
 - Autres documents de référence sur l'investissement immobilier
-
-## Tests
-
-Des tests unitaires sont disponibles et peuvent être exécutés avec :
-```bash
-pytest
-```
 
 ## Développement
 

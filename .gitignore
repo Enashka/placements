@@ -38,7 +38,16 @@ venv.bak/
 
 # Streamlit
 .streamlit/secrets.toml
+.streamlit/config.toml
 
 # Logs
 *.log
-logs/ .env
+logs/
+
+# Secrets et configurations locales
+*.pem
+*.key
+config.local.yaml
+.env.local
+.env.development
+.env.production
