@@ -796,7 +796,7 @@ def display_property_details(property_data):
                 st.markdown(f'<div class="property-detail">• {point}</div>', unsafe_allow_html=True)
 
 def main():
-    st.title("Analyse Immobilière")
+    st.title("Immo-Nico | Analyse immobilière")
     
     # Chargement des données
     properties, config = load_data()
