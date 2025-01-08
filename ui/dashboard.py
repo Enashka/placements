@@ -17,7 +17,7 @@ LDD_PLAFOND = 12000
 
 def load_data():
     """Charge les données des biens et la configuration."""
-    properties = Property.load_properties('data/properties.yaml')
+    properties = Property.load_properties('data/properties.json')
     config = ScenarioConfig.from_yaml('data/scenarios.yaml')
     return properties, config
 
@@ -60,7 +60,7 @@ def property_comparison(properties):
 
 def scenario_simulation(properties, config):
     """Interface de simulation des scénarios."""
-    st.header("Simulation des Scénarios")
+    st.markdown('<p style="color: #ff4b4b; font-size: 1.25rem; font-weight: 600">Simulation des Scénarios</p>', unsafe_allow_html=True)
     
     # Création des colonnes principales (1:2 ratio)
     col_gauche, col_droite = st.columns([1, 2])
@@ -88,9 +88,9 @@ def scenario_simulation(properties, config):
         # Affichage dans col_details
         with col_details:
             st.markdown(f"""<small>
-{properties[selected_property].surface}m² | Prix initial: {properties[selected_property].prix:,.0f}€<br>
-<span style="color: #666666">{properties[selected_property].prix_m2:,.0f}€/m²</span><br>
-Frais d'agence: {honoraires:,.0f}€ {frais_agence_note}
+<span style="color: #666666">Surface:</span> {properties[selected_property].surface}m² | <span style="color: #666666">Prix initial:</span> {properties[selected_property].prix:,.0f}€<br>
+<span style="color: #666666">Prix/m²:</span> {properties[selected_property].prix_m2:,.0f}€<br>
+<span style="color: #666666">Frais d'agence:</span> {honoraires:,.0f}€ {frais_agence_note}
 </small>""", unsafe_allow_html=True)
 
             # Ajout du champ de négociation
@@ -120,10 +120,10 @@ Frais d'agence: {honoraires:,.0f}€ {frais_agence_note}
         # Affichage dans col_negociation
         with col_negociation:
             st.markdown(f"""<small>
-Prix négocié: {prix_negocie:,.0f}€ <span style="color: {'#32CD32' if negociation > 0 else '#666666'}">(-{negociation}%)</span><br>
-<span style="color: #666666">{prix_m2_negocie:,.0f}€/m²</span><br>
-Notaire (8%): {frais_notaire:,.0f}€<br>
-<b>Coût total: {cout_total:,.0f}€</b>
+<span style="color: #666666">Prix négocié:</span> {prix_negocie:,.0f}€ <span style="color: {'#32CD32' if negociation > 0 else '#666666'}">(-{negociation}%)</span><br>
+<span style="color: #666666">Prix/m²:</span> {prix_m2_negocie:,.0f}€<br>
+<span style="color: #666666">Notaire (8%):</span> {frais_notaire:,.0f}€<br>
+<span style="color: #666666">Coût total:</span> <b>{cout_total:,.0f}€</b>
 </small>""", unsafe_allow_html=True)
 
     # Deuxième ligne avec 3 colonnes
@@ -157,15 +157,15 @@ Notaire (8%): {frais_notaire:,.0f}€<br>
 
         st.metric("Charges totales", f"{total_charges:.2f}€")
         charges_detail = f"""<div style="margin-top: -1rem">
-        <small>
-        (Prêt: {montant_pret:,.0f}€)<br>
-        Mensualités: {mensualite:.2f}€<br>
-        Assurance prêt ({config.taux_assurance}%): {assurance_mensuelle:.2f}€<br>
-        Copropriété: {'<span style="color: red">' if properties[selected_property].charges_mensuelles == 0 else ''}{properties[selected_property].charges_mensuelles:.2f}€{'</span>' if properties[selected_property].charges_mensuelles == 0 else ''}<br>
-        Énergie: {'<span style="color: red">' if not properties[selected_property].energie else ''}{properties[selected_property].energie if properties[selected_property].energie else 0:.2f}€{'</span>' if not properties[selected_property].energie else ''}<br>
-        Taxe foncière: {'<span style="color: red">' if not properties[selected_property].taxe_fonciere else ''}{properties[selected_property].taxe_fonciere/12 if properties[selected_property].taxe_fonciere else 0:.2f}€ ({properties[selected_property].taxe_fonciere if properties[selected_property].taxe_fonciere else 0:.0f}€/an){'</span>' if not properties[selected_property].taxe_fonciere else ''}
-        </small>
-        </div>"""
+<small>
+<span style="color: #666666">Prêt:</span> {montant_pret:,.0f}€<br>
+<span style="color: #666666">Mensualités:</span> {mensualite:.2f}€<br>
+<span style="color: #666666">Assurance prêt ({config.taux_assurance}%):</span> {assurance_mensuelle:.2f}€<br>
+<span style="color: #666666">Copropriété:</span> {'<span style="color: red">' if properties[selected_property].charges_mensuelles == 0 else ''}{properties[selected_property].charges_mensuelles:.2f}€{'</span>' if properties[selected_property].charges_mensuelles == 0 else ''}<br>
+<span style="color: #666666">Énergie:</span> {'<span style="color: red">' if not properties[selected_property].energie else ''}{properties[selected_property].energie if properties[selected_property].energie else 0:.2f}€{'</span>' if not properties[selected_property].energie else ''}<br>
+<span style="color: #666666">Taxe foncière:</span> {'<span style="color: red">' if not properties[selected_property].taxe_fonciere else ''}{properties[selected_property].taxe_fonciere/12 if properties[selected_property].taxe_fonciere else 0:.2f}€ ({properties[selected_property].taxe_fonciere if properties[selected_property].taxe_fonciere else 0:.0f}€/an){'</span>' if not properties[selected_property].taxe_fonciere else ''}
+</small>
+</div>"""
         st.markdown(charges_detail, unsafe_allow_html=True)
 
     with col_epargne:
@@ -219,9 +219,9 @@ Notaire (8%): {frais_notaire:,.0f}€<br>
 <span style="font-size: 1.5rem">{epargne_horizon:,.0f}€</span><br>
 
 <b style="color: #ff4b4b">Immobilier</b><br>
-Bien évalué à:<br>
+<span style="color: #666666">Bien évalué à:</span><br>
 <span style="font-size: 1.5rem">{valeur_bien_horizon:,.0f}€</span><br><br>
-Si revente<br>
+<span style="color: #666666">Si revente</span><br>
 """
         if horizon < config.duree_credit:
             patrimoine_detail += f"""<i style="color: #ff4b4b">Capital restant dû: -{capital_restant_horizon:,.0f}€<br>
@@ -230,10 +230,10 @@ Pénalités (3%): -{penalites:,.0f}€</i><br>
         total_revente = valeur_bien_horizon - capital_restant_horizon - penalites - frais_agence_revente
         plus_value_immo = total_revente - cout_total
 
-        patrimoine_detail += f"""Frais d'agence (5%): -{frais_agence_revente:,.0f}€<br>
-Total revente:<br>
+        patrimoine_detail += f"""<span style="color: #666666">Frais d'agence (5%):</span> -{frais_agence_revente:,.0f}€<br>
+<span style="color: #666666">Total revente:</span><br>
 <span style="font-size: 1.5rem">{total_revente:,.0f}€</span><br>
-Plus-value immobilière: {plus_value_immo:+,.0f}€<br><br>
+<span style="color: #666666">Plus-value immobilière:</span> {plus_value_immo:+,.0f}€<br><br>
 
 <b style="color: #ff4b4b">Patrimoine final:</b><br>
 <span style="font-size: 2.5rem">{total_revente + epargne_horizon:,.0f}€</span></small>"""
@@ -262,12 +262,12 @@ Plus-value immobilière: {plus_value_immo:+,.0f}€<br><br>
         st.metric("Rendement épargne moyen", f"{rendement_moyen:.2f}%")
         repartition_detail = f"""<div style="margin-top: -1rem">
 <small>
-Épargne sécurisée :<br>
-• Livret A ({config.rendement_epargne}%) : {livret_a:,.0f}€<br>
-• LDD ({config.rendement_epargne}%) : {ldd:,.0f}€<br>
-{f"• Compte à terme ({config.rendement_epargne-2}%) : {compte_terme:,.0f}€<br>" if compte_terme > 0 else ""}
-Épargne dynamique :<br>
-• PEA ({config.rendement_investissement}%) : {montant_dynamique:,.0f}€
+<span style="color: #666666">Épargne sécurisée :</span><br>
+• <span style="color: #666666">Livret A ({config.rendement_epargne}%) :</span> {livret_a:,.0f}€<br>
+• <span style="color: #666666">LDD ({config.rendement_epargne}%) :</span> {ldd:,.0f}€<br>
+{f"• <span style='color: #666666'>Compte à terme ({config.rendement_epargne-2}%) :</span> {compte_terme:,.0f}€<br>" if compte_terme > 0 else ""}
+<span style="color: #666666">Épargne dynamique :</span><br>
+• <span style="color: #666666">PEA ({config.rendement_investissement}%) :</span> {montant_dynamique:,.0f}€
 </small>
 </div>"""
         st.markdown(repartition_detail, unsafe_allow_html=True)
@@ -295,6 +295,79 @@ Plus-value immobilière: {plus_value_immo:+,.0f}€<br><br>
     
     st.plotly_chart(fig)
 
+def property_details(properties):
+    """Interface de gestion des biens."""
+    st.markdown('<p style="color: #ff4b4b; font-size: 2rem; font-weight: 600">Gestion des Biens</p>', unsafe_allow_html=True)
+    
+    # Menu de sélection avec option "Nouveau bien"
+    options = list(properties.keys())
+    options.insert(0, "nouveau_bien")  # Ajout de l'option "nouveau bien"
+    
+    selected_property = st.selectbox(
+        "Sélectionner un bien",
+        options=options,
+        format_func=lambda x: "Nouveau bien" if x == "nouveau_bien" else properties[x].adresse
+    )
+    
+    # Section Renseignements
+    st.markdown('<p style="color: #ff4b4b; font-size: 1.25rem; font-weight: 600">Renseignements</p>', unsafe_allow_html=True)
+    if selected_property == "nouveau_bien":
+        st.write("Entrez ci-dessous, même en vrac, les détails du bien")
+    else:
+        st.write("Pour modifier des détails, expliquez les changements ci-dessous")
+    
+    user_input = st.text_area(
+        "",
+        height=150,
+        help="Entrez les détails ou modifications du bien"
+    )
+    
+    # Section Détails du bien
+    st.markdown('<p style="color: #ff4b4b; font-size: 1.25rem; font-weight: 600">Détails du bien</p>', unsafe_allow_html=True)
+    if selected_property != "nouveau_bien":
+        prop = properties[selected_property]
+        
+        # Informations générales
+        col1, col2 = st.columns(2)
+        with col1:
+            st.markdown('<p style="color: #ff4b4b; font-weight: 600">Informations générales</p>', unsafe_allow_html=True)
+            st.markdown(f'<span style="color: #666666">ID:</span> {prop.id}', unsafe_allow_html=True)
+            st.markdown(f'<span style="color: #666666">Adresse:</span> {prop.adresse}', unsafe_allow_html=True)
+            st.markdown(f'<span style="color: #666666">Surface:</span> {prop.surface}m²', unsafe_allow_html=True)
+            st.markdown(f'<span style="color: #666666">Prix:</span> {prop.prix:,.0f}€', unsafe_allow_html=True)
+            st.markdown(f'<span style="color: #666666">Prix/m²:</span> {prop.prix_m2:,.0f}€', unsafe_allow_html=True)
+            
+        with col2:
+            st.markdown('<p style="color: #ff4b4b; font-weight: 600">Charges & Taxes</p>', unsafe_allow_html=True)
+            st.markdown(f'<span style="color: #666666">Charges mensuelles:</span> {prop.charges_mensuelles:,.0f}€', unsafe_allow_html=True)
+            st.markdown(f'<span style="color: #666666">Taxe foncière:</span> {prop.taxe_fonciere if prop.taxe_fonciere else "Non spécifié"}', unsafe_allow_html=True)
+            st.markdown(f'<span style="color: #666666">Énergie:</span> {prop.energie if prop.energie else "Non spécifié"}', unsafe_allow_html=True)
+            st.markdown(f'<span style="color: #666666">DPE:</span> {prop.dpe if prop.dpe else "Non spécifié"}', unsafe_allow_html=True)
+            st.markdown(f'<span style="color: #666666">GES:</span> {prop.ges if prop.ges else "Non spécifié"}', unsafe_allow_html=True)
+        
+        # Transports
+        st.markdown('<p style="color: #ff4b4b; font-weight: 600">Transports</p>', unsafe_allow_html=True)
+        if prop.metros:
+            for metro in prop.metros:
+                st.markdown(f'• Ligne {metro.ligne} station {metro.station} à {metro.distance}m', unsafe_allow_html=True)
+        else:
+            st.markdown('<span style="color: #666666">Aucun transport renseigné</span>', unsafe_allow_html=True)
+        
+        # Points forts et vigilance
+        col1, col2 = st.columns(2)
+        with col1:
+            st.markdown('<p style="color: #ff4b4b; font-weight: 600">Points forts</p>', unsafe_allow_html=True)
+            for atout in prop.atouts:
+                st.markdown(f'• {atout}', unsafe_allow_html=True)
+                
+        with col2:
+            st.markdown('<p style="color: #ff4b4b; font-weight: 600">Points de vigilance</p>', unsafe_allow_html=True)
+            if prop.vigilance:
+                for point in prop.vigilance:
+                    st.markdown(f'• {point}', unsafe_allow_html=True)
+            else:
+                st.markdown('<span style="color: #666666">Aucun point de vigilance signalé</span>', unsafe_allow_html=True)
+
 def main():
     st.title("Analyse Immobilière")
     
@@ -302,13 +375,13 @@ def main():
     properties, config = load_data()
     
     # Tabs pour la navigation
-    tab1, tab2 = st.tabs(["Simulation", "Comparaison des Biens"])
+    tab1, tab2 = st.tabs(["Simulation", "Biens"])
     
     with tab1:
         scenario_simulation(properties, config)
     
     with tab2:
-        property_comparison(properties)
+        property_details(properties)
 
 if __name__ == "__main__":
     main() 

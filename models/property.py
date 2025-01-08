@@ -1,6 +1,7 @@
 from dataclasses import dataclass
 from typing import List, Dict, Optional
-import yaml
+import json
+import re
 
 @dataclass
 class Metro:
@@ -26,9 +27,41 @@ class Property:
     vigilance: List[str]
     frais_agence_acquereur: bool  # True si les frais sont à la charge de l'acquéreur
 
+    @staticmethod
+    def generate_id(adresse: str, existing_ids: List[str]) -> str:
+        """Génère un ID unique basé sur l'adresse."""
+        # Extraction du code postal
+        cp_match = re.search(r'(?:75|93|94|92)\d{3}', adresse)
+        if not cp_match:
+            raise ValueError("L'adresse doit contenir un code postal valide (75XXX, 93XXX, 94XXX ou 92XXX)")
+        
+        cp = cp_match.group()
+        
+        # Détermination de la ville/arrondissement
+        if cp.startswith('75'):
+            ville = f"paris{cp[3:5]}"  # paris18, paris19, etc.
+        else:
+            # Extraction du nom de la ville avant le code postal
+            ville_match = re.search(r'(?:[\w-]+)[,\s]+(?:75|93|94|92)\d{3}', adresse)
+            if not ville_match:
+                raise ValueError("Impossible d'extraire le nom de la ville de l'adresse")
+            ville = ville_match.group().split(',')[0].strip().lower().replace(' ', '-')
+        
+        # Recherche du dernier numéro pour cette ville
+        ville_ids = [id for id in existing_ids if id.startswith(ville)]
+        if not ville_ids:
+            next_num = 1
+        else:
+            # Extraction des numéros existants
+            nums = [int(id.split('-')[-1]) for id in ville_ids]
+            next_num = max(nums) + 1
+        
+        # Création du nouvel ID
+        return f"{ville}-{next_num:03d}"
+
     @classmethod
-    def from_yaml(cls, property_id: str, data: Dict) -> 'Property':
-        """Crée une instance Property à partir des données YAML."""
+    def from_json(cls, property_id: str, data: Dict) -> 'Property':
+        """Crée une instance Property à partir des données JSON."""
         metros = [
             Metro(
                 ligne=m['ligne'],
@@ -89,13 +122,13 @@ class Property:
         return round(sum(scores) / len(scores), 2)
 
     @staticmethod
-    def load_properties(yaml_file: str) -> Dict[str, 'Property']:
-        """Charge tous les biens depuis un fichier YAML."""
-        with open(yaml_file, 'r') as f:
-            data = yaml.safe_load(f)
+    def load_properties(json_file: str) -> Dict[str, 'Property']:
+        """Charge tous les biens depuis un fichier JSON."""
+        with open(json_file, 'r') as f:
+            data = json.load(f)
         
         properties = {}
         for prop_id, prop_data in data['properties'].items():
-            properties[prop_id] = Property.from_yaml(prop_id, prop_data)
+            properties[prop_id] = Property.from_json(prop_id, prop_data)
         
         return properties 

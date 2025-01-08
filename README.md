@@ -1,4 +1,3 @@
-source .venv/bin/activate
 # Analyse Immobilière
 
 Outil d'analyse et de simulation pour l'investissement immobilier.
@@ -6,11 +5,17 @@ Outil d'analyse et de simulation pour l'investissement immobilier.
 ## Installation
 
 1. Cloner le repository
-2. Installer les dépendances :
+2. Créer et activer l'environnement virtuel :
+```bash
+python -m venv .venv
+source .venv/bin/activate  # Unix/MacOS
+# ou
+.venv\Scripts\activate  # Windows
+```
+3. Installer les dépendances :
 ```bash
 pip install -r requirements.txt
 ```
-
 
 ## Structure du Projet
 
@@ -18,6 +23,10 @@ pip install -r requirements.txt
 ├── data/
 │   ├── properties.yaml      # Fiches des biens
 │   └── scenarios.yaml       # Configuration des scénarios
+├── documentation/
+│   ├── doc.md              # Guide d'investissement
+│   ├── appartements.yaml   # Détails des biens
+│   └── ...                 # Autres documents de référence
 ├── models/
 │   ├── property.py         # Classe Property
 │   └── scenario.py         # Classe Scenario
@@ -60,7 +69,18 @@ properties:
     bien:
       type: T2
       surface: 47
-      ...
+      etage: "1"
+      orientation: "est"
+      dpe: "C"
+      cave: true
+    prix:
+      annonce: 332000
+      hors_honoraires: 332000
+      m2: 7064
+    metros:
+      - ligne: M12
+        station: Station
+        distance: 350
 ```
 
 ### Format des Scénarios (scenarios.yaml)
@@ -69,9 +89,28 @@ scenarios:
   default:
     apport:
       total: 200000
-      repartition:
-        immobilier: 70
-        ...
+      immobilier: 200000
+    credit:
+      taux: 3.32
+      duree: 20
+      assurance: 0.34
+    rendements:
+      epargne_precaution: 3.0
+      investissement_risque: 7.0
+```
+
+## Documentation
+
+Le dossier `documentation/` contient des ressources importantes :
+- `doc.md` : Guide complet sur les stratégies d'investissement
+- `appartements.yaml` : Fiches détaillées des biens
+- Autres documents de référence sur l'investissement immobilier
+
+## Tests
+
+Des tests unitaires sont disponibles et peuvent être exécutés avec :
+```bash
+pytest
 ```
 
 ## Développement
