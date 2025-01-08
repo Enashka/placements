@@ -1,3 +1,4 @@
+source .venv/bin/activate
 # Analyse Immobilière
 
 Outil d'analyse et de simulation pour l'investissement immobilier.
@@ -9,6 +10,7 @@ Outil d'analyse et de simulation pour l'investissement immobilier.
 ```bash
 pip install -r requirements.txt
 ```
+
 
 ## Structure du Projet
 
