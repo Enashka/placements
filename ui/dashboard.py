@@ -17,8 +17,19 @@ sys.path.append(str(Path(__file__).parent.parent))
 # Chargement des variables d'environnement
 load_dotenv()
 
+import streamlit as st
+
+# Vérification de la clé API
 if not os.getenv("OPENAI_API_KEY"):
-    raise ValueError("La clé API OpenAI n'est pas définie dans le fichier .env")
+    st.error("⚠️ La clé API OpenAI n'est pas configurée. Certaines fonctionnalités ne seront pas disponibles.")
+    st.info("Pour configurer la clé API OpenAI :")
+    st.markdown("""
+    1. Localement : Ajoutez votre clé dans le fichier `.env`
+    2. Sur Streamlit Cloud : Configurez la clé dans les paramètres de l'application (Settings > Secrets)
+    """)
+    if not st.session_state.get("acknowledged_missing_key"):
+        st.stop()
+    st.session_state.acknowledged_missing_key = True
 
 from models.property import Property
 from models.scenario import Scenario, ScenarioConfig
