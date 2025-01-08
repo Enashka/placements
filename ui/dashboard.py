@@ -356,12 +356,14 @@ def call_openai_api(text: str, existing_property=None):
                                 "properties": {
                                     # Copie du schéma de notre properties.json
                                     "adresse": {"type": "string"},
+                                    "lien_annonce": {"type": ["string", "null"]},
                                     "bien": {
                                         "type": "object",
                                         "properties": {
                                             "type": {"type": "string"},
                                             "surface": {"type": "number"},
                                             "etage": {"type": "string"},
+                                            "nb_pieces": {"type": ["integer", "null"]},
                                             "orientation": {"type": ["string", "null"]},
                                             "pieces": {
                                                 "type": "object",
@@ -478,6 +480,12 @@ def update_properties_json(new_property_data: dict, selected_id: str = None):
                 id="temp",
                 adresse=new_property_data['adresse'],
                 surface=new_property_data['bien']['surface'],
+                etage=new_property_data['bien']['etage'],
+                nb_pieces=new_property_data['bien'].get('nb_pieces'),
+                exposition=new_property_data['bien'].get('exposition'),
+                type_chauffage=new_property_data['bien'].get('type_chauffage'),
+                travaux=new_property_data['bien'].get('travaux'),
+                etat=new_property_data['bien'].get('etat'),
                 prix=new_property_data['prix']['annonce'],
                 prix_hors_honoraires=new_property_data['prix']['hors_honoraires'],
                 prix_m2=new_property_data['prix']['m2'],
@@ -486,10 +494,11 @@ def update_properties_json(new_property_data: dict, selected_id: str = None):
                 energie=new_property_data['charges']['energie'],
                 dpe=new_property_data['bien']['dpe'],
                 ges=new_property_data['bien']['ges'],
-                metros=[],  # Ces détails ne sont pas nécessaires pour la génération de l'ID
+                metros=[],
                 atouts=[],
                 vigilance=[],
-                frais_agence_acquereur=new_property_data['prix']['frais_agence_acquereur']
+                frais_agence_acquereur=new_property_data['prix']['frais_agence_acquereur'],
+                lien_annonce=new_property_data.get('lien_annonce')
             )
             
             new_id = Property.generate_id(new_property_data['adresse'], existing_ids)
@@ -507,13 +516,19 @@ def property_to_dict(property_obj):
     """Convertit un objet Property en dictionnaire compatible JSON."""
     return {
         "adresse": property_obj.adresse,
+        "lien_annonce": getattr(property_obj, 'lien_annonce', None),
         "bien": {
-            "type": property_obj.type if hasattr(property_obj, 'type') else "T2",  # valeur par défaut
+            "type": property_obj.type if hasattr(property_obj, 'type') else "T2",
             "surface": property_obj.surface,
             "etage": property_obj.etage if hasattr(property_obj, 'etage') else "0",
+            "nb_pieces": getattr(property_obj, 'nb_pieces', None),
+            "exposition": getattr(property_obj, 'exposition', None),
+            "type_chauffage": getattr(property_obj, 'type_chauffage', None),
+            "travaux": getattr(property_obj, 'travaux', None),
+            "etat": getattr(property_obj, 'etat', None),
             "orientation": property_obj.orientation if hasattr(property_obj, 'orientation') else None,
             "pieces": {
-                "sejour_cuisine": 0,  # valeurs par défaut
+                "sejour_cuisine": 0,
                 "chambre": 0
             },
             "dpe": property_obj.dpe,
@@ -543,11 +558,11 @@ def property_to_dict(property_obj):
             "chauffage": None
         },
         "copro": {
-            "lots": 0  # valeur par défaut
+            "lots": 0
         },
         "atouts": property_obj.atouts,
         "vigilance": property_obj.vigilance,
-        "contact": "direct propriétaire"  # valeur par défaut
+        "contact": "direct propriétaire"
     }
 
 def delete_property(property_id: str):
@@ -712,41 +727,60 @@ def display_property_details(property_data):
     col1, col2 = st.columns(2)
 
     with col1:
-        # Informations générales
+        # Champs essentiels (toujours affichés avec "Non spécifié" si absent)
         st.markdown('<div class="property-detail"><span class="property-label">ID:</span><span class="property-value">{}</span></div>'.format(property_data.id), unsafe_allow_html=True)
-        st.markdown('<div class="property-detail"><span class="property-label">Adresse:</span><span class="property-value">{}</span></div>'.format(property_data.adresse), unsafe_allow_html=True)
-        st.markdown('<div class="property-detail"><span class="property-label">Surface:</span><span class="property-value">{} m²</span></div>'.format(property_data.surface), unsafe_allow_html=True)
+        st.markdown('<div class="property-detail"><span class="property-label">Adresse:</span><span class="property-value">{}</span></div>'.format(getattr(property_data, 'adresse', 'Non spécifié')), unsafe_allow_html=True)
+        st.markdown('<div class="property-detail"><span class="property-label">Surface:</span><span class="property-value">{} m²</span></div>'.format(getattr(property_data, 'surface', 'Non spécifié')), unsafe_allow_html=True)
+        st.markdown('<div class="property-detail"><span class="property-label">Étage:</span><span class="property-value">{}</span></div>'.format(getattr(property_data, 'etage', 'Non spécifié')), unsafe_allow_html=True)
+        st.markdown('<div class="property-detail"><span class="property-label">Prix:</span><span class="property-value">{}</span></div>'.format(f"{property_data.prix:,.0f}€" if hasattr(property_data, 'prix') else 'Non spécifié'), unsafe_allow_html=True)
+        st.markdown('<div class="property-detail"><span class="property-label">Prix/m²:</span><span class="property-value">{}</span></div>'.format(f"{property_data.prix_m2:,.0f}€" if hasattr(property_data, 'prix_m2') else 'Non spécifié'), unsafe_allow_html=True)
+        st.markdown('<div class="property-detail"><span class="property-label">Charges mensuelles:</span><span class="property-value">{}</span></div>'.format(f"{property_data.charges_mensuelles:,.0f}€" if hasattr(property_data, 'charges_mensuelles') else 'Non spécifié'), unsafe_allow_html=True)
+        st.markdown('<div class="property-detail"><span class="property-label">Taxe foncière:</span><span class="property-value">{}</span></div>'.format(f"{property_data.taxe_fonciere:,.0f}€" if getattr(property_data, 'taxe_fonciere', None) else 'Non spécifié'), unsafe_allow_html=True)
+        st.markdown('<div class="property-detail"><span class="property-label">DPE:</span><span class="property-value">{}</span></div>'.format(property_data.dpe if property_data.dpe else 'Non spécifié'), unsafe_allow_html=True)
         
-        # Prix et charges
-        st.markdown('<div class="property-detail"><span class="property-label">Prix:</span><span class="property-value">{:,.0f}€</span></div>'.format(property_data.prix), unsafe_allow_html=True)
-        st.markdown('<div class="property-detail"><span class="property-label">Prix/m²:</span><span class="property-value">{:,.0f}€</span></div>'.format(property_data.prix_m2), unsafe_allow_html=True)
-        st.markdown('<div class="property-detail"><span class="property-label">Charges mensuelles:</span><span class="property-value">{:,.0f}€</span></div>'.format(property_data.charges_mensuelles), unsafe_allow_html=True)
+        # Champs optionnels (affichés uniquement si présents)
+        nb_pieces = getattr(property_data, 'nb_pieces', None)
+        if nb_pieces:
+            st.markdown('<div class="property-detail"><span class="property-label">Nombre de pièces:</span><span class="property-value">{}</span></div>'.format(nb_pieces), unsafe_allow_html=True)
         
-        # DPE et GES
-        st.markdown('<div class="property-detail"><span class="property-label">DPE:</span><span class="property-value">{}</span></div>'.format(property_data.dpe if property_data.dpe else "Non spécifié"), unsafe_allow_html=True)
-        st.markdown('<div class="property-detail"><span class="property-label">GES:</span><span class="property-value">{}</span></div>'.format(property_data.ges if property_data.ges else "Non spécifié"), unsafe_allow_html=True)
+        exposition = getattr(property_data, 'exposition', None)
+        if exposition:
+            st.markdown('<div class="property-detail"><span class="property-label">Exposition:</span><span class="property-value">{}</span></div>'.format(exposition), unsafe_allow_html=True)
         
-        # Métros
-        st.markdown('<div class="property-section"><div class="section-title">Transports:</div>', unsafe_allow_html=True)
+        type_chauffage = getattr(property_data, 'type_chauffage', None)
+        if type_chauffage:
+            st.markdown('<div class="property-detail"><span class="property-label">Type de chauffage:</span><span class="property-value">{}</span></div>'.format(type_chauffage), unsafe_allow_html=True)
+        
+        etat = getattr(property_data, 'etat', None)
+        if etat:
+            st.markdown('<div class="property-detail"><span class="property-label">État:</span><span class="property-value">{}</span></div>'.format(etat), unsafe_allow_html=True)
+        
+        travaux = getattr(property_data, 'travaux', None)
+        if travaux:
+            st.markdown('<div class="property-detail"><span class="property-label">Travaux:</span><span class="property-value">{}</span></div>'.format(travaux), unsafe_allow_html=True)
+        
+        lien = getattr(property_data, 'lien_annonce', None)
+        if lien:
+            st.markdown('<div class="property-detail"><span class="property-label">Lien:</span><span class="property-value"><a href="{}" target="_blank">Voir l\'annonce</a></span></div>'.format(lien), unsafe_allow_html=True)
+        
+        # Métros (affichés uniquement si présents)
         if property_data.metros:
+            st.markdown('<div class="property-section"><div class="section-title">Transports:</div>', unsafe_allow_html=True)
             for metro in property_data.metros:
                 st.markdown(f'<div class="property-detail">• Ligne {metro.ligne} station {metro.station} à {metro.distance}m</div>', unsafe_allow_html=True)
-        else:
-            st.markdown('<div class="property-detail">Aucun transport renseigné</div>', unsafe_allow_html=True)
 
     with col2:
-        # Points forts
-        st.markdown('<div class="property-detail"><span class="property-label">Points forts:</span></div>', unsafe_allow_html=True)
-        for atout in property_data.atouts:
-            st.markdown(f'<div class="property-detail">• {atout}</div>', unsafe_allow_html=True)
+        # Points forts (affichés uniquement si présents)
+        if property_data.atouts:
+            st.markdown('<div class="property-detail"><span class="property-label">Points forts:</span></div>', unsafe_allow_html=True)
+            for atout in property_data.atouts:
+                st.markdown(f'<div class="property-detail">• {atout}</div>', unsafe_allow_html=True)
         
-        # Points de vigilance
-        st.markdown('<div class="property-section"><div class="section-title">Points de vigilance:</div>', unsafe_allow_html=True)
+        # Points de vigilance (affichés uniquement si présents)
         if property_data.vigilance:
+            st.markdown('<div class="property-section"><div class="section-title">Points de vigilance:</div>', unsafe_allow_html=True)
             for point in property_data.vigilance:
                 st.markdown(f'<div class="property-detail">• {point}</div>', unsafe_allow_html=True)
-        else:
-            st.markdown('<div class="property-detail">Aucun point de vigilance signalé</div>', unsafe_allow_html=True)
 
 def main():
     st.title("Analyse Immobilière")

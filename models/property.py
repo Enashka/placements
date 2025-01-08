@@ -14,6 +14,12 @@ class Property:
     id: str
     adresse: str
     surface: float
+    etage: str
+    nb_pieces: Optional[int]
+    exposition: Optional[str]
+    type_chauffage: Optional[str]
+    travaux: Optional[str]
+    etat: Optional[str]
     prix: float
     prix_hors_honoraires: float
     prix_m2: float
@@ -25,7 +31,8 @@ class Property:
     metros: List[Metro]
     atouts: List[str]
     vigilance: List[str]
-    frais_agence_acquereur: bool  # True si les frais sont à la charge de l'acquéreur
+    frais_agence_acquereur: bool
+    lien_annonce: Optional[str]
 
     @staticmethod
     def generate_id(adresse: str, existing_ids: List[str]) -> str:
@@ -74,6 +81,12 @@ class Property:
             id=property_id,
             adresse=data['adresse'],
             surface=data['bien']['surface'],
+            etage=data['bien'].get('etage', 'Non spécifié'),
+            nb_pieces=data['bien'].get('nb_pieces'),
+            exposition=data['bien'].get('exposition'),
+            type_chauffage=data['bien'].get('type_chauffage'),
+            travaux=data['bien'].get('travaux'),
+            etat=data['bien'].get('etat'),
             prix=data['prix']['annonce'],
             prix_hors_honoraires=data['prix']['hors_honoraires'],
             prix_m2=data['prix']['m2'],
@@ -85,7 +98,8 @@ class Property:
             metros=metros,
             atouts=data['atouts'],
             vigilance=data.get('vigilance', []),
-            frais_agence_acquereur=data['prix'].get('frais_agence_acquereur', True)  # Par défaut à True
+            frais_agence_acquereur=data['prix'].get('frais_agence_acquereur', True),
+            lien_annonce=data.get('lien_annonce')
         )
 
     def cout_mensuel(self, montant_pret: float, taux: float, duree_annees: int) -> float:

@@ -1,22 +1,143 @@
 system: |
-  Vous êtes un assistant spécialisé dans l'extraction d'informations immobilières.
-  Votre tâche est d'analyser le texte fourni et d'en extraire toutes les informations pertinentes sur le bien immobilier.
-  Vous devez remplir tous les champs possibles en fonction des informations disponibles.
-  Si une information n'est pas mentionnée, utilisez null.
-  Pour les listes vides (atouts, vigilance, metros), utilisez [].
-  Les prix doivent être des nombres sans symboles ni espaces.
-  Les surfaces doivent être des nombres décimaux.
-  Vous devez répondre au format JSON.
-  
-update_prompt: |
-  Voici les détails actuels du bien : {existing_details}
-  
-  L'utilisateur souhaite mettre à jour ces informations avec le texte suivant : {user_input}
-  
-  Veuillez fournir une version mise à jour complète des détails du bien en conservant les informations existantes
-  qui ne sont pas modifiées par le nouveau texte.
+  Tu es un assistant spécialisé dans l'extraction d'informations immobilières à partir de texte.
+  Tu dois extraire les informations pertinentes et les structurer selon le format demandé.
+  Si une information n'est pas présente dans le texte, utilise null.
+  Pour les champs de type booléen, utilise false si l'information n'est pas mentionnée.
 
-new_prompt: |
-  Veuillez analyser le texte suivant et en extraire toutes les informations sur le bien immobilier : {user_input}
-  
-  Fournissez une description complète du bien en remplissant tous les champs possibles. 
+prompts:
+  update_property: |
+    Voici les détails actuels du bien immobilier :
+    {existing_property}
+
+    Voici de nouvelles informations sur ce bien :
+    {user_input}
+
+    Extrais les informations pertinentes et mets à jour les détails du bien.
+    Conserve les informations existantes si elles ne sont pas modifiées par le nouveau texte.
+
+  new_property: |
+    Voici les informations sur un nouveau bien immobilier :
+    {user_input}
+
+    Extrais les informations pertinentes pour créer une nouvelle fiche de bien.
+
+schema:
+  type: object
+  properties:
+    error:
+      type: string
+      description: Message d'erreur si l'extraction a échoué, null sinon
+    property:
+      type: object
+      properties:
+        adresse:
+          type: string
+          description: Adresse complète du bien
+        bien:
+          type: object
+          properties:
+            type:
+              type: string
+              description: Type de bien (T1, T2, T3, etc.)
+            surface:
+              type: number
+              description: Surface en m²
+            etage:
+              type: string
+              description: Étage du bien
+            nb_pieces:
+              type: integer
+              description: Nombre de pièces
+            exposition:
+              type: string
+              description: Exposition du bien (Nord, Sud, etc.)
+            type_chauffage:
+              type: string
+              description: Type de chauffage (individuel, collectif, électrique, gaz, etc.)
+            travaux:
+              type: string
+              description: Description des travaux récents ou prévus
+            etat:
+              type: string
+              description: État général du bien (Prêt à habiter, Rafraîchissement nécessaire, etc.)
+            orientation:
+              type: string
+              description: Orientation du bien
+            pieces:
+              type: object
+              properties:
+                sejour_cuisine:
+                  type: number
+                  description: Surface du séjour/cuisine en m²
+                chambre:
+                  type: number
+                  description: Surface de la chambre en m²
+            dpe:
+              type: string
+              description: Classe énergétique DPE
+            ges:
+              type: string
+              description: Classe GES
+            cave:
+              type: boolean
+              description: Présence d'une cave
+          required: [surface, etage]
+        prix:
+          type: object
+          properties:
+            annonce:
+              type: number
+              description: Prix annoncé
+            hors_honoraires:
+              type: number
+              description: Prix hors honoraires
+            m2:
+              type: number
+              description: Prix au m²
+            frais_agence_acquereur:
+              type: number
+              description: Frais d'agence acquéreur
+          required: [annonce]
+        charges:
+          type: object
+          properties:
+            mensuelles:
+              type: number
+              description: Charges mensuelles en euros
+            taxe_fonciere:
+              type: number
+              description: Taxe foncière annuelle en euros
+            energie:
+              type: number
+              description: Coût mensuel estimé de l'énergie
+          required: [mensuelles]
+        metros:
+          type: array
+          items:
+            type: object
+            properties:
+              ligne:
+                type: string
+                description: Numéro de la ligne de métro
+              station:
+                type: string
+                description: Nom de la station
+              distance:
+                type: number
+                description: Distance en mètres
+            required: [ligne, station]
+        atouts:
+          type: array
+          items:
+            type: string
+          description: Liste des points forts du bien
+        vigilance:
+          type: array
+          items:
+            type: string
+          description: Liste des points de vigilance
+        lien_annonce:
+          type: string
+          description: Lien vers l'annonce immobilière
+      required: [adresse, bien, prix, charges]
+  required: [error, property] 
