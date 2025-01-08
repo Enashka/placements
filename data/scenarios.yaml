@@ -6,7 +6,7 @@ scenarios:
       immobilier: 200000  # montant en euros pour l'apport appartement
     
     credit:
-      taux: 3.50  # pourcentage
+      taux: 3.32  # pourcentage
       duree: 20   # années
       assurance: 0.34  # pourcentage
 

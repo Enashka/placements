@@ -3,6 +3,59 @@
 # null est réservé aux champs texte ou catégories
 properties:
   #------------------------------------------
+  # PARIS 20 - T2 38.65m²
+  #------------------------------------------
+  paris20-2024-001:
+    adresse: 23 ter rue du Télégraphe, 75020 Paris
+    bien:
+      type: T2
+      surface: 38.65
+      etage: "1/5"
+      orientation: traversant
+      pieces:
+        sejour_cuisine: 0
+        chambre: 0
+      dpe: null
+      ges: null
+      cave: true
+    prix:
+      annonce: 345000
+      hors_honoraires: 345000
+      m2: 8926
+      honoraires:
+        montant: 0
+        pourcentage: 0
+      negociable: null
+      frais_agence_acquereur: false
+    metros:
+      - ligne: M11
+        station: Télégraphe
+        distance: 400
+    charges:
+      mensuelles: 0
+      taxe_fonciere: 0
+      energie: 0
+      chauffage: null
+    copro:
+      lots: 0
+    atouts:
+      - cuisine américaine
+      - très lumineux
+      - 4 fenêtres
+      - traversant
+      - placard entrée
+      - wc séparés
+      - cave 2m²
+      - rue calme
+      - vue jardin arboré
+      - proche commerces
+      - proche écoles
+      - proche crèche
+      - proche marchés
+    vigilance: []
+    contact: direct propriétaire
+
+  #------------------------------------------
   # SAINT-OUEN - T2 47m²
   #------------------------------------------
   saint-ouen-2024-001:

@@ -88,7 +88,8 @@ def scenario_simulation(properties, config):
         # Affichage dans col_details
         with col_details:
             st.markdown(f"""<small>
-Prix initial: {properties[selected_property].prix:,.0f}€<br>
+{properties[selected_property].surface}m² | Prix initial: {properties[selected_property].prix:,.0f}€<br>
+<span style="color: #666666">{properties[selected_property].prix_m2:,.0f}€/m²</span><br>
 Frais d'agence: {honoraires:,.0f}€ {frais_agence_note}
 </small>""", unsafe_allow_html=True)
 
@@ -103,6 +104,7 @@ Frais d'agence: {honoraires:,.0f}€ {frais_agence_note}
             )
         
         prix_negocie = properties[selected_property].prix * (1 - negociation/100)
+        prix_m2_negocie = prix_negocie / properties[selected_property].surface
         
         # Calcul des frais de notaire et du coût total
         if properties[selected_property].frais_agence_acquereur:
@@ -119,8 +121,9 @@ Frais d'agence: {honoraires:,.0f}€ {frais_agence_note}
         with col_negociation:
             st.markdown(f"""<small>
 Prix négocié: {prix_negocie:,.0f}€ <span style="color: {'#32CD32' if negociation > 0 else '#666666'}">(-{negociation}%)</span><br>
+<span style="color: #666666">{prix_m2_negocie:,.0f}€/m²</span><br>
 Notaire (8%): {frais_notaire:,.0f}€<br>
-<b>Coût total:<br><span style="font-size: 1.5rem">{cout_total:,.0f}€</span></b>
+<b>Coût total: {cout_total:,.0f}€</b>
 </small>""", unsafe_allow_html=True)
 
     # Deuxième ligne avec 3 colonnes
