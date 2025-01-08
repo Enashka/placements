@@ -100,13 +100,78 @@ class Property(BaseModel):
     @staticmethod
     def load_properties(json_file: str) -> Dict[str, 'Property']:
         """Charge tous les biens depuis un fichier JSON."""
-        with open(json_file, 'r') as f:
-            data = json.load(f)
-        
-        properties = {}
-        for prop_id, prop_data in data['properties'].items():
-            metros = [Metro(**m) for m in prop_data.get('metros', [])]
-            prop_data['metros'] = metros
-            properties[prop_id] = Property(id=prop_id, **prop_data)
-        
-        return properties 
+        try:
+            with open(json_file, 'r') as f:
+                data = json.load(f)
+            
+            if not isinstance(data, dict) or 'properties' not in data:
+                raise ValueError("Format JSON invalide: 'properties' manquant")
+            
+            properties = {}
+            for prop_id, prop_data in data['properties'].items():
+                try:
+                    # Vérification des clés requises
+                    if 'bien' not in prop_data:
+                        print(f"Erreur: 'bien' manquant pour {prop_id}")
+                        continue
+                    if 'prix' not in prop_data:
+                        print(f"Erreur: 'prix' manquant pour {prop_id}")
+                        continue
+                    if 'charges' not in prop_data:
+                        print(f"Erreur: 'charges' manquant pour {prop_id}")
+                        continue
+
+                    bien = prop_data['bien']
+                    prix = prop_data['prix']
+                    charges = prop_data['charges']
+
+                    # Construction du dictionnaire avec vérifications
+                    property_dict = {
+                        'id': prop_id,
+                        'adresse': prop_data.get('adresse', ''),
+                        'surface': float(bien.get('surface', 0)),
+                        'etage': str(bien.get('etage', '0')),
+                        'prix': float(prix.get('annonce', 0)),
+                        'prix_hors_honoraires': float(prix.get('hors_honoraires', 0)),
+                        'prix_m2': float(prix.get('m2', 0)),
+                        'charges_mensuelles': float(charges.get('mensuelles', 0)),
+                        'dpe': bien.get('dpe', 'NC'),
+                        'frais_agence_acquereur': bool(prix.get('frais_agence_acquereur', False)),
+                        # Champs optionnels
+                        'nb_pieces': None,
+                        'exposition': bien.get('orientation'),
+                        'type_chauffage': charges.get('chauffage'),
+                        'travaux': None,
+                        'etat': None,
+                        'taxe_fonciere': float(charges.get('taxe_fonciere', 0)) if charges.get('taxe_fonciere') is not None else None,
+                        'energie': float(charges.get('energie', 0)) if charges.get('energie') is not None else None,
+                        'ges': bien.get('ges'),
+                        'metros': [Metro(**m) for m in prop_data.get('metros', [])],
+                        'atouts': prop_data.get('atouts', []),
+                        'vigilance': prop_data.get('vigilance', []),
+                        'lien_annonce': None
+                    }
+
+                    # Debug: afficher les valeurs extraites
+                    print(f"\nDébug {prop_id}:")
+                    print(f"surface: {property_dict['surface']}")
+                    print(f"etage: {property_dict['etage']}")
+                    print(f"prix: {property_dict['prix']}")
+                    print(f"prix_hors_honoraires: {property_dict['prix_hors_honoraires']}")
+                    print(f"prix_m2: {property_dict['prix_m2']}")
+                    print(f"charges_mensuelles: {property_dict['charges_mensuelles']}")
+                    print(f"dpe: {property_dict['dpe']}")
+                    print(f"frais_agence_acquereur: {property_dict['frais_agence_acquereur']}")
+                    
+                    properties[prop_id] = Property(**property_dict)
+                    print(f"Bien {prop_id} chargé avec succès")
+                
+                except Exception as e:
+                    print(f"Erreur lors du chargement du bien {prop_id}: {str(e)}")
+                    continue
+            
+            return properties
+            
+        except Exception as e:
+            print(f"Erreur lors du chargement du fichier JSON: {str(e)}")
+            raise 
