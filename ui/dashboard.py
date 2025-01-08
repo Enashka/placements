@@ -470,14 +470,8 @@ def update_properties_json(new_property_data: dict, selected_id: str = None):
             data['properties'][selected_id] = new_property_data
         else:
             # Nouveau bien : générer un nouvel ID
-            # Charger tous les biens pour générer un ID unique
             properties = Property.load_properties('data/properties.json')
             existing_ids = list(properties.keys())
-            
-            # Extraire le code postal pour générer l'ID
-            cp_match = re.search(r'(?:75|93|94|92)\d{3}', new_property_data['adresse'])
-            if not cp_match:
-                raise ValueError("L'adresse doit contenir un code postal valide (75XXX, 93XXX, 94XXX ou 92XXX)")
             
             # Créer un Property temporaire pour utiliser generate_id
             temp_property = Property(
@@ -556,16 +550,89 @@ def property_to_dict(property_obj):
         "contact": "direct propriétaire"  # valeur par défaut
     }
 
+def delete_property(property_id: str):
+    """Supprime un bien du fichier properties.json."""
+    try:
+        with open('data/properties.json', 'r') as f:
+            data = json.load(f)
+        
+        if property_id in data['properties']:
+            del data['properties'][property_id]
+            
+            with open('data/properties.json', 'w', encoding='utf-8') as f:
+                json.dump(data, f, ensure_ascii=False, indent=2)
+            return True, None
+        else:
+            return False, "Bien non trouvé"
+    except Exception as e:
+        return False, str(e)
+
 def property_details(properties):
     """Interface pour la gestion des biens."""
     st.header("Gestion des Biens", divider="red")
     
-    # Sélection du bien
-    selected = st.selectbox(
-        "Sélectionner un bien",
-        ["nouveau bien"] + list(properties.keys()),
-        format_func=lambda x: f"{x} - {properties[x].adresse}" if x in properties else x
-    )
+    # Style CSS pour l'icône de suppression
+    st.markdown("""
+        <style>
+        .st-emotion-cache-1lkozj7 {
+            margin-top: 27px;
+        }
+        div[data-testid="column"]:nth-child(2) button {
+            color: #ff4b4b;
+            cursor: pointer;
+            font-size: 1.2rem;
+            padding: 0.5rem;
+            border-radius: 0.3rem;
+        }
+        div[data-testid="column"]:nth-child(2) button:hover {
+            background-color: rgba(255, 75, 75, 0.1);
+        }
+        </style>
+    """, unsafe_allow_html=True)
+    
+    # Création de colonnes pour le selectbox et l'icône de suppression
+    col_select, col_delete = st.columns([0.9, 0.1])
+    
+    with col_select:
+        # Sélection du bien
+        selected = st.selectbox(
+            "Sélectionner un bien",
+            ["nouveau bien"] + list(properties.keys()),
+            format_func=lambda x: f"{x} - {properties[x].adresse}" if x in properties else x
+        )
+    
+    with col_delete:
+        if selected != "nouveau bien":
+            if st.button("🗑️", key=f"delete_button_{selected}", help="Supprimer ce bien"):
+                # Création d'une clé unique pour le modal de confirmation
+                modal_key = f"delete_confirm_{selected}"
+                if modal_key not in st.session_state:
+                    st.session_state[modal_key] = False
+                
+                st.session_state[modal_key] = True
+    
+    # Affichage du modal de confirmation en dehors des colonnes
+    modal_key = f"delete_confirm_{selected}"
+    if modal_key in st.session_state and st.session_state[modal_key]:
+        st.markdown('<div style="display: flex; align-items: center; gap: 0.5rem; margin-top: 1rem;"><span style="color: #ffd700; font-size: 1.5rem;">⚠️</span><span style="font-size: 1.2rem;">Confirmation de suppression</span></div>', unsafe_allow_html=True)
+        st.markdown(f"Êtes-vous sûr de vouloir supprimer le bien **{selected}** ?")
+        
+        # Affichage des boutons côte à côte sans colonnes
+        c1, c2, c3, c4, c5 = st.columns([0.4, 0.1, 0.1, 0.1, 0.3])
+        with c2:
+            if st.button("Oui", type="primary", key=f"confirm_yes_{selected}"):
+                success, error = delete_property(selected)
+                if success:
+                    st.success("Bien supprimé avec succès!")
+                    st.session_state[modal_key] = False
+                    st.rerun()
+                else:
+                    st.error(f"Erreur lors de la suppression : {error}")
+        
+        with c3:
+            if st.button("Non", key=f"confirm_no_{selected}"):
+                st.session_state[modal_key] = False
+                st.rerun()
     
     # Section Renseignements
     st.subheader("Renseignements", divider="red")
