@@ -1,38 +1,36 @@
-from dataclasses import dataclass
+from pydantic import BaseModel, Field
 from typing import List, Dict, Optional
 import json
 import re
 
-@dataclass
-class Metro:
+class Metro(BaseModel):
     ligne: str
     station: str
-    distance: int  # en mètres
+    distance: int = Field(description="Distance en mètres")
 
-@dataclass
-class Property:
+class Property(BaseModel):
     id: str
     adresse: str
     surface: float
     etage: str
-    nb_pieces: Optional[int]
-    exposition: Optional[str]
-    type_chauffage: Optional[str]
-    travaux: Optional[str]
-    etat: Optional[str]
+    nb_pieces: Optional[int] = None
+    exposition: Optional[str] = None
+    type_chauffage: Optional[str] = None
+    travaux: Optional[str] = None
+    etat: Optional[str] = None
     prix: float
     prix_hors_honoraires: float
     prix_m2: float
     charges_mensuelles: float
-    taxe_fonciere: Optional[float]
-    energie: Optional[float]
+    taxe_fonciere: Optional[float] = None
+    energie: Optional[float] = None
     dpe: str
-    ges: Optional[str]
-    metros: List[Metro]
-    atouts: List[str]
-    vigilance: List[str]
+    ges: Optional[str] = None
+    metros: List[Metro] = []
+    atouts: List[str] = []
+    vigilance: List[str] = []
     frais_agence_acquereur: bool
-    lien_annonce: Optional[str]
+    lien_annonce: Optional[str] = None
 
     @staticmethod
     def generate_id(adresse: str, existing_ids: List[str]) -> str:
@@ -65,42 +63,6 @@ class Property:
         
         # Création du nouvel ID
         return f"{ville}-{next_num:03d}"
-
-    @classmethod
-    def from_json(cls, property_id: str, data: Dict) -> 'Property':
-        """Crée une instance Property à partir des données JSON."""
-        metros = [
-            Metro(
-                ligne=m['ligne'],
-                station=m['station'],
-                distance=m['distance']
-            ) for m in data['metros']
-        ]
-
-        return cls(
-            id=property_id,
-            adresse=data['adresse'],
-            surface=data['bien']['surface'],
-            etage=data['bien'].get('etage', 'Non spécifié'),
-            nb_pieces=data['bien'].get('nb_pieces'),
-            exposition=data['bien'].get('exposition'),
-            type_chauffage=data['bien'].get('type_chauffage'),
-            travaux=data['bien'].get('travaux'),
-            etat=data['bien'].get('etat'),
-            prix=data['prix']['annonce'],
-            prix_hors_honoraires=data['prix']['hors_honoraires'],
-            prix_m2=data['prix']['m2'],
-            charges_mensuelles=data['charges']['mensuelles'],
-            taxe_fonciere=data['charges'].get('taxe_fonciere'),
-            energie=data['charges'].get('energie'),
-            dpe=data['bien']['dpe'],
-            ges=data['bien'].get('ges'),
-            metros=metros,
-            atouts=data['atouts'],
-            vigilance=data.get('vigilance', []),
-            frais_agence_acquereur=data['prix'].get('frais_agence_acquereur', True),
-            lien_annonce=data.get('lien_annonce')
-        )
 
     def cout_mensuel(self, montant_pret: float, taux: float, duree_annees: int) -> float:
         """Calcule le coût mensuel total (crédit + charges)."""
@@ -143,6 +105,8 @@ class Property:
         
         properties = {}
         for prop_id, prop_data in data['properties'].items():
-            properties[prop_id] = Property.from_json(prop_id, prop_data)
+            metros = [Metro(**m) for m in prop_data.get('metros', [])]
+            prop_data['metros'] = metros
+            properties[prop_id] = Property(id=prop_id, **prop_data)
         
         return properties 

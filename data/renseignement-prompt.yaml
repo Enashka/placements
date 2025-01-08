@@ -1,8 +1,8 @@
 system: |
-  Tu es un assistant spécialisé dans l'extraction d'informations immobilières à partir de texte.
-  Tu dois extraire les informations pertinentes et les structurer selon le format demandé.
-  Si une information n'est pas présente dans le texte, utilise null.
-  Pour les champs de type booléen, utilise false si l'information n'est pas mentionnée.
+  Vous êtes un assistant spécialisé dans l'extraction d'informations immobilières à partir de texte et notamment d'annonces immobilières.
+  Vous devez extraire les informations pertinentes et les structurer selon le format demandé.
+  Si une information n'est pas présente dans le texte, utilisez null.
+  Pour les champs de type booléen, utilisez false si l'information n'est pas mentionnée.
 
 prompts:
   update_property: |
@@ -12,14 +12,14 @@ prompts:
     Voici de nouvelles informations sur ce bien :
     {user_input}
 
-    Extrais les informations pertinentes et mets à jour les détails du bien.
-    Conserve les informations existantes si elles ne sont pas modifiées par le nouveau texte.
+    Veuillez extraire les informations pertinentes et mettre à jour les détails du bien.
+    Conservez les informations existantes si elles ne sont pas modifiées par le nouveau texte.
 
   new_property: |
     Voici les informations sur un nouveau bien immobilier :
     {user_input}
 
-    Extrais les informations pertinentes pour créer une nouvelle fiche de bien.
+    Veuillez extraire les informations pertinentes pour créer une nouvelle fiche de bien.
 
 schema:
   type: object
@@ -30,87 +30,57 @@ schema:
     property:
       type: object
       properties:
+        id:
+          type: string
+          description: Identifiant unique du bien
         adresse:
           type: string
           description: Adresse complète du bien
-        bien:
-          type: object
-          properties:
-            type:
-              type: string
-              description: Type de bien (T1, T2, T3, etc.)
-            surface:
-              type: number
-              description: Surface en m²
-            etage:
-              type: string
-              description: Étage du bien
-            nb_pieces:
-              type: integer
-              description: Nombre de pièces
-            exposition:
-              type: string
-              description: Exposition du bien (Nord, Sud, etc.)
-            type_chauffage:
-              type: string
-              description: Type de chauffage (individuel, collectif, électrique, gaz, etc.)
-            travaux:
-              type: string
-              description: Description des travaux récents ou prévus
-            etat:
-              type: string
-              description: État général du bien (Prêt à habiter, Rafraîchissement nécessaire, etc.)
-            orientation:
-              type: string
-              description: Orientation du bien
-            pieces:
-              type: object
-              properties:
-                sejour_cuisine:
-                  type: number
-                  description: Surface du séjour/cuisine en m²
-                chambre:
-                  type: number
-                  description: Surface de la chambre en m²
-            dpe:
-              type: string
-              description: Classe énergétique DPE
-            ges:
-              type: string
-              description: Classe GES
-            cave:
-              type: boolean
-              description: Présence d'une cave
-          required: [surface, etage]
+        surface:
+          type: number
+          description: Surface en m²
+        etage:
+          type: string
+          description: Étage du bien
+        nb_pieces:
+          type: ["integer", "null"]
+          description: Nombre de pièces
+        exposition:
+          type: ["string", "null"]
+          description: Exposition du bien (Nord, Sud, etc.)
+        type_chauffage:
+          type: ["string", "null"]
+          description: Type de chauffage (individuel, collectif, électrique, gaz, etc.)
+        travaux:
+          type: ["string", "null"]
+          description: Description des travaux récents ou prévus
+        etat:
+          type: ["string", "null"]
+          description: État général du bien (Prêt à habiter, Rafraîchissement nécessaire, etc.)
         prix:
-          type: object
-          properties:
-            annonce:
-              type: number
-              description: Prix annoncé
-            hors_honoraires:
-              type: number
-              description: Prix hors honoraires
-            m2:
-              type: number
-              description: Prix au m²
-            frais_agence_acquereur:
-              type: number
-              description: Frais d'agence acquéreur
-          required: [annonce]
-        charges:
-          type: object
-          properties:
-            mensuelles:
-              type: number
-              description: Charges mensuelles en euros
-            taxe_fonciere:
-              type: number
-              description: Taxe foncière annuelle en euros
-            energie:
-              type: number
-              description: Coût mensuel estimé de l'énergie
-          required: [mensuelles]
+          type: number
+          description: Prix annoncé
+        prix_hors_honoraires:
+          type: number
+          description: Prix hors honoraires
+        prix_m2:
+          type: number
+          description: Prix au m²
+        charges_mensuelles:
+          type: number
+          description: Charges mensuelles en euros
+        taxe_fonciere:
+          type: ["number", "null"]
+          description: Taxe foncière annuelle en euros
+        energie:
+          type: ["number", "null"]
+          description: Coût mensuel estimé de l'énergie
+        dpe:
+          type: string
+          description: Classe énergétique DPE
+        ges:
+          type: ["string", "null"]
+          description: Classe GES
         metros:
           type: array
           items:
@@ -123,21 +93,33 @@ schema:
                 type: string
                 description: Nom de la station
               distance:
-                type: number
+                type: integer
                 description: Distance en mètres
-            required: [ligne, station]
+            required: ["ligne", "station", "distance"]
+          default: []
         atouts:
           type: array
           items:
             type: string
           description: Liste des points forts du bien
+          default: []
         vigilance:
           type: array
           items:
             type: string
           description: Liste des points de vigilance
+          default: []
+        frais_agence_acquereur:
+          type: boolean
+          description: Indique si les frais d'agence sont à la charge de l'acquéreur
         lien_annonce:
-          type: string
+          type: ["string", "null"]
           description: Lien vers l'annonce immobilière
-      required: [adresse, bien, prix, charges]
-  required: [error, property] 
+      required: [
+        "id", "adresse", "surface", "etage", "prix", 
+        "prix_hors_honoraires", "prix_m2", "charges_mensuelles",
+        "dpe", "frais_agence_acquereur"
+      ]
+      additionalProperties: false
+  required: ["error", "property"]
+  additionalProperties: false 
