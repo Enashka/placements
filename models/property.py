@@ -10,59 +10,47 @@ class Metro(BaseModel):
 
 class Property(BaseModel):
     id: str
-    adresse: str
-    surface: float
-    etage: str
+    adresse: Optional[str] = "NC"
+    surface: Optional[float] = None
+    etage: Optional[str] = "NC"
     nb_pieces: Optional[int] = None
+    prix: Optional[float] = None
+    prix_hors_honoraires: Optional[float] = None
+    prix_m2: Optional[float] = None
+    charges_mensuelles: Optional[float] = None
+    dpe: str = "NC"
+    
+    # Champs optionnels qui ne seront affichés que si présents
     exposition: Optional[str] = None
     type_chauffage: Optional[str] = None
     travaux: Optional[str] = None
     etat: Optional[str] = None
-    prix: float
-    prix_hors_honoraires: float
-    prix_m2: float
-    charges_mensuelles: float
     taxe_fonciere: Optional[float] = None
     energie: Optional[float] = None
-    dpe: str
     ges: Optional[str] = None
     metros: List[Metro] = []
     atouts: List[str] = []
     vigilance: List[str] = []
-    frais_agence_acquereur: bool
+    frais_agence_acquereur: bool = False
     lien_annonce: Optional[str] = None
 
     @staticmethod
     def generate_id(adresse: str, existing_ids: List[str]) -> str:
         """Génère un ID unique basé sur l'adresse."""
-        # Extraction du code postal
-        cp_match = re.search(r'(?:75|93|94|92)\d{3}', adresse)
-        if not cp_match:
-            raise ValueError("L'adresse doit contenir un code postal valide (75XXX, 93XXX, 94XXX ou 92XXX)")
+        # Simplification : utiliser les premiers caractères de l'adresse
+        base_id = "bien"
         
-        cp = cp_match.group()
-        
-        # Détermination de la ville/arrondissement
-        if cp.startswith('75'):
-            ville = f"paris{cp[3:5]}"  # paris18, paris19, etc.
-        else:
-            # Extraction du nom de la ville avant le code postal
-            ville_match = re.search(r'(?:[\w-]+)[,\s]+(?:75|93|94|92)\d{3}', adresse)
-            if not ville_match:
-                raise ValueError("Impossible d'extraire le nom de la ville de l'adresse")
-            ville = ville_match.group().split(',')[0].strip().lower().replace(' ', '-')
-        
-        # Recherche du dernier numéro pour cette ville
-        ville_ids = [id for id in existing_ids if id.startswith(ville)]
-        if not ville_ids:
+        # Recherche du dernier numéro pour cette base
+        matching_ids = [id for id in existing_ids if id.startswith(base_id)]
+        if not matching_ids:
             next_num = 1
         else:
             # Extraction des numéros existants
-            nums = [int(id.split('-')[-1]) for id in ville_ids]
+            nums = [int(id.split('-')[-1]) for id in matching_ids]
             next_num = max(nums) + 1
         
         # Création du nouvel ID
-        return f"{ville}-{next_num:03d}"
+        return f"{base_id}-{next_num:03d}"
 
     def cout_mensuel(self, montant_pret: float, taux: float, duree_annees: int) -> float:
         """Calcule le coût mensuel total (crédit + charges)."""
@@ -105,6 +93,19 @@ class Property(BaseModel):
         
         properties = {}
         for prop_id, prop_data in data['properties'].items():
+            # Conversion des distances en mètres
+            metros = []
+            for m in prop_data.get('metros', []):
+                # Si la distance est inférieure à 1, on considère que c'est en kilomètres
+                distance = m['distance']
+                if isinstance(distance, (int, float)) and distance < 1:
+                    distance = int(distance * 1000)  # Conversion en mètres
+                metros.append({
+                    'ligne': m['ligne'],
+                    'station': m['station'],
+                    'distance': distance
+                })
+            
             # Extraction des champs imbriqués
             property_dict = {
                 'id': prop_id,
@@ -115,8 +116,8 @@ class Property(BaseModel):
                 'prix_hors_honoraires': prop_data['prix']['hors_honoraires'],
                 'prix_m2': prop_data['prix']['m2'],
                 'charges_mensuelles': prop_data['charges']['mensuelles'],
-                'dpe': prop_data['bien']['dpe'] or "NC",  # Si dpe est null, on met "NC"
-                'frais_agence_acquereur': prop_data['prix']['frais_agence_acquereur'],
+                'dpe': prop_data['bien'].get('dpe', "NC"),
+                'frais_agence_acquereur': prop_data['prix'].get('frais_agence_acquereur', False),
                 # Champs optionnels
                 'nb_pieces': None,  # À calculer si nécessaire
                 'exposition': prop_data['bien'].get('orientation'),
@@ -126,12 +127,11 @@ class Property(BaseModel):
                 'taxe_fonciere': prop_data['charges'].get('taxe_fonciere'),
                 'energie': prop_data['charges'].get('energie'),
                 'ges': prop_data['bien'].get('ges'),
-                'metros': [Metro(**m) for m in prop_data.get('metros', [])],
+                'metros': [Metro(**m) for m in metros],
                 'atouts': prop_data.get('atouts', []),
                 'vigilance': prop_data.get('vigilance', []),
-                'lien_annonce': None  # Non présent dans le JSON
+                'lien_annonce': prop_data.get('lien_annonce')
             }
-            
             properties[prop_id] = Property(**property_dict)
         
         return properties 

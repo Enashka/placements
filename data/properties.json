@@ -1,246 +1,65 @@
 {
   "properties": {
-    "paris20-001": {
-      "adresse": "23 ter rue du Télégraphe, 75020 Paris",
+    "bien-001": {
+      "adresse": "118 avenue Gabriel Péri, Saint-Ouen-Sur-Seine (93400)",
+      "lien_annonce": null,
       "bien": {
         "type": "T2",
-        "surface": 38.65,
-        "etage": "1/5",
-        "orientation": "traversant",
+        "surface": 47.0,
+        "etage": null,
+        "nb_pieces": null,
+        "orientation": null,
         "pieces": {
-          "sejour_cuisine": 0,
-          "chambre": 0
+          "sejour_cuisine": null,
+          "chambre": null
         },
-        "dpe": null,
+        "dpe": "C",
         "ges": null,
         "cave": true
       },
       "prix": {
-        "annonce": 345000,
-        "hors_honoraires": 345000,
-        "m2": 8926,
+        "annonce": 332000.0,
+        "hors_honoraires": 332000.0,
+        "m2": 7064.0,
         "honoraires": {
-          "montant": 0,
-          "pourcentage": 0
-        },
-        "negociable": null,
-        "frais_agence_acquereur": false
-      },
-      "metros": [
-        {
-          "ligne": "M11",
-          "station": "Télégraphe",
-          "distance": 400
-        }
-      ],
-      "charges": {
-        "mensuelles": 0,
-        "taxe_fonciere": 0,
-        "energie": 0,
-        "chauffage": null
-      },
-      "copro": {
-        "lots": 0
-      },
-      "atouts": [
-        "cuisine américaine",
-        "très lumineux",
-        "4 fenêtres",
-        "traversant",
-        "placard entrée",
-        "wc séparés",
-        "cave 2m²",
-        "rue calme",
-        "vue jardin arboré",
-        "proche commerces",
-        "proche écoles",
-        "proche crèche",
-        "proche marchés"
-      ],
-      "vigilance": [],
-      "contact": "direct propriétaire"
-    },
-    "saint-ouen-001": {
-      "adresse": "118 Avenue Gabriel Peri, 93400 Saint-Ouen-Sur-Seine",
-      "bien": {
-        "type": "T2",
-        "surface": 50,
-        "etage": "0",
-        "orientation": null,
-        "pieces": {
-          "sejour_cuisine": 0,
-          "chambre": 0
-        },
-        "dpe": "A",
-        "ges": null,
-        "cave": false
-      },
-      "prix": {
-        "annonce": 332000,
-        "hors_honoraires": 332000,
-        "m2": 6640,
-        "honoraires": {
-          "montant": 0,
+          "montant": 0.0,
           "pourcentage": 0.0
         },
         "negociable": null,
         "frais_agence_acquereur": false
       },
+      "charges": {
+        "mensuelles": 164.0,
+        "taxe_fonciere": 665.0,
+        "energie": 68.0,
+        "chauffage": "électrique"
+      },
       "metros": [
         {
-          "ligne": "L13",
+          "ligne": "13",
           "station": "Garibaldi",
           "distance": 350
         },
         {
-          "ligne": "L14",
-          "station": "Saint-Ouen",
+          "ligne": "14",
+          "station": "St-Ouen",
           "distance": 900
         }
       ],
-      "charges": {
-        "mensuelles": 164,
-        "taxe_fonciere": 665,
-        "energie": 68,
-        "chauffage": null
-      },
-      "copro": {
-        "lots": 0
-      },
       "atouts": [
-        "parquet chêne massif",
-        "douche italienne",
+        "petite copropriété",
+        "salle d'eau avec douche à l'italienne",
         "cuisine équipée",
-        "calme (sur cour)",
+        "parquet en chêne massif",
         "poutres apparentes",
-        "potentiel T3"
+        "aucuns travaux à prévoir",
+        "tres bien agencé et posiblité d'amelioration"
       ],
       "vigilance": [
-        "cave en mauvais état",
-        "structure cave à vérifier"
-      ],
-      "contact": "direct propriétaire"
-    },
-    "paris18-001": {
-      "adresse": "10 rue Gustave Rouanet, 75018 Paris",
-      "bien": {
-        "type": "T2",
-        "surface": 36.01,
-        "etage": "4/6",
-        "orientation": "nord-sud",
-        "pieces": {
-          "sejour_cuisine": 0,
-          "chambre": 0
-        },
-        "dpe": "E",
-        "ges": "D",
-        "cave": false
-      },
-      "prix": {
-        "annonce": 330000,
-        "hors_honoraires": 330000,
-        "m2": 9164,
-        "honoraires": {
-          "montant": 0,
-          "pourcentage": 0
-        },
-        "negociable": null,
-        "frais_agence_acquereur": false
-      },
-      "metros": [],
-      "charges": {
-        "mensuelles": 193,
-        "taxe_fonciere": 870,
-        "energie": 0,
-        "chauffage": "inclus collectif"
-      },
-      "copro": {
-        "lots": 0
-      },
-      "atouts": [
-        "ascenseur",
-        "double vitrage",
-        "cuisine américaine",
-        "gardien",
-        "local vélos",
-        "quartier vivant",
-        "proche commerces"
-      ],
-      "vigilance": [],
-      "contact": "Casavo"
-    },
-    "paris18-002": {
-      "adresse": "62 rue Doudeauville, 75018 Paris",
-      "bien": {
-        "type": "T2",
-        "surface": 40,
-        "etage": "3",
-        "orientation": null,
-        "pieces": {
-          "sejour_cuisine": 20,
-          "chambre": 10
-        },
-        "dpe": null,
-        "ges": null,
-        "cave": true
-      },
-      "prix": {
-        "annonce": 339000,
-        "hors_honoraires": 339000,
-        "m2": 8475,
-        "honoraires": {
-          "montant": 0,
-          "pourcentage": 0
-        },
-        "negociable": null,
-        "frais_agence_acquereur": false
-      },
-      "metros": [
-        {
-          "ligne": "M12",
-          "station": "Marcadet-Poissonniers",
-          "distance": 0
-        },
-        {
-          "ligne": "M4",
-          "station": "Chateau Rouge",
-          "distance": 0
-        },
-        {
-          "ligne": "M12",
-          "station": "Marx Dormoy",
-          "distance": 0
-        }
-      ],
-      "charges": {
-        "mensuelles": 0,
-        "taxe_fonciere": 0,
-        "energie": 0,
-        "chauffage": "collectif sol + radiateurs"
-      },
-      "copro": {
-        "lots": 0
-      },
-      "atouts": [
-        "résidence de standing",
-        "gardien",
-        "fontaine et jardins intérieurs",
-        "cave saine",
-        "calme",
-        "lumineux",
-        "rue piétonne",
-        "cuisine équipée",
-        "double vitrage",
-        "volets roulants",
-        "dressing",
-        "douche italienne",
-        "toilettes séparés",
-        "parquet et tomettes",
-        "parking possible en sus",
-        "faible coût énergétique"
-      ],
-      "vigilance": [],
-      "contact": "particulier"
+        "cave pas très saine et peut presager des problès structurels",
+        "intervention de la police dans les parties communes selon dernier PV d'AG",
+        "propriétaires pressés de vendre pour cause familialles"
+      ]
     }
   }
 }
