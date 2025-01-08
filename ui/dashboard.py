@@ -65,6 +65,11 @@ def scenario_simulation(properties, config):
     # Création des colonnes principales (1:2 ratio)
     col_gauche, col_droite = st.columns([1, 2])
     
+    with col_gauche:
+        montant_total = st.number_input("Total à investir (€)", min_value=0, max_value=1000000, value=int(config.apport_total), step=1000)
+        apport_immo = st.number_input("Apport appartement (€)", min_value=0, max_value=1000000, value=int(config.apport_total * config.repartition_immobilier / 100), step=1000)
+        horizon = st.number_input("Horizon simulation (années)", 5, 30, config.horizon_simulation, step=1)
+
     with col_droite:
         # Sélection du bien
         selected_property = st.selectbox(
@@ -76,8 +81,18 @@ def scenario_simulation(properties, config):
         # Sous-colonnes pour détails et négociation
         col_details, col_negociation = st.columns(2)
         
-        with col_negociation:
-            # Ajout du slider pour la négociation
+        # Calculs communs
+        honoraires = properties[selected_property].prix - properties[selected_property].prix_hors_honoraires
+        frais_agence_note = "(en direct)" if honoraires == 0 else "(charge vendeur)"
+        
+        # Affichage dans col_details
+        with col_details:
+            st.markdown(f"""<small>
+Prix initial: {properties[selected_property].prix:,.0f}€<br>
+Frais d'agence: {honoraires:,.0f}€ {frais_agence_note}
+</small>""", unsafe_allow_html=True)
+
+            # Ajout du champ de négociation
             negociation = st.slider(
                 "Négociation (%)",
                 min_value=0,
@@ -87,8 +102,6 @@ def scenario_simulation(properties, config):
                 help="Pourcentage de remise négociée sur le prix"
             )
         
-        # Calculs communs
-        honoraires = properties[selected_property].prix - properties[selected_property].prix_hors_honoraires
         prix_negocie = properties[selected_property].prix * (1 - negociation/100)
         
         # Calcul des frais de notaire et du coût total
@@ -101,20 +114,13 @@ def scenario_simulation(properties, config):
             base_frais_notaire = properties[selected_property].prix_hors_honoraires * (1 - negociation/100)
             frais_notaire = base_frais_notaire * 0.08
             cout_total = prix_negocie + frais_notaire
-            frais_agence_note = "(en direct)" if honoraires == 0 else "(charge vendeur)"
-    
-    with col_gauche:
-        montant_total = st.number_input("Total à investir (€)", min_value=0, max_value=1000000, value=int(config.apport_total), step=1000)
-        apport_immo = st.number_input("Apport appartement (€)", min_value=0, max_value=int(cout_total), value=int(config.apport_total * config.repartition_immobilier / 100), step=1000)
-        horizon = st.number_input("Horizon simulation (années)", 5, 30, config.horizon_simulation, step=1)
 
-    with col_details:
-        st.markdown(f"""<small>
-Prix initial: {properties[selected_property].prix_hors_honoraires:,.0f}€<br>
-Frais d'agence: {honoraires:,.0f}€ {frais_agence_note}<br>
+        # Affichage dans col_negociation
+        with col_negociation:
+            st.markdown(f"""<small>
 Prix négocié: {prix_negocie:,.0f}€ <span style="color: {'#32CD32' if negociation > 0 else '#666666'}">(-{negociation}%)</span><br>
 Notaire (8%): {frais_notaire:,.0f}€<br>
-<b>Coût total: {cout_total:,.0f}€</b>
+<b>Coût total:<br><span style="font-size: 1.5rem">{cout_total:,.0f}€</span></b>
 </small>""", unsafe_allow_html=True)
 
     # Deuxième ligne avec 3 colonnes
@@ -219,7 +225,7 @@ Si revente<br>
 Pénalités (3%): -{penalites:,.0f}€</i><br>
 """
         total_revente = valeur_bien_horizon - capital_restant_horizon - penalites - frais_agence_revente
-        plus_value_immo = total_revente - properties[selected_property].prix
+        plus_value_immo = total_revente - cout_total
 
         patrimoine_detail += f"""Frais d'agence (5%): -{frais_agence_revente:,.0f}€<br>
 Total revente:<br>

@@ -1,5 +1,10 @@
 # Liste des biens immobiliers
+# Directive: utiliser 0 pour les valeurs numériques inconnues/non spécifiées (et non null)
+# null est réservé aux champs texte ou catégories
 properties:
+  #------------------------------------------
+  # SAINT-OUEN - T2 47m²
+  #------------------------------------------
   saint-ouen-2024-001:
     adresse: 118 Avenue Gabriel Peri, 93400 Saint-Ouen-Sur-Seine
     bien:
@@ -49,6 +54,9 @@ properties:
       - structure cave à vérifier
     contact: direct propriétaire
 
+  #------------------------------------------
+  # PARIS 19 - T2 37m²
+  #------------------------------------------
   paris19-2024-001:
     adresse: 4 rue Mathis, 75019 Paris
     bien:
@@ -94,3 +102,160 @@ properties:
       - bon potentiel locatif
     vigilance: []
     contact: agence (Aline 9h-19h) 
+
+  #------------------------------------------
+  # PARIS 18 - T2 36m²
+  #------------------------------------------
+  paris18-2024-001:
+    adresse: 10 rue Gustave Rouanet, 75018 Paris
+    bien:
+      type: T2
+      surface: 36.01
+      etage: "4/6"
+      orientation: nord-sud
+      pieces:
+        sejour_cuisine: 0
+        chambre: 0
+      dpe: E
+      ges: D
+      cave: false
+    prix:
+      annonce: 330000
+      hors_honoraires: 330000
+      m2: 9164
+      honoraires:
+        montant: 0
+        pourcentage: 0
+      negociable: null
+      frais_agence_acquereur: false
+    metros: []
+    charges:
+      mensuelles: 193
+      taxe_fonciere: 870
+      energie: 0
+      chauffage: inclus collectif
+    copro:
+      lots: 0
+    atouts:
+      - ascenseur
+      - double vitrage
+      - cuisine américaine
+      - gardien
+      - local vélos
+      - quartier vivant
+      - proche commerces
+    vigilance: []
+    contact: Casavo
+
+  #------------------------------------------
+  # PARIS 18 - T2 40m²
+  #------------------------------------------
+  paris18-2024-002:
+    adresse: 62 rue Doudeauville, 75018 Paris
+    bien:
+      type: T2
+      surface: 40
+      etage: "3"
+      orientation: null
+      pieces:
+        sejour_cuisine: 20
+        chambre: 10
+      dpe: null
+      ges: null
+      cave: true
+    prix:
+      annonce: 339000
+      hors_honoraires: 339000
+      m2: 8475
+      honoraires:
+        montant: 0
+        pourcentage: 0
+      negociable: null
+      frais_agence_acquereur: false
+    metros:
+      - ligne: M12
+        station: Marcadet-Poissonniers
+        distance: 0
+      - ligne: M4
+        station: Chateau Rouge
+        distance: 0
+      - ligne: M12
+        station: Marx Dormoy
+        distance: 0
+    charges:
+      mensuelles: 0
+      taxe_fonciere: 0
+      energie: 0
+      chauffage: collectif sol + radiateurs
+    copro:
+      lots: 0
+    atouts:
+      - résidence de standing
+      - gardien
+      - fontaine et jardins intérieurs
+      - cave saine
+      - calme
+      - lumineux
+      - rue piétonne
+      - cuisine équipée
+      - double vitrage
+      - volets roulants
+      - dressing
+      - douche italienne
+      - toilettes séparés
+      - parquet et tomettes
+      - parking possible en sus
+      - faible coût énergétique
+    vigilance: []
+    contact: particulier
+
+  #------------------------------------------
+  # SAINT-OUEN - T2 48m²
+  #------------------------------------------
+  saint-ouen-2024-002:
+    adresse: 9 rue Lise London, 93400 Saint-Ouen-Sur-Seine
+    bien:
+      type: T2
+      surface: 48
+      etage: "2"
+      orientation: null
+      pieces:
+        sejour_cuisine: 0
+        chambre: 0
+      dpe: null
+      ges: null
+      cave: false
+    prix:
+      annonce: 339000
+      hors_honoraires: 339000
+      m2: 6918
+      honoraires:
+        montant: 0
+        pourcentage: 0
+      negociable: null
+      frais_agence_acquereur: true
+    metros:
+      - ligne: L14
+        station: Saint-Ouen
+        distance: 0
+      - ligne: RER C
+        station: Saint-Ouen
+        distance: 0
+    charges:
+      mensuelles: 0
+      taxe_fonciere: 0
+      energie: 0
+      chauffage: null
+    copro:
+      lots: 0
+    atouts:
+      - immeuble récent (2011)
+      - sécurisé
+      - quartier des Docks
+      - vue dégagée
+      - balcon
+      - placard encastré
+      - cuisine ouverte
+      - proche commodités
+    vigilance: []
+    contact: Moriss Immobilier (exclusivité) 

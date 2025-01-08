@@ -21,16 +21,26 @@ class ScenarioConfig:
     evolution_charges: Dict[str, float]
 
     @classmethod
-    def from_yaml(cls, yaml_file: str) -> 'ScenarioConfig':
+    def from_yaml(cls, yaml_path):
         """Charge la configuration depuis un fichier YAML."""
-        with open(yaml_file, 'r') as f:
+        with open(yaml_path, 'r') as f:
             data = yaml.safe_load(f)['scenarios']['default']
+        
+        # Calcul du pourcentage d'apport immobilier
+        apport_total = data['apport']['total']
+        apport_immo = data['apport']['immobilier']
+        repartition_immo = (apport_immo / apport_total * 100) if apport_total > 0 else 0
+        
+        # Le reste est réparti également entre épargne et investissement
+        repartition_restante = 100 - repartition_immo
+        repartition_epargne = repartition_restante / 2
+        repartition_investissement = repartition_restante / 2
         
         return cls(
             apport_total=data['apport']['total'],
-            repartition_immobilier=data['apport']['repartition']['immobilier'],
-            repartition_epargne=data['apport']['repartition']['epargne_precaution'],
-            repartition_investissement=data['apport']['repartition']['investissement_risque'],
+            repartition_immobilier=repartition_immo,
+            repartition_epargne=repartition_epargne,
+            repartition_investissement=repartition_investissement,
             taux_credit=data['credit']['taux'],
             duree_credit=data['credit']['duree'],
             taux_assurance=data['credit']['assurance'],

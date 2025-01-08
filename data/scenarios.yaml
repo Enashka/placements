@@ -3,10 +3,7 @@ scenarios:
   default:
     apport:
       total: 200000
-      repartition:
-        immobilier: 70  # pourcentage
-        epargne_precaution: 15
-        investissement_risque: 15
+      immobilier: 200000  # montant en euros pour l'apport appartement
     
     credit:
       taux: 3.50  # pourcentage
@@ -19,7 +16,7 @@ scenarios:
       evolution_immobilier: 1.5  # Pourcentage annuel moyen
 
     parametres_simulation:
-      horizon: 10  # années
+      horizon: 20  # années
       inflation: 2.0  # pourcentage annuel
       frequence_calcul: "mensuelle"
       
