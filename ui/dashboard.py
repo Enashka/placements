@@ -465,6 +465,9 @@ Veuillez extraire les informations pertinentes pour créer une nouvelle fiche de
         elif "property" in result_dict:
             # Nouveau bien ou mise à jour réussie
             return True, json.dumps(result_dict)
+        elif result_dict.get("error"):
+            # Erreur retournée par l'API
+            return False, f"Erreur retournée par l'API : {result_dict['error']}"
         else:
             # Erreur ou données manquantes
             return False, "La réponse de l'API ne contient pas les informations du bien"
@@ -759,34 +762,140 @@ def display_property_details(property_data):
     col1, col2 = st.columns(2)
 
     with col1:
-        # Champs principaux (toujours affichés)
-        st.markdown('<div class="property-detail"><span class="property-label">ID:</span><span class="property-value">{}</span></div>'.format(property_data.id), unsafe_allow_html=True)
-        st.markdown('<div class="property-detail"><span class="property-label">Adresse:</span><span class="property-value">{}</span></div>'.format(property_data.adresse or "Non communiqué"), unsafe_allow_html=True)
-        st.markdown('<div class="property-detail"><span class="property-label">Surface:</span><span class="property-value">{}</span></div>'.format(f"{property_data.surface} m²" if property_data.surface else "Non communiqué"), unsafe_allow_html=True)
-        st.markdown('<div class="property-detail"><span class="property-label">Étage:</span><span class="property-value">{}</span></div>'.format(property_data.etage or "Non communiqué"), unsafe_allow_html=True)
-        st.markdown('<div class="property-detail"><span class="property-label">Nombre de pièces:</span><span class="property-value">{}</span></div>'.format(property_data.nb_pieces or "Non communiqué"), unsafe_allow_html=True)
-        st.markdown('<div class="property-detail"><span class="property-label">Prix:</span><span class="property-value">{}</span></div>'.format(f"{property_data.prix:,.0f}€" if property_data.prix else "Non communiqué"), unsafe_allow_html=True)
-        st.markdown('<div class="property-detail"><span class="property-label">Prix/m²:</span><span class="property-value">{}</span></div>'.format(f"{property_data.prix_m2:,.0f}€" if property_data.prix_m2 else "Non communiqué"), unsafe_allow_html=True)
-        st.markdown('<div class="property-detail"><span class="property-label">DPE:</span><span class="property-value">{}</span></div>'.format(property_data.dpe or "Non communiqué"), unsafe_allow_html=True)
+        # Informations générales
+        has_general_info = False
+        general_info = []
+
+        # ID est toujours présent
+        general_info.append(f'<div class="property-detail"><span class="property-label">ID:</span><span class="property-value">{property_data.id}</span></div>')
+        
+        if property_data.adresse:
+            has_general_info = True
+            general_info.append(f'<div class="property-detail"><span class="property-label">Adresse:</span><span class="property-value">{property_data.adresse}</span></div>')
+        
+        if property_data.surface:
+            has_general_info = True
+            general_info.append(f'<div class="property-detail"><span class="property-label">Surface:</span><span class="property-value">{property_data.surface} m²</span></div>')
+        
+        if property_data.etage:
+            has_general_info = True
+            general_info.append(f'<div class="property-detail"><span class="property-label">Étage:</span><span class="property-value">{property_data.etage}</span></div>')
+        
+        if property_data.nb_pieces and property_data.nb_pieces > 0:
+            has_general_info = True
+            general_info.append(f'<div class="property-detail"><span class="property-label">Nombre de pièces:</span><span class="property-value">{property_data.nb_pieces}</span></div>')
+        
+        if property_data.exposition:
+            has_general_info = True
+            general_info.append(f'<div class="property-detail"><span class="property-label">Orientation:</span><span class="property-value">{property_data.exposition}</span></div>')
+        
+        if getattr(property_data, 'cave', None) is not None:
+            has_general_info = True
+            general_info.append(f'<div class="property-detail"><span class="property-label">Cave:</span><span class="property-value">{"Oui" if property_data.cave else "Non"}</span></div>')
+
+        if has_general_info:
+            st.markdown('<div class="property-section"><div class="section-title">Informations générales</div>', unsafe_allow_html=True)
+            for info in general_info:
+                st.markdown(info, unsafe_allow_html=True)
+
+        # Prix et honoraires
+        has_price_info = False
+        price_info = []
+
+        if property_data.prix:
+            has_price_info = True
+            price_info.append(f'<div class="property-detail"><span class="property-label">Prix:</span><span class="property-value">{property_data.prix:,.0f}€</span></div>')
+        
+        if property_data.prix_hors_honoraires:
+            has_price_info = True
+            price_info.append(f'<div class="property-detail"><span class="property-label">Prix hors honoraires:</span><span class="property-value">{property_data.prix_hors_honoraires:,.0f}€</span></div>')
+        
+        if property_data.prix_m2:
+            has_price_info = True
+            price_info.append(f'<div class="property-detail"><span class="property-label">Prix/m²:</span><span class="property-value">{property_data.prix_m2:,.0f}€</span></div>')
+
+        if property_data.prix and property_data.prix_hors_honoraires:
+            honoraires = property_data.prix - property_data.prix_hors_honoraires
+            pourcentage = (honoraires / property_data.prix) * 100
+            if honoraires > 0:
+                has_price_info = True
+                price_info.append(f'<div class="property-detail"><span class="property-label">Honoraires:</span><span class="property-value">{honoraires:,.0f}€ ({pourcentage:.1f}%)</span></div>')
+
+        if has_price_info:
+            st.markdown('<div class="property-section"><div class="section-title">Prix et honoraires</div>', unsafe_allow_html=True)
+            for info in price_info:
+                st.markdown(info, unsafe_allow_html=True)
+
+        # Charges et énergie
+        has_charges_info = False
+        charges_info = []
+
+        if property_data.charges_mensuelles:
+            has_charges_info = True
+            charges_info.append(f'<div class="property-detail"><span class="property-label">Charges mensuelles:</span><span class="property-value">{property_data.charges_mensuelles:,.0f}€</span></div>')
+        
+        if property_data.energie:
+            has_charges_info = True
+            charges_info.append(f'<div class="property-detail"><span class="property-label">Électricité:</span><span class="property-value">{property_data.energie:,.0f}€</span></div>')
+        
+        if property_data.taxe_fonciere:
+            has_charges_info = True
+            charges_info.append(f'<div class="property-detail"><span class="property-label">Taxe foncière:</span><span class="property-value">{property_data.taxe_fonciere:,.0f}€</span></div>')
+        
+        if property_data.type_chauffage:
+            has_charges_info = True
+            charges_info.append(f'<div class="property-detail"><span class="property-label">Type de chauffage:</span><span class="property-value">{property_data.type_chauffage}</span></div>')
+
+        if has_charges_info:
+            st.markdown('<div class="property-section"><div class="section-title">Charges et énergie</div>', unsafe_allow_html=True)
+            for info in charges_info:
+                st.markdown(info, unsafe_allow_html=True)
+
+        # Performance énergétique
+        has_energy_info = False
+        energy_info = []
+
+        if property_data.dpe:
+            has_energy_info = True
+            energy_info.append(f'<div class="property-detail"><span class="property-label">DPE:</span><span class="property-value">{property_data.dpe}</span></div>')
+        
+        if property_data.ges:
+            has_energy_info = True
+            energy_info.append(f'<div class="property-detail"><span class="property-label">GES:</span><span class="property-value">{property_data.ges}</span></div>')
+
+        if has_energy_info:
+            st.markdown('<div class="property-section"><div class="section-title">Performance énergétique</div>', unsafe_allow_html=True)
+            for info in energy_info:
+                st.markdown(info, unsafe_allow_html=True)
+
+        # Transports
+        if property_data.metros:
+            st.markdown('<div class="property-section"><div class="section-title">Transports</div>', unsafe_allow_html=True)
+            for metro in property_data.metros:
+                if metro.ligne:
+                    if metro.distance:
+                        st.markdown(f'<div class="property-detail">• Ligne {metro.ligne} station {metro.station} à {metro.distance}m</div>', unsafe_allow_html=True)
+                    else:
+                        st.markdown(f'<div class="property-detail">• Ligne {metro.ligne} station {metro.station}</div>', unsafe_allow_html=True)
+                else:
+                    st.markdown(f'<div class="property-detail">• Station {metro.station}</div>', unsafe_allow_html=True)
 
     with col2:
-        # Points forts (affichés uniquement si présents)
+        # Lien de l'annonce
+        if property_data.lien_annonce:
+            st.markdown('<div class="property-detail"><a href="{}" target="_blank">Voir l\'annonce</a></div>'.format(property_data.lien_annonce), unsafe_allow_html=True)
+            
+        # Points forts
         if property_data.atouts:
-            st.markdown('<div class="property-detail"><span class="property-label">Points forts:</span></div>', unsafe_allow_html=True)
+            st.markdown('<div class="property-section"><div class="section-title">Points forts</div>', unsafe_allow_html=True)
             for atout in property_data.atouts:
                 st.markdown(f'<div class="property-detail">• {atout}</div>', unsafe_allow_html=True)
         
-        # Points de vigilance (affichés uniquement si présents)
+        # Points de vigilance
         if property_data.vigilance:
-            st.markdown('<div class="property-section"><div class="section-title">Points de vigilance:</div>', unsafe_allow_html=True)
+            st.markdown('<div class="property-section"><div class="section-title">Points de vigilance</div>', unsafe_allow_html=True)
             for point in property_data.vigilance:
                 st.markdown(f'<div class="property-detail">• {point}</div>', unsafe_allow_html=True)
-
-        # Métros (affichés uniquement si présents)
-        if property_data.metros:
-            st.markdown('<div class="property-section"><div class="section-title">Transports:</div>', unsafe_allow_html=True)
-            for metro in property_data.metros:
-                st.markdown(f'<div class="property-detail">• Ligne {metro.ligne} station {metro.station} à {metro.distance}m</div>', unsafe_allow_html=True)
 
 def main():
     st.title("Immo-Nico | Analyse immobilière")

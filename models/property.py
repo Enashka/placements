@@ -4,9 +4,17 @@ import json
 import re
 
 class Metro(BaseModel):
-    ligne: str
-    station: str
-    distance: int = Field(description="Distance en mètres")
+    ligne: Optional[str] = "NC"
+    station: Optional[str] = "NC"
+    distance: Optional[int] = None
+
+    def __str__(self):
+        if not self.ligne:
+            return f"Station {self.station}"
+        elif self.distance:
+            return f"Ligne {self.ligne} station {self.station} à {self.distance}m"
+        else:
+            return f"Ligne {self.ligne} station {self.station}"
 
 class Property(BaseModel):
     id: str
@@ -119,7 +127,7 @@ class Property(BaseModel):
                 'dpe': prop_data['bien'].get('dpe', "NC"),
                 'frais_agence_acquereur': prop_data['prix'].get('frais_agence_acquereur', False),
                 # Champs optionnels
-                'nb_pieces': None,  # À calculer si nécessaire
+                'nb_pieces': prop_data['bien'].get('nb_pieces'),
                 'exposition': prop_data['bien'].get('orientation'),
                 'type_chauffage': prop_data['charges'].get('chauffage'),
                 'travaux': None,  # Non présent dans le JSON

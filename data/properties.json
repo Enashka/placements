@@ -2,12 +2,12 @@
   "properties": {
     "bien-001": {
       "adresse": "118 avenue Gabriel Péri, Saint-Ouen-Sur-Seine (93400)",
-      "lien_annonce": null,
+      "lien_annonce": "https://www.pap.fr/annonces/appartement-saint-ouen-sur-seine-93400-r455702902",
       "bien": {
         "type": "T2",
         "surface": 47.0,
-        "etage": null,
-        "nb_pieces": null,
+        "etage": "1er étage",
+        "nb_pieces": 2,
         "orientation": null,
         "pieces": {
           "sejour_cuisine": null,
@@ -15,7 +15,7 @@
         },
         "dpe": "C",
         "ges": null,
-        "cave": true
+        "cave": false
       },
       "prix": {
         "annonce": 332000.0,
@@ -53,12 +53,66 @@
         "parquet en chêne massif",
         "poutres apparentes",
         "aucuns travaux à prévoir",
-        "tres bien agencé et posiblité d'amelioration"
+        "tres bien agencé et posiblité d'amelioration",
+        "propriétaires pressés de vendre pour cause familialles"
       ],
       "vigilance": [
         "cave pas très saine et peut presager des problès structurels",
-        "intervention de la police dans les parties communes selon dernier PV d'AG",
-        "propriétaires pressés de vendre pour cause familialles"
+        "intervention de la police dans les parties communes selon dernier PV d'AG"
+      ]
+    },
+    "bien-002": {
+      "adresse": "89 rue des Poissonniers, Paris 18e (75018)",
+      "lien_annonce": "https://www.jinka.fr/alert_result?token=bc7c0db67b5963e51b937493d9ff841c&ad=61698430&from=jinka_share",
+      "bien": {
+        "type": "T2",
+        "surface": 37,
+        "etage": "1er étage",
+        "nb_pieces": 2,
+        "orientation": null,
+        "pieces": {
+          "sejour_cuisine": null,
+          "chambre": null
+        },
+        "dpe": "E",
+        "ges": "E",
+        "cave": false
+      },
+      "prix": {
+        "annonce": 345000,
+        "hors_honoraires": null,
+        "m2": 9324,
+        "honoraires": {
+          "montant": null,
+          "pourcentage": null
+        },
+        "negociable": null,
+        "frais_agence_acquereur": false
+      },
+      "charges": {
+        "mensuelles": null,
+        "taxe_fonciere": null,
+        "energie": null,
+        "chauffage": null
+      },
+      "metros": [
+        {
+          "ligne": null,
+          "station": "Marcadet",
+          "distance": null
+        }
+      ],
+      "atouts": [
+        "calme",
+        "lumineux",
+        "belle vue",
+        "cadre bucolique",
+        "très bien agencé",
+        "Petit cour interieure très sympa"
+      ],
+      "vigilance": [
+        "Un peu de travaux (étagères à CD enlever)",
+        "Quartier pas top"
       ]
     }
   }
