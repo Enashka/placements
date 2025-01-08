@@ -4,9 +4,21 @@ import plotly.graph_objects as go
 import pandas as pd
 from pathlib import Path
 import sys
+import yaml
+import json
+import os
+from openai import OpenAI
+from dotenv import load_dotenv
+import re
 
 # Ajout du répertoire parent au path pour l'import des modules
 sys.path.append(str(Path(__file__).parent.parent))
+
+# Chargement des variables d'environnement
+load_dotenv()
+
+if not os.getenv("OPENAI_API_KEY"):
+    raise ValueError("La clé API OpenAI n'est pas définie dans le fichier .env")
 
 from models.property import Property
 from models.scenario import Scenario, ScenarioConfig
@@ -295,78 +307,350 @@ Pénalités (3%): -{penalites:,.0f}€</i><br>
     
     st.plotly_chart(fig)
 
+def load_prompts():
+    """Charge les prompts depuis le fichier YAML."""
+    with open("data/renseignement-prompt.yaml", "r") as f:
+        return yaml.safe_load(f)
+
+def call_openai_api(text: str, existing_property=None):
+    """Appelle l'API OpenAI pour extraire les informations du bien."""
+    try:
+        # Initialisation du client avec la clé API chargée depuis .env
+        client = OpenAI()  # La clé sera automatiquement chargée depuis la variable d'environnement
+        prompts = load_prompts()
+
+        # Prépare les messages pour l'API
+        messages = [
+            {"role": "system", "content": prompts["system"]}
+        ]
+
+        if existing_property:
+            # Cas de mise à jour
+            prompt = prompts["update_prompt"].format(
+                existing_details=json.dumps(existing_property, ensure_ascii=False, indent=2),
+                user_input=text
+            )
+        else:
+            # Nouveau bien
+            prompt = prompts["new_prompt"].format(user_input=text)
+
+        messages.append({"role": "user", "content": prompt})
+
+        # Appel à l'API avec Structured Output
+        response = client.chat.completions.create(
+            model="gpt-4o-mini",
+            messages=messages,
+            response_format={
+                "type": "json_schema",
+                "json_schema": {
+                    "name": "property_schema",
+                    "schema": {
+                        "type": "object",
+                        "properties": {
+                            "error": {
+                                "type": "string",
+                                "description": "Message d'erreur si les informations sont insuffisantes"
+                            },
+                            "property": {
+                                "type": "object",
+                                "properties": {
+                                    # Copie du schéma de notre properties.json
+                                    "adresse": {"type": "string"},
+                                    "bien": {
+                                        "type": "object",
+                                        "properties": {
+                                            "type": {"type": "string"},
+                                            "surface": {"type": "number"},
+                                            "etage": {"type": "string"},
+                                            "orientation": {"type": ["string", "null"]},
+                                            "pieces": {
+                                                "type": "object",
+                                                "properties": {
+                                                    "sejour_cuisine": {"type": ["number", "null"]},
+                                                    "chambre": {"type": ["number", "null"]}
+                                                },
+                                                "required": ["sejour_cuisine", "chambre"],
+                                                "additionalProperties": False
+                                            },
+                                            "dpe": {"type": ["string", "null"]},
+                                            "ges": {"type": ["string", "null"]},
+                                            "cave": {"type": "boolean"}
+                                        },
+                                        "required": ["type", "surface", "etage", "orientation", "pieces", "dpe", "ges", "cave"],
+                                        "additionalProperties": False
+                                    },
+                                    "prix": {
+                                        "type": "object",
+                                        "properties": {
+                                            "annonce": {"type": "number"},
+                                            "hors_honoraires": {"type": "number"},
+                                            "m2": {"type": "number"},
+                                            "honoraires": {
+                                                "type": "object",
+                                                "properties": {
+                                                    "montant": {"type": "number"},
+                                                    "pourcentage": {"type": "number"}
+                                                },
+                                                "required": ["montant", "pourcentage"],
+                                                "additionalProperties": False
+                                            },
+                                            "negociable": {"type": ["boolean", "null"]},
+                                            "frais_agence_acquereur": {"type": "boolean"}
+                                        },
+                                        "required": ["annonce", "hors_honoraires", "m2", "honoraires", "negociable", "frais_agence_acquereur"],
+                                        "additionalProperties": False
+                                    },
+                                    "metros": {
+                                        "type": "array",
+                                        "items": {
+                                            "type": "object",
+                                            "properties": {
+                                                "ligne": {"type": "string"},
+                                                "station": {"type": "string"},
+                                                "distance": {"type": "number"}
+                                            },
+                                            "required": ["ligne", "station", "distance"],
+                                            "additionalProperties": False
+                                        }
+                                    },
+                                    "charges": {
+                                        "type": "object",
+                                        "properties": {
+                                            "mensuelles": {"type": "number"},
+                                            "taxe_fonciere": {"type": ["number", "null"]},
+                                            "energie": {"type": ["number", "null"]},
+                                            "chauffage": {"type": ["string", "null"]}
+                                        },
+                                        "required": ["mensuelles", "taxe_fonciere", "energie", "chauffage"],
+                                        "additionalProperties": False
+                                    },
+                                    "copro": {
+                                        "type": "object",
+                                        "properties": {
+                                            "lots": {"type": ["number", "null"]}
+                                        },
+                                        "required": ["lots"],
+                                        "additionalProperties": False
+                                    },
+                                    "atouts": {
+                                        "type": "array",
+                                        "items": {"type": "string"}
+                                    },
+                                    "vigilance": {
+                                        "type": "array",
+                                        "items": {"type": "string"}
+                                    },
+                                    "contact": {"type": "string"}
+                                },
+                                "required": ["adresse", "bien", "prix", "metros", "charges", "copro", "atouts", "vigilance", "contact"],
+                                "additionalProperties": False
+                            }
+                        },
+                        "required": ["error", "property"],
+                        "additionalProperties": False
+                    },
+                    "strict": True
+                }
+            }
+        )
+        
+        return True, response.choices[0].message.content
+    except Exception as e:
+        return False, f"Erreur lors de l'appel à l'API : {str(e)}"
+
+def update_properties_json(new_property_data: dict, selected_id: str = None):
+    """Met à jour le fichier properties.json avec les nouvelles données."""
+    try:
+        # Charger le fichier properties.json existant
+        with open('data/properties.json', 'r') as f:
+            data = json.load(f)
+        
+        if selected_id and selected_id != "nouveau bien":
+            # Mise à jour d'un bien existant
+            data['properties'][selected_id] = new_property_data
+        else:
+            # Nouveau bien : générer un nouvel ID
+            # Charger tous les biens pour générer un ID unique
+            properties = Property.load_properties('data/properties.json')
+            existing_ids = list(properties.keys())
+            
+            # Extraire le code postal pour générer l'ID
+            cp_match = re.search(r'(?:75|93|94|92)\d{3}', new_property_data['adresse'])
+            if not cp_match:
+                raise ValueError("L'adresse doit contenir un code postal valide (75XXX, 93XXX, 94XXX ou 92XXX)")
+            
+            # Créer un Property temporaire pour utiliser generate_id
+            temp_property = Property(
+                id="temp",
+                adresse=new_property_data['adresse'],
+                surface=new_property_data['bien']['surface'],
+                prix=new_property_data['prix']['annonce'],
+                prix_hors_honoraires=new_property_data['prix']['hors_honoraires'],
+                prix_m2=new_property_data['prix']['m2'],
+                charges_mensuelles=new_property_data['charges']['mensuelles'],
+                taxe_fonciere=new_property_data['charges']['taxe_fonciere'],
+                energie=new_property_data['charges']['energie'],
+                dpe=new_property_data['bien']['dpe'],
+                ges=new_property_data['bien']['ges'],
+                metros=[],  # Ces détails ne sont pas nécessaires pour la génération de l'ID
+                atouts=[],
+                vigilance=[],
+                frais_agence_acquereur=new_property_data['prix']['frais_agence_acquereur']
+            )
+            
+            new_id = Property.generate_id(new_property_data['adresse'], existing_ids)
+            data['properties'][new_id] = new_property_data
+        
+        # Sauvegarder les modifications
+        with open('data/properties.json', 'w', encoding='utf-8') as f:
+            json.dump(data, f, ensure_ascii=False, indent=2)
+        
+        return True, None
+    except Exception as e:
+        return False, str(e)
+
+def property_to_dict(property_obj):
+    """Convertit un objet Property en dictionnaire compatible JSON."""
+    return {
+        "adresse": property_obj.adresse,
+        "bien": {
+            "type": property_obj.type if hasattr(property_obj, 'type') else "T2",  # valeur par défaut
+            "surface": property_obj.surface,
+            "etage": property_obj.etage if hasattr(property_obj, 'etage') else "0",
+            "orientation": property_obj.orientation if hasattr(property_obj, 'orientation') else None,
+            "pieces": {
+                "sejour_cuisine": 0,  # valeurs par défaut
+                "chambre": 0
+            },
+            "dpe": property_obj.dpe,
+            "ges": property_obj.ges,
+            "cave": hasattr(property_obj, 'cave') and property_obj.cave
+        },
+        "prix": {
+            "annonce": property_obj.prix,
+            "hors_honoraires": property_obj.prix_hors_honoraires,
+            "m2": property_obj.prix_m2,
+            "honoraires": {
+                "montant": property_obj.prix - property_obj.prix_hors_honoraires,
+                "pourcentage": ((property_obj.prix - property_obj.prix_hors_honoraires) / property_obj.prix * 100) if property_obj.prix > 0 else 0
+            },
+            "negociable": None,
+            "frais_agence_acquereur": property_obj.frais_agence_acquereur
+        },
+        "metros": [{
+            "ligne": m.ligne,
+            "station": m.station,
+            "distance": m.distance
+        } for m in property_obj.metros],
+        "charges": {
+            "mensuelles": property_obj.charges_mensuelles,
+            "taxe_fonciere": property_obj.taxe_fonciere,
+            "energie": property_obj.energie,
+            "chauffage": None
+        },
+        "copro": {
+            "lots": 0  # valeur par défaut
+        },
+        "atouts": property_obj.atouts,
+        "vigilance": property_obj.vigilance,
+        "contact": "direct propriétaire"  # valeur par défaut
+    }
+
 def property_details(properties):
-    """Interface de gestion des biens."""
-    st.markdown('<p style="color: #ff4b4b; font-size: 2rem; font-weight: 600">Gestion des Biens</p>', unsafe_allow_html=True)
+    """Interface pour la gestion des biens."""
+    st.header("Gestion des Biens", divider="red")
     
-    # Menu de sélection avec option "Nouveau bien"
-    options = list(properties.keys())
-    options.insert(0, "nouveau_bien")  # Ajout de l'option "nouveau bien"
-    
-    selected_property = st.selectbox(
+    # Sélection du bien
+    selected = st.selectbox(
         "Sélectionner un bien",
-        options=options,
-        format_func=lambda x: "Nouveau bien" if x == "nouveau_bien" else properties[x].adresse
+        ["nouveau bien"] + list(properties.keys()),
+        format_func=lambda x: f"{x} - {properties[x].adresse}" if x in properties else x
     )
     
     # Section Renseignements
-    st.markdown('<p style="color: #ff4b4b; font-size: 1.25rem; font-weight: 600">Renseignements</p>', unsafe_allow_html=True)
-    if selected_property == "nouveau_bien":
-        st.write("Entrez ci-dessous, même en vrac, les détails du bien")
+    st.subheader("Renseignements", divider="red")
+    if selected == "nouveau bien":
+        st.markdown('<p style="color: gray;">Décrivez le nouveau bien en texte libre.</p>', unsafe_allow_html=True)
     else:
-        st.write("Pour modifier des détails, expliquez les changements ci-dessous")
+        st.markdown('<p style="color: gray;">Décrivez les modifications à apporter au bien.</p>', unsafe_allow_html=True)
     
-    user_input = st.text_area(
-        "",
-        height=150,
-        help="Entrez les détails ou modifications du bien"
-    )
+    user_input = st.text_area("Description", height=200)
+    
+    if st.button("Enregistrer"):
+        if user_input.strip():
+            with st.spinner("Traitement en cours..."):
+                existing_property = properties.get(selected) if selected != "nouveau bien" else None
+                # Convertir l'objet Property en dictionnaire JSON-compatible
+                existing_property_dict = property_to_dict(existing_property) if existing_property else None
+                success, result = call_openai_api(user_input, existing_property_dict)
+                
+                if not success:
+                    st.error(result)
+                else:
+                    try:
+                        result_dict = json.loads(result)
+                        st.write("Réponse de l'API:", result_dict)  # Debug: afficher la réponse complète
+                        
+                        if "error" in result_dict and result_dict["error"]:
+                            st.error(f"Erreur retournée par l'API : {result_dict['error']}")
+                        elif "property" not in result_dict:
+                            st.error("La réponse de l'API ne contient pas les informations du bien")
+                        else:
+                            # Mettre à jour properties.json avec le résultat
+                            success, error = update_properties_json(result_dict["property"], selected)
+                            if success:
+                                st.success("Informations enregistrées avec succès!")
+                                # Recharger la page pour afficher les modifications
+                                st.rerun()
+                            else:
+                                st.error(f"Erreur lors de la sauvegarde : {error}")
+                    except json.JSONDecodeError as e:
+                        st.error(f"Erreur : Réponse invalide de l'API\nDétails : {str(e)}\nRéponse reçue : {result}")
+        else:
+            st.warning("Veuillez entrer une description.")
     
     # Section Détails du bien
-    st.markdown('<p style="color: #ff4b4b; font-size: 1.25rem; font-weight: 600">Détails du bien</p>', unsafe_allow_html=True)
-    if selected_property != "nouveau_bien":
-        prop = properties[selected_property]
-        
-        # Informations générales
-        col1, col2 = st.columns(2)
-        with col1:
-            st.markdown('<p style="color: #ff4b4b; font-weight: 600">Informations générales</p>', unsafe_allow_html=True)
-            st.markdown(f'<span style="color: #666666">ID:</span> {prop.id}', unsafe_allow_html=True)
-            st.markdown(f'<span style="color: #666666">Adresse:</span> {prop.adresse}', unsafe_allow_html=True)
-            st.markdown(f'<span style="color: #666666">Surface:</span> {prop.surface}m²', unsafe_allow_html=True)
-            st.markdown(f'<span style="color: #666666">Prix:</span> {prop.prix:,.0f}€', unsafe_allow_html=True)
-            st.markdown(f'<span style="color: #666666">Prix/m²:</span> {prop.prix_m2:,.0f}€', unsafe_allow_html=True)
-            
-        with col2:
-            st.markdown('<p style="color: #ff4b4b; font-weight: 600">Charges & Taxes</p>', unsafe_allow_html=True)
-            st.markdown(f'<span style="color: #666666">Charges mensuelles:</span> {prop.charges_mensuelles:,.0f}€', unsafe_allow_html=True)
-            st.markdown(f'<span style="color: #666666">Taxe foncière:</span> {prop.taxe_fonciere if prop.taxe_fonciere else "Non spécifié"}', unsafe_allow_html=True)
-            st.markdown(f'<span style="color: #666666">Énergie:</span> {prop.energie if prop.energie else "Non spécifié"}', unsafe_allow_html=True)
-            st.markdown(f'<span style="color: #666666">DPE:</span> {prop.dpe if prop.dpe else "Non spécifié"}', unsafe_allow_html=True)
-            st.markdown(f'<span style="color: #666666">GES:</span> {prop.ges if prop.ges else "Non spécifié"}', unsafe_allow_html=True)
-        
-        # Transports
-        st.markdown('<p style="color: #ff4b4b; font-weight: 600">Transports</p>', unsafe_allow_html=True)
-        if prop.metros:
-            for metro in prop.metros:
-                st.markdown(f'• Ligne {metro.ligne} station {metro.station} à {metro.distance}m', unsafe_allow_html=True)
-        else:
-            st.markdown('<span style="color: #666666">Aucun transport renseigné</span>', unsafe_allow_html=True)
-        
-        # Points forts et vigilance
-        col1, col2 = st.columns(2)
-        with col1:
-            st.markdown('<p style="color: #ff4b4b; font-weight: 600">Points forts</p>', unsafe_allow_html=True)
-            for atout in prop.atouts:
-                st.markdown(f'• {atout}', unsafe_allow_html=True)
-                
-        with col2:
-            st.markdown('<p style="color: #ff4b4b; font-weight: 600">Points de vigilance</p>', unsafe_allow_html=True)
-            if prop.vigilance:
-                for point in prop.vigilance:
-                    st.markdown(f'• {point}', unsafe_allow_html=True)
-            else:
-                st.markdown('<span style="color: #666666">Aucun point de vigilance signalé</span>', unsafe_allow_html=True)
+    if selected != "nouveau bien":
+        property_data = properties[selected]
+        st.subheader("Détails du bien", divider="red")
+        display_property_details(property_data)
+
+def display_property_details(property_data):
+    """Affiche les détails d'un bien avec le style approprié."""
+    # Informations générales
+    st.markdown(f'<p style="color: gray;">ID:</p> {property_data.id}', unsafe_allow_html=True)
+    st.markdown(f'<p style="color: gray;">Adresse:</p> {property_data.adresse}', unsafe_allow_html=True)
+    st.markdown(f'<p style="color: gray;">Surface:</p> {property_data.surface} m²', unsafe_allow_html=True)
+    
+    # Prix et charges
+    st.markdown(f'<p style="color: gray;">Prix:</p> {property_data.prix:,.0f}€', unsafe_allow_html=True)
+    st.markdown(f'<p style="color: gray;">Prix/m²:</p> {property_data.prix_m2:,.0f}€', unsafe_allow_html=True)
+    st.markdown(f'<p style="color: gray;">Charges mensuelles:</p> {property_data.charges_mensuelles:,.0f}€', unsafe_allow_html=True)
+    
+    # DPE et GES
+    st.markdown(f'<p style="color: gray;">DPE:</p> {property_data.dpe if property_data.dpe else "Non spécifié"}', unsafe_allow_html=True)
+    st.markdown(f'<p style="color: gray;">GES:</p> {property_data.ges if property_data.ges else "Non spécifié"}', unsafe_allow_html=True)
+    
+    # Métros
+    st.markdown('<p style="color: gray;">Transports:</p>', unsafe_allow_html=True)
+    if property_data.metros:
+        for metro in property_data.metros:
+            st.markdown(f'• Ligne {metro.ligne} station {metro.station} à {metro.distance}m', unsafe_allow_html=True)
+    else:
+        st.markdown('<p style="color: gray;">Aucun transport renseigné</p>', unsafe_allow_html=True)
+    
+    # Atouts
+    st.markdown('<p style="color: gray;">Points forts:</p>', unsafe_allow_html=True)
+    for atout in property_data.atouts:
+        st.markdown(f'• {atout}', unsafe_allow_html=True)
+    
+    # Points de vigilance
+    st.markdown('<p style="color: gray;">Points de vigilance:</p>', unsafe_allow_html=True)
+    if property_data.vigilance:
+        for point in property_data.vigilance:
+            st.markdown(f'• {point}', unsafe_allow_html=True)
+    else:
+        st.markdown('<p style="color: gray;">Aucun point de vigilance signalé</p>', unsafe_allow_html=True)
 
 def main():
     st.title("Analyse Immobilière")

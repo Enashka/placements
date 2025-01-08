@@ -4,3 +4,5 @@ pandas
 pyyaml
 numpy
 pytest
+openai
+python-dotenv

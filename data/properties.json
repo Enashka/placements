@@ -64,27 +64,26 @@
       "adresse": "118 Avenue Gabriel Peri, 93400 Saint-Ouen-Sur-Seine",
       "bien": {
         "type": "T2",
-        "surface": 47,
-        "etage": 1,
-        "orientation": "est",
+        "surface": 50,
+        "etage": "0",
+        "orientation": null,
         "pieces": {
-          "sejour_cuisine": null,
-          "chambre": null
+          "sejour_cuisine": 0,
+          "chambre": 0
         },
-        "dpe": "C",
+        "dpe": "A",
         "ges": null,
-        "cave": true
+        "cave": false
       },
       "prix": {
         "annonce": 332000,
         "hors_honoraires": 332000,
-        "m2": 7064,
+        "m2": 6640,
         "honoraires": {
           "montant": 0,
-          "pourcentage": 0
+          "pourcentage": 0.0
         },
-        "negociable": true,
-        "raison": "déménagement contraint",
+        "negociable": null,
         "frais_agence_acquereur": false
       },
       "metros": [
@@ -103,10 +102,10 @@
         "mensuelles": 164,
         "taxe_fonciere": 665,
         "energie": 68,
-        "chauffage": "non inclus"
+        "chauffage": null
       },
       "copro": {
-        "lots": null
+        "lots": 0
       },
       "atouts": [
         "parquet chêne massif",
@@ -301,4 +300,4 @@
       "contact": "particulier"
     }
   }
-} 
+}
