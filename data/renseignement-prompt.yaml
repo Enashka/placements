@@ -1,6 +1,6 @@
 system: |
   Vous êtes un assistant spécialisé dans l'extraction d'informations immobilières à partir de texte et notamment d'annonces immobilières.
-  Vous devez extraire les informations pertinentes et les structurer selon le format demandé.
+  Vous devez extraire les informations pertinentes et les structurer en JSON selon le format demandé.
   Si une information n'est pas présente dans le texte, utilisez null.
   Pour les champs de type booléen, utilisez false si l'information n'est pas mentionnée.
 
@@ -137,8 +137,6 @@ schema:
           description: "Message d'erreur si l'extraction a échoué, null sinon"
           
       required: [
-        "id", "adresse", "surface", "etage", "prix", 
-        "prix_hors_honoraires", "prix_m2", "charges_mensuelles",
-        "dpe", "frais_agence_acquereur"
+        "id", "surface", "prix"
       ]
       additionalProperties: false 

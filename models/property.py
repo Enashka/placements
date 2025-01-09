@@ -132,19 +132,6 @@ class Property(BaseModel):
         
         return f"{base_id}-{next_num:03d}"
 
-    def score_transport(self) -> float:
-        """Calcule un score d'accessibilité des transports (0-100)."""
-        if not self.metros:
-            return 0
-        
-        scores = []
-        for metro in self.metros:
-            # Score basé sur la distance (100 pour 0m, 0 pour 1000m ou plus)
-            distance_score = max(0, 100 - (metro.distance / 10))
-            scores.append(distance_score)
-        
-        return round(sum(scores) / len(scores), 2)
-
     @staticmethod
     def load_properties(json_file: str) -> Dict[str, 'Property']:
         """Charge tous les biens depuis un fichier JSON."""
