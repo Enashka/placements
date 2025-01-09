@@ -20,28 +20,27 @@ class Metro(BaseModel):
 class Property(BaseModel):
     id: str
     adresse: Optional[str] = "Adresse inconnue"
-    surface: Optional[float] = Field(None, ge=9, le=1000)  # Minimum 9m², maximum 1000m²
+    surface: Optional[float] = Field(None, ge=9, le=1000)
     etage: Optional[str] = "NC"
     nb_pieces: Optional[int] = None
+    exposition: Optional[str] = None
     prix: Optional[float] = None
     prix_hors_honoraires: Optional[float] = None
     prix_m2: Optional[float] = None
     charges_mensuelles: Optional[float] = None
-    dpe: str = "NC"
-    
-    # Champs optionnels qui ne seront affichés que si présents
-    exposition: Optional[str] = None
-    type_chauffage: Optional[str] = None
-    travaux: Optional[str] = None
-    etat: Optional[str] = None
     taxe_fonciere: Optional[float] = None
+    frais_agence_acquereur: bool = False
     energie: Optional[float] = None
+    type_chauffage: Optional[str] = None
+    dpe: str = "NC"
     ges: Optional[str] = None
+    etat: Optional[str] = None
+    travaux: Optional[str] = None
     metros: List[Metro] = []
     atouts: List[str] = []
     vigilance: List[str] = []
-    frais_agence_acquereur: bool = False
     lien_annonce: Optional[HttpUrl] = None
+    error: Optional[str] = None
 
     @validator('lien_annonce')
     def clean_url(cls, v):
@@ -132,40 +131,38 @@ class Property(BaseModel):
         
         properties = {}
         for prop_id, prop_data in data['properties'].items():
-            # Conversion des distances en mètres
+            # Conversion des distances en mètres pour les métros
             metros = []
             for m in prop_data.get('metros', []):
-                # Si la distance est inférieure à 1, on considère que c'est en kilomètres
-                distance = m['distance']
+                distance = m.get('distance')
                 if isinstance(distance, (int, float)) and distance < 1:
                     distance = int(distance * 1000)  # Conversion en mètres
                 metros.append({
-                    'ligne': m['ligne'],
-                    'station': m['station'],
+                    'ligne': m.get('ligne'),
+                    'station': m.get('station'),
                     'distance': distance
                 })
             
-            # Extraction des champs imbriqués
+            # Construction du dictionnaire de propriété
             property_dict = {
                 'id': prop_id,
-                'adresse': prop_data['adresse'],
-                'surface': prop_data['bien']['surface'],
-                'etage': prop_data['bien']['etage'],
-                'nb_pieces': prop_data['bien'].get('nb_pieces'),
-                'prix': prop_data['prix']['annonce'],
-                'prix_hors_honoraires': prop_data['prix']['hors_honoraires'],
-                'prix_m2': prop_data['prix']['m2'],
-                'charges_mensuelles': prop_data['charges']['mensuelles'],
-                'dpe': prop_data['bien'].get('dpe', "NC"),
-                'frais_agence_acquereur': prop_data['prix'].get('frais_agence_acquereur', False),
-                # Champs optionnels
-                'exposition': prop_data['bien'].get('orientation'),
-                'type_chauffage': prop_data['charges'].get('chauffage'),
-                'travaux': None,  # Non présent dans le JSON
-                'etat': None,  # Non présent dans le JSON
-                'taxe_fonciere': prop_data['charges'].get('taxe_fonciere'),
-                'energie': prop_data['charges'].get('energie'),
-                'ges': prop_data['bien'].get('ges'),
+                'adresse': prop_data.get('adresse'),
+                'surface': prop_data.get('surface'),
+                'etage': prop_data.get('etage'),
+                'nb_pieces': prop_data.get('nb_pieces'),
+                'exposition': prop_data.get('exposition'),
+                'prix': prop_data.get('prix'),
+                'prix_hors_honoraires': prop_data.get('prix_hors_honoraires'),
+                'prix_m2': prop_data.get('prix_m2'),
+                'charges_mensuelles': prop_data.get('charges_mensuelles'),
+                'taxe_fonciere': prop_data.get('taxe_fonciere'),
+                'frais_agence_acquereur': prop_data.get('frais_agence_acquereur', False),
+                'energie': prop_data.get('energie'),
+                'type_chauffage': prop_data.get('type_chauffage'),
+                'dpe': prop_data.get('dpe', 'NC'),
+                'ges': prop_data.get('ges'),
+                'etat': prop_data.get('etat'),
+                'travaux': prop_data.get('travaux'),
                 'metros': [Metro(**m) for m in metros],
                 'atouts': prop_data.get('atouts', []),
                 'vigilance': prop_data.get('vigilance', []),
@@ -173,7 +170,7 @@ class Property(BaseModel):
             }
             properties[prop_id] = Property(**property_dict)
         
-        return properties 
+        return properties
 
     @validator('nb_pieces', pre=True)
     def extract_nb_pieces(cls, v, values):

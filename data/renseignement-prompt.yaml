@@ -22,119 +22,123 @@ prompts:
     Veuillez extraire les informations pertinentes pour créer une nouvelle fiche de bien.
 
 schema:
-  type: object
-  properties:
-    error:
-      type: string
-      description: Message d'erreur si l'extraction a échoué, null sinon
-    property:
-      type: object
+  type: "json_schema"
+  json_schema:
+    name: "property_schema"
+    strict: true
+    schema:
+      type: "object"
       properties:
-        bien:
-          type: object
-          properties:
-            nb_pieces:
-              type: ["integer", "null"]
-              description: "Nombre de pièces (1 pour studio/T1, 2 pour T2/F2, etc.)"
-            surface:
-              type: number
-              description: Surface en m²
-            etage:
-              type: string
-              description: Étage du bien
-            dpe:
-              type: string
-              description: Classe énergétique DPE
-            ges:
-              type: ["string", "null"]
-              description: Classe GES
+        # Identifiants
         id:
-          type: string
-          description: Identifiant unique du bien
+          type: "string"
+          description: "Identifiant unique du bien"
         adresse:
-          type: string
-          description: Adresse complète du bien
+          type: "string"
+          description: "Adresse complète du bien"
+        
+        # Caractéristiques physiques
+        surface:
+          type: "number"
+          description: "Surface en m²"
         etage:
-          type: string
-          description: Étage du bien
+          type: "string"
+          description: "Étage du bien"
         nb_pieces:
           type: ["integer", "null"]
-          description: Nombre de pièces
+          description: "Nombre de pièces (1 pour studio/T1, 2 pour T2/F2, etc.)"
         exposition:
           type: ["string", "null"]
-          description: Exposition du bien (Nord, Sud, etc.)
-        type_chauffage:
-          type: ["string", "null"]
-          description: Type de chauffage (individuel, collectif, électrique, gaz, etc.)
-        travaux:
-          type: ["string", "null"]
-          description: Description des travaux récents ou prévus
-        etat:
-          type: ["string", "null"]
-          description: État général du bien (Prêt à habiter, Rafraîchissement nécessaire, etc.)
+          description: "Exposition du bien (Nord, Sud, etc.)"
+        
+        # Prix et charges
         prix:
-          type: number
-          description: Prix annoncé
+          type: "number"
+          description: "Prix annoncé"
         prix_hors_honoraires:
-          type: number
-          description: Prix hors honoraires
+          type: "number"
+          description: "Prix hors honoraires"
         prix_m2:
-          type: number
-          description: Prix au m²
+          type: "number"
+          description: "Prix au m²"
         charges_mensuelles:
-          type: number
-          description: Charges mensuelles en euros
+          type: "number"
+          description: "Charges mensuelles en euros"
         taxe_fonciere:
           type: ["number", "null"]
-          description: Taxe foncière annuelle en euros
+          description: "Taxe foncière annuelle en euros"
+        frais_agence_acquereur:
+          type: "boolean"
+          description: "Indique si les frais d'agence sont à la charge de l'acquéreur"
+        
+        # Énergie et chauffage
         energie:
           type: ["number", "null"]
-          description: Coût mensuel estimé de l'énergie
+          description: "Coût mensuel estimé de l'énergie"
+        type_chauffage:
+          type: ["string", "null"]
+          description: "Type de chauffage (individuel, collectif, électrique, gaz, etc.)"
         dpe:
-          type: string
-          description: Classe énergétique DPE
+          type: "string"
+          description: "Classe énergétique DPE"
         ges:
           type: ["string", "null"]
-          description: Classe GES
+          description: "Classe GES"
+        
+        # État et travaux
+        etat:
+          type: ["string", "null"]
+          description: "État général du bien (Prêt à habiter, Rafraîchissement nécessaire, etc.)"
+        travaux:
+          type: ["string", "null"]
+          description: "Description des travaux récents ou prévus"
+        
+        # Transports
         metros:
-          type: array
+          type: "array"
           items:
-            type: object
+            type: "object"
             properties:
               ligne:
-                type: string
-                description: Numéro de la ligne de métro
+                type: "string"
+                description: "Numéro de la ligne de métro"
               station:
-                type: string
-                description: Nom de la station
+                type: "string"
+                description: "Nom de la station"
               distance:
-                type: integer
-                description: Distance en mètres
+                type: "integer"
+                description: "Distance en mètres"
             required: ["ligne", "station", "distance"]
+            additionalProperties: false
           default: []
+        
+        # Points forts et vigilance
         atouts:
-          type: array
+          type: "array"
           items:
-            type: string
-          description: Liste des points forts du bien
+            type: "string"
+          description: "Liste des points forts du bien"
           default: []
         vigilance:
-          type: array
+          type: "array"
           items:
-            type: string
-          description: Liste des points de vigilance
+            type: "string"
+          description: "Liste des points de vigilance"
           default: []
-        frais_agence_acquereur:
-          type: boolean
-          description: Indique si les frais d'agence sont à la charge de l'acquéreur
+        
+        # Lien
         lien_annonce:
           type: ["string", "null"]
-          description: Lien vers l'annonce immobilière
+          description: "Lien vers l'annonce immobilière"
+        
+        # Message d'erreur éventuel
+        error:
+          type: "string"
+          description: "Message d'erreur si l'extraction a échoué, null sinon"
+          
       required: [
         "id", "adresse", "surface", "etage", "prix", 
         "prix_hors_honoraires", "prix_m2", "charges_mensuelles",
         "dpe", "frais_agence_acquereur"
       ]
-      additionalProperties: false
-  required: ["error", "property"]
-  additionalProperties: false 
+      additionalProperties: false 

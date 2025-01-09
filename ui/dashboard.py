@@ -395,13 +395,6 @@ Veuillez extraire les informations pertinentes pour créer une nouvelle fiche de
                                             "etage": {"type": "string"},
                                             "nb_pieces": {"type": ["integer", "null"]},
                                             "orientation": {"type": ["string", "null"]},
-                                            "pieces": {
-                                                "type": "object",
-                                                "properties": {
-                                                    "sejour_cuisine": {"type": ["number", "null"]},
-                                                    "chambre": {"type": ["number", "null"]}
-                                                }
-                                            },
                                             "dpe": {"type": ["string", "null"]},
                                             "ges": {"type": ["string", "null"]},
                                             "cave": {"type": "boolean"}
@@ -490,6 +483,9 @@ def update_properties_json(new_property_data: dict, selected_id: str = None):
         # S'assurer que le DPE a une valeur valide
         if 'bien' in new_property_data:
             new_property_data['bien']['dpe'] = new_property_data['bien'].get('dpe') or "NC"
+            # Supprimer le champ pieces s'il existe
+            if 'pieces' in new_property_data['bien']:
+                del new_property_data['bien']['pieces']
         
         if selected_id and selected_id != "nouveau bien":
             # Mise à jour d'un bien existant
@@ -516,7 +512,7 @@ def update_properties_json(new_property_data: dict, selected_id: str = None):
                 charges_mensuelles=new_property_data['charges']['mensuelles'],
                 taxe_fonciere=new_property_data['charges'].get('taxe_fonciere'),
                 energie=new_property_data['charges'].get('energie'),
-                dpe=new_property_data['bien']['dpe'],  # Déjà validé plus haut
+                dpe=new_property_data['bien']['dpe'],
                 ges=new_property_data['bien'].get('ges'),
                 metros=[],
                 atouts=[],
@@ -542,42 +538,28 @@ def property_to_dict(property_obj):
         return None
         
     return {
+        "id": property_obj.id,
         "adresse": property_obj.adresse,
-        "lien_annonce": property_obj.lien_annonce,
-        "bien": {
-            "type": getattr(property_obj, 'type', "T2"),
-            "surface": property_obj.surface,
-            "etage": property_obj.etage,
-            "nb_pieces": getattr(property_obj, 'nb_pieces', None),
-            "orientation": getattr(property_obj, 'exposition', None),
-            "pieces": {
-                "sejour_cuisine": None,
-                "chambre": None
-            },
-            "dpe": property_obj.dpe,
-            "ges": getattr(property_obj, 'ges', None),
-            "cave": getattr(property_obj, 'cave', False)
-        },
-        "prix": {
-            "annonce": property_obj.prix,
-            "hors_honoraires": property_obj.prix_hors_honoraires,
-            "m2": property_obj.prix_m2,
-            "honoraires": {
-                "montant": property_obj.prix - property_obj.prix_hors_honoraires if property_obj.prix and property_obj.prix_hors_honoraires else None,
-                "pourcentage": ((property_obj.prix - property_obj.prix_hors_honoraires) / property_obj.prix * 100) if property_obj.prix and property_obj.prix_hors_honoraires and property_obj.prix > 0 else None
-            },
-            "negociable": None,
-            "frais_agence_acquereur": property_obj.frais_agence_acquereur
-        },
-        "charges": {
-            "mensuelles": property_obj.charges_mensuelles,
-            "taxe_fonciere": getattr(property_obj, 'taxe_fonciere', None),
-            "energie": getattr(property_obj, 'energie', None),
-            "chauffage": getattr(property_obj, 'type_chauffage', None)
-        },
+        "surface": property_obj.surface,
+        "etage": property_obj.etage,
+        "nb_pieces": property_obj.nb_pieces,
+        "exposition": property_obj.exposition,
+        "prix": property_obj.prix,
+        "prix_hors_honoraires": property_obj.prix_hors_honoraires,
+        "prix_m2": property_obj.prix_m2,
+        "charges_mensuelles": property_obj.charges_mensuelles,
+        "taxe_fonciere": getattr(property_obj, 'taxe_fonciere', None),
+        "frais_agence_acquereur": property_obj.frais_agence_acquereur,
+        "energie": getattr(property_obj, 'energie', None),
+        "type_chauffage": getattr(property_obj, 'type_chauffage', None),
+        "dpe": property_obj.dpe,
+        "ges": getattr(property_obj, 'ges', None),
+        "etat": getattr(property_obj, 'etat', None),
+        "travaux": getattr(property_obj, 'travaux', None),
         "metros": [{"ligne": m.ligne, "station": m.station, "distance": m.distance} for m in property_obj.metros],
         "atouts": property_obj.atouts,
-        "vigilance": property_obj.vigilance
+        "vigilance": property_obj.vigilance,
+        "lien_annonce": property_obj.lien_annonce
     }
 
 def delete_property(property_id: str):
