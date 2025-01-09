@@ -60,26 +60,6 @@ class Property(BaseModel):
         # Création du nouvel ID
         return f"{base_id}-{next_num:03d}"
 
-    def cout_mensuel(self, montant_pret: float, taux: float, duree_annees: int) -> float:
-        """Calcule le coût mensuel total (crédit + charges)."""
-        # Calcul de la mensualité du prêt
-        taux_mensuel = taux / 12 / 100
-        nombre_mois = duree_annees * 12
-        mensualite = montant_pret * (taux_mensuel * (1 + taux_mensuel)**nombre_mois) / ((1 + taux_mensuel)**nombre_mois - 1)
-        
-        # Ajout des charges
-        cout_total = mensualite + self.charges_mensuelles
-        if self.energie:
-            cout_total += self.energie
-        if self.taxe_fonciere:
-            cout_total += self.taxe_fonciere / 12
-            
-        return round(cout_total, 2)
-
-    def rentabilite_locative(self, loyer_potentiel: float) -> float:
-        """Calcule la rentabilité locative brute annuelle."""
-        return round((loyer_potentiel * 12 / self.prix) * 100, 2)
-
     def score_transport(self) -> float:
         """Calcule un score d'accessibilité des transports (0-100)."""
         if not self.metros:

@@ -25,6 +25,10 @@ scenarios:
       taxe_fonciere: 2.5
       energie: 3.0
 
+    plafonds:
+      livret_a: 23000  # euros
+      ldd: 12000  # euros
+
     seuils_alertes:
       endettement_max: 35  # pourcentage des revenus
       perte_max_investissement: 30  # pourcentage

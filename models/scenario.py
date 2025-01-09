@@ -19,6 +19,8 @@ class ScenarioConfig:
     horizon_simulation: int
     inflation: float
     evolution_charges: Dict[str, float]
+    plafond_livret_a: float
+    plafond_ldd: float
 
     @classmethod
     def from_yaml(cls, yaml_path):
@@ -49,7 +51,9 @@ class ScenarioConfig:
             evolution_immobilier=data['rendements']['evolution_immobilier'],
             horizon_simulation=data['parametres_simulation']['horizon'],
             inflation=data['parametres_simulation']['inflation'],
-            evolution_charges=data['charges_evolution']
+            evolution_charges=data['charges_evolution'],
+            plafond_livret_a=data['plafonds']['livret_a'],
+            plafond_ldd=data['plafonds']['ldd']
         )
 
 class Scenario:
@@ -79,10 +83,10 @@ class Scenario:
     def simulate_epargne_securisee(self, montant_initial, mois):
         """Simule l'évolution de l'épargne sécurisée en tenant compte des plafonds"""
         # Répartition initiale
-        livret_a = min(montant_initial, self.LIVRET_A_PLAFOND)
+        livret_a = min(montant_initial, self.config.plafond_livret_a)
         reste_apres_livret_a = montant_initial - livret_a
         
-        ldd = min(reste_apres_livret_a, self.LDD_PLAFOND)
+        ldd = min(reste_apres_livret_a, self.config.plafond_ldd)
         reste_apres_ldd = reste_apres_livret_a - ldd
         
         # Le reste va sur un compte à terme ou livret bancaire avec une performance moindre
@@ -95,10 +99,10 @@ class Scenario:
             else:
                 # Livret A et LDD à taux plein
                 livret_a *= (1 + self.config.rendement_epargne/12/100)
-                livret_a = min(livret_a, self.LIVRET_A_PLAFOND)
+                livret_a = min(livret_a, self.config.plafond_livret_a)
                 
                 ldd *= (1 + self.config.rendement_epargne/12/100)
-                ldd = min(ldd, self.LDD_PLAFOND)
+                ldd = min(ldd, self.config.plafond_ldd)
                 
                 # Compte à terme avec rendement réduit (environ 2% de moins)
                 if compte_terme > 0:
