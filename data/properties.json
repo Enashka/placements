@@ -25,7 +25,6 @@
           "montant": 0.0,
           "pourcentage": 0.0
         },
-        "negociable": null,
         "frais_agence_acquereur": false
       },
       "charges": {
@@ -86,7 +85,6 @@
           "montant": null,
           "pourcentage": null
         },
-        "negociable": null,
         "frais_agence_acquereur": false
       },
       "charges": {

@@ -20,13 +20,12 @@ class Metro(BaseModel):
 class Property(BaseModel):
     id: str
     adresse: Optional[str] = "Adresse inconnue"
-    surface: Optional[float] = Field(None, ge=9, le=1000)
+    surface: float = Field(..., ge=9, le=1000)
     etage: Optional[str] = "NC"
     nb_pieces: Optional[int] = None
     exposition: Optional[str] = None
-    prix: Optional[float] = None
+    prix: float
     prix_hors_honoraires: Optional[float] = None
-    prix_m2: Optional[float] = None
     charges_mensuelles: Optional[float] = None
     taxe_fonciere: Optional[float] = None
     frais_agence_acquereur: bool = False
@@ -41,6 +40,29 @@ class Property(BaseModel):
     vigilance: List[str] = []
     lien_annonce: Optional[HttpUrl] = None
     error: Optional[str] = None
+    cave: bool = False
+
+    @property
+    def prix_m2(self) -> float:
+        """Calcule le prix au m² à partir du prix et de la surface."""
+        return round(self.prix / self.surface, 2)
+
+    @property
+    def prix_hors_honoraires_effectif(self) -> float:
+        """Retourne le prix hors honoraires effectif (égal au prix si non spécifié)."""
+        return self.prix_hors_honoraires if self.prix_hors_honoraires is not None else self.prix
+
+    @property
+    def honoraires(self) -> float:
+        """Calcule le montant des honoraires."""
+        return round(self.prix - self.prix_hors_honoraires_effectif, 2)
+
+    @property
+    def pourcentage_honoraires(self) -> float:
+        """Calcule le pourcentage des honoraires par rapport au prix hors honoraires."""
+        if self.honoraires == 0:
+            return 0
+        return round((self.honoraires / self.prix_hors_honoraires_effectif) * 100, 2)
 
     @validator('lien_annonce')
     def clean_url(cls, v):
@@ -131,44 +153,57 @@ class Property(BaseModel):
         
         properties = {}
         for prop_id, prop_data in data['properties'].items():
-            # Conversion des distances en mètres pour les métros
-            metros = []
-            for m in prop_data.get('metros', []):
-                distance = m.get('distance')
-                if isinstance(distance, (int, float)) and distance < 1:
-                    distance = int(distance * 1000)  # Conversion en mètres
-                metros.append({
-                    'ligne': m.get('ligne'),
-                    'station': m.get('station'),
-                    'distance': distance
-                })
-            
-            # Construction du dictionnaire de propriété
-            property_dict = {
-                'id': prop_id,
-                'adresse': prop_data.get('adresse'),
-                'surface': prop_data.get('surface'),
-                'etage': prop_data.get('etage'),
-                'nb_pieces': prop_data.get('nb_pieces'),
-                'exposition': prop_data.get('exposition'),
-                'prix': prop_data.get('prix'),
-                'prix_hors_honoraires': prop_data.get('prix_hors_honoraires'),
-                'prix_m2': prop_data.get('prix_m2'),
-                'charges_mensuelles': prop_data.get('charges_mensuelles'),
-                'taxe_fonciere': prop_data.get('taxe_fonciere'),
-                'frais_agence_acquereur': prop_data.get('frais_agence_acquereur', False),
-                'energie': prop_data.get('energie'),
-                'type_chauffage': prop_data.get('type_chauffage'),
-                'dpe': prop_data.get('dpe', 'NC'),
-                'ges': prop_data.get('ges'),
-                'etat': prop_data.get('etat'),
-                'travaux': prop_data.get('travaux'),
-                'metros': [Metro(**m) for m in metros],
-                'atouts': prop_data.get('atouts', []),
-                'vigilance': prop_data.get('vigilance', []),
-                'lien_annonce': prop_data.get('lien_annonce')
-            }
-            properties[prop_id] = Property(**property_dict)
+            try:
+                # Conversion des distances en mètres pour les métros
+                metros = []
+                for m in prop_data.get('metros', []):
+                    distance = m.get('distance')
+                    if isinstance(distance, (int, float)) and distance < 1:
+                        distance = int(distance * 1000)  # Conversion en mètres
+                    metros.append({
+                        'ligne': m.get('ligne'),
+                        'station': m.get('station'),
+                        'distance': distance
+                    })
+                
+                # Construction du dictionnaire de propriété
+                property_dict = {
+                    'id': prop_id,
+                    'adresse': prop_data.get('adresse'),
+                    'surface': prop_data.get('surface'),
+                    'etage': prop_data.get('etage'),
+                    'nb_pieces': prop_data.get('nb_pieces'),
+                    'exposition': prop_data.get('exposition'),
+                    'prix': prop_data.get('prix'),
+                    'prix_hors_honoraires': prop_data.get('prix_hors_honoraires'),
+                    'charges_mensuelles': prop_data.get('charges_mensuelles'),
+                    'taxe_fonciere': prop_data.get('taxe_fonciere'),
+                    'frais_agence_acquereur': prop_data.get('frais_agence_acquereur', False),
+                    'energie': prop_data.get('energie'),
+                    'type_chauffage': prop_data.get('type_chauffage'),
+                    'dpe': prop_data.get('dpe', 'NC'),
+                    'ges': prop_data.get('ges'),
+                    'etat': prop_data.get('etat'),
+                    'travaux': prop_data.get('travaux'),
+                    'metros': [Metro(**m) for m in metros],
+                    'atouts': prop_data.get('atouts', []),
+                    'vigilance': prop_data.get('vigilance', []),
+                    'lien_annonce': prop_data.get('lien_annonce'),
+                    'cave': prop_data.get('bien', {}).get('cave', False)
+                }
+                
+                # Vérifie que les champs obligatoires sont présents
+                if property_dict['prix'] is None:
+                    print(f"⚠️ Bien {prop_id} ignoré : prix manquant")
+                    continue
+                if property_dict['surface'] is None:
+                    print(f"⚠️ Bien {prop_id} ignoré : surface manquante")
+                    continue
+                    
+                properties[prop_id] = Property(**property_dict)
+            except Exception as e:
+                print(f"⚠️ Erreur lors du chargement du bien {prop_id} : {str(e)}")
+                continue
         
         return properties
 
@@ -197,7 +232,7 @@ class Property(BaseModel):
     def validate_surface(cls, v):
         """Valide et normalise la surface."""
         if v is None:
-            return None
+            raise ValueError("La surface est obligatoire. Veuillez renseigner la surface du bien.")
             
         # Arrondi à 0.1m² près
         v = round(v, 1)
@@ -208,7 +243,7 @@ class Property(BaseModel):
         if v > 1000:
             raise ValueError("La surface semble anormalement grande (>1000m²)")
             
-        return v 
+        return v
 
     @validator('dpe')
     def validate_dpe(cls, v):
@@ -228,4 +263,44 @@ class Property(BaseModel):
         valid_ges = ['A', 'B', 'C', 'D', 'E', 'F', 'G']
         if v.upper() not in valid_ges:
             raise ValueError(f"GES invalide. Valeurs autorisées : {', '.join(valid_ges)}")
-        return v.upper() 
+        return v.upper()
+
+    @validator('prix_hors_honoraires')
+    def validate_prix_hors_honoraires(cls, v, values):
+        """Valide que le prix hors honoraires est cohérent avec le prix total."""
+        if v is None:
+            return None
+            
+        # Vérifie que le prix total est disponible
+        if 'prix' not in values:
+            raise ValueError("Le prix total doit être défini avant le prix hors honoraires.")
+            
+        prix = values['prix']
+        
+        # Vérifie que le prix hors honoraires est positif
+        if v <= 0:
+            raise ValueError("Le prix hors honoraires doit être supérieur à 0.")
+            
+        # Vérifie que le prix hors honoraires n'est pas supérieur au prix total
+        if v > prix:
+            raise ValueError("Le prix hors honoraires ne peut pas être supérieur au prix total.")
+            
+        # Vérifie que les honoraires ne sont pas excessifs (>20% du prix hors honoraires)
+        honoraires = prix - v
+        if honoraires > 0:
+            pourcentage = (honoraires / v) * 100
+            if pourcentage > 20:
+                raise ValueError(f"Les honoraires semblent anormalement élevés ({pourcentage:.1f}% du prix hors honoraires).")
+                
+        return v
+
+    @validator('prix')
+    def validate_prix(cls, v):
+        """Valide que le prix est renseigné et cohérent."""
+        if v is None:
+            raise ValueError("Le prix est obligatoire. Veuillez renseigner le prix du bien.")
+        if v <= 0:
+            raise ValueError("Le prix doit être supérieur à 0.")
+        if v > 10000000:  # 10 millions d'euros
+            raise ValueError("Le prix semble anormalement élevé (>10M€). Veuillez vérifier le montant.")
+        return v 

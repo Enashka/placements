@@ -106,12 +106,14 @@ def scenario_simulation(properties, config):
         
         # Calcul des frais de notaire et du coût total
         if properties[selected_property].frais_agence_acquereur:
-            base_frais_notaire = prix_negocie
+            # Si frais d'agence à charge acquéreur : base = prix hors honoraires
+            base_frais_notaire = properties[selected_property].prix_hors_honoraires * (1 - negociation/100)
             frais_notaire = base_frais_notaire * 0.08
             cout_total = prix_negocie + frais_notaire
             frais_agence_note = "(charge acquéreur)"
         else:
-            base_frais_notaire = properties[selected_property].prix_hors_honoraires * (1 - negociation/100)
+            # Si frais d'agence à charge vendeur : base = prix total
+            base_frais_notaire = prix_negocie
             frais_notaire = base_frais_notaire * 0.08
             cout_total = prix_negocie + frais_notaire
 
@@ -376,7 +378,6 @@ Veuillez extraire les informations pertinentes pour créer une nouvelle fiche de
                                                     "pourcentage": {"type": "number"}
                                                 }
                                             },
-                                            "negociable": {"type": ["boolean", "null"]},
                                             "frais_agence_acquereur": {"type": "boolean"}
                                         }
                                     },
@@ -522,7 +523,10 @@ def property_to_dict(property_obj):
         "metros": [{"ligne": m.ligne, "station": m.station, "distance": m.distance} for m in property_obj.metros],
         "atouts": property_obj.atouts,
         "vigilance": property_obj.vigilance,
-        "lien_annonce": property_obj.lien_annonce
+        "lien_annonce": property_obj.lien_annonce,
+        "bien": {
+            "cave": property_obj.cave
+        }
     }
 
 def delete_property(property_id: str):
@@ -650,29 +654,27 @@ def property_details(properties):
                         result_dict = json.loads(result)
                         
                         if "error" in result_dict and result_dict["error"]:
-                            st.error(f"Erreur retournée par l'API : {result_dict['error']}")
+                            display_error_message(result_dict["error"])
                         elif "property" not in result_dict:
-                            st.error("La réponse de l'API ne contient pas les informations du bien")
+                            display_error_message("La réponse de l'API ne contient pas les informations du bien")
                         else:
                             # Mettre à jour properties.json avec le résultat
                             success, error = update_properties_json(result_dict["property"], selected)
                             if success:
                                 st.success("Informations enregistrées avec succès!")
-                                # Stocker l'ID du nouveau bien
                                 if selected == "nouveau bien":
-                                    # Recharger les propriétés pour obtenir le nouvel ID
                                     new_properties = Property.load_properties('data/properties.json')
-                                    # Trouver le dernier bien ajouté
                                     last_id = max(new_properties.keys())
                                     st.session_state.last_added_property = last_id
                                 else:
                                     st.session_state.last_added_property = selected
-                                # Recharger la page pour afficher les modifications
                                 st.rerun()
                             else:
-                                st.error(f"Erreur lors de la sauvegarde : {error}")
+                                display_error_message(f"Erreur lors de la sauvegarde : {error}")
                     except json.JSONDecodeError as e:
-                        st.error(f"Erreur : Réponse invalide de l'API\nDétails : {str(e)}\nRéponse reçue : {result}")
+                        display_error_message(f"Erreur : Réponse invalide de l'API\nDétails : {str(e)}\nRéponse reçue : {result}")
+                    except Exception as e:
+                        display_error_message(str(e))
         else:
             st.warning("Veuillez entrer une description.")
     
@@ -867,6 +869,47 @@ def display_property_details(property_data):
             st.markdown('<div class="property-section"><div class="section-title">Points de vigilance</div>', unsafe_allow_html=True)
             for point in property_data.vigilance:
                 st.markdown(f'<div class="property-detail">• {point}</div>', unsafe_allow_html=True)
+
+def format_validation_error(error_msg: str) -> str:
+    """Formate le message d'erreur de validation pour un affichage plus clair."""
+    # Retire les détails techniques de l'erreur Pydantic
+    if "validation error for Property" in error_msg:
+        error_msg = error_msg.split("validation error for Property")[-1]
+    
+    # Nettoie et formate le message
+    error_msg = error_msg.replace("value_error.missing", "champ requis")
+    error_msg = error_msg.strip()
+    
+    return error_msg
+
+def display_error_message(error: str):
+    """Affiche un message d'erreur formaté avec un style approprié."""
+    st.markdown("""
+        <style>
+        .error-box {
+            background-color: #ffebee;
+            border-left: 5px solid #ff4b4b;
+            padding: 1rem;
+            margin: 1rem 0;
+            border-radius: 4px;
+        }
+        .error-title {
+            color: #ff4b4b;
+            font-weight: bold;
+            margin-bottom: 0.5rem;
+        }
+        .error-message {
+            color: #333;
+        }
+        </style>
+    """, unsafe_allow_html=True)
+    
+    st.markdown(f"""
+        <div class="error-box">
+            <div class="error-title">Erreur de validation</div>
+            <div class="error-message">{format_validation_error(error)}</div>
+        </div>
+    """, unsafe_allow_html=True)
 
 def main():
     st.title("Immo-Nico | Analyse immobilière")
