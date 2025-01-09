@@ -46,43 +46,6 @@ def load_data():
     config = ScenarioConfig.from_yaml('data/scenarios.yaml')
     return properties, config
 
-def property_comparison(properties):
-    """Affiche la comparaison des biens."""
-    st.header("Comparaison des Biens")
-    
-    # Création du DataFrame pour la comparaison
-    data = []
-    for p in properties.values():
-        data.append({
-            'ID': p.id,
-            'Adresse': p.adresse,
-            'Surface': p.surface,
-            'Prix': p.prix,
-            'Prix/m²': p.prix_m2,
-            'Charges': p.charges_mensuelles,
-            'Taxe Foncière': p.taxe_fonciere if p.taxe_fonciere else 0,
-            'DPE': p.dpe,
-            'Score Transport': p.score_transport()
-        })
-    
-    df = pd.DataFrame(data)
-    st.dataframe(df)
-    
-    # Graphique radar des caractéristiques
-    fig = go.Figure()
-    
-    for p in properties.values():
-        fig.add_trace(go.Scatterpolar(
-            r=[p.prix_m2/100, p.score_transport(), 
-               100 if p.dpe == 'A' else 80 if p.dpe == 'B' else 60 if p.dpe == 'C' else 40 if p.dpe == 'D' else 20,
-               len(p.atouts)*10],
-            theta=['Prix/m²', 'Transport', 'DPE', 'Atouts'],
-            name=p.id
-        ))
-    
-    fig.update_layout(polar=dict(radialaxis=dict(visible=True, range=[0, 100])))
-    st.plotly_chart(fig)
-
 def scenario_simulation(properties, config):
     """Interface de simulation des scénarios."""
     st.markdown('<p style="color: #ff4b4b; font-size: 1.25rem; font-weight: 600">Simulation des Scénarios</p>', unsafe_allow_html=True)
@@ -844,11 +807,32 @@ def display_property_details(property_data):
 
         if property_data.dpe:
             has_energy_info = True
-            energy_info.append(f'<div class="property-detail"><span class="property-label">DPE:</span><span class="property-value">{property_data.dpe}</span></div>')
+            dpe_colors = {
+                'A': '#51b849',  # Vert
+                'B': '#6fb24b',
+                'C': '#b5b949',
+                'D': '#ffd500',  # Jaune
+                'E': '#ffaa00',  # Orange
+                'F': '#ff5a00',
+                'G': '#ff0000',  # Rouge
+                'NC': '#808080'  # Gris
+            }
+            dpe_color = dpe_colors.get(property_data.dpe, '#808080')
+            energy_info.append(f'<div class="property-detail"><span class="property-label">DPE:</span><span class="property-value" style="background-color: {dpe_color}; color: white; padding: 2px 8px; border-radius: 4px;">{property_data.dpe}</span></div>')
         
         if property_data.ges:
             has_energy_info = True
-            energy_info.append(f'<div class="property-detail"><span class="property-label">GES:</span><span class="property-value">{property_data.ges}</span></div>')
+            ges_colors = {
+                'A': '#51b849',
+                'B': '#6fb24b',
+                'C': '#b5b949',
+                'D': '#ffd500',
+                'E': '#ffaa00',
+                'F': '#ff5a00',
+                'G': '#ff0000'
+            }
+            ges_color = ges_colors.get(property_data.ges, '#808080')
+            energy_info.append(f'<div class="property-detail"><span class="property-label">GES:</span><span class="property-value" style="background-color: {ges_color}; color: white; padding: 2px 8px; border-radius: 4px;">{property_data.ges}</span></div>')
 
         if has_energy_info:
             st.markdown('<div class="property-section"><div class="section-title">Performance énergétique</div>', unsafe_allow_html=True)

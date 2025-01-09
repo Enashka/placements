@@ -209,3 +209,23 @@ class Property(BaseModel):
             raise ValueError("La surface semble anormalement grande (>1000m²)")
             
         return v 
+
+    @validator('dpe')
+    def validate_dpe(cls, v):
+        """Valide que le DPE est une valeur autorisée."""
+        if not v:
+            return "NC"
+        valid_dpe = ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'NC']
+        if v.upper() not in valid_dpe:
+            raise ValueError(f"DPE invalide. Valeurs autorisées : {', '.join(valid_dpe)}")
+        return v.upper()
+
+    @validator('ges')
+    def validate_ges(cls, v):
+        """Valide que le GES est une valeur autorisée."""
+        if v is None:
+            return v
+        valid_ges = ['A', 'B', 'C', 'D', 'E', 'F', 'G']
+        if v.upper() not in valid_ges:
+            raise ValueError(f"GES invalide. Valeurs autorisées : {', '.join(valid_ges)}")
+        return v.upper() 
