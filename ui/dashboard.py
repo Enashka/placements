@@ -134,7 +134,12 @@ def scenario_simulation(properties, config):
             )
         
         prix_negocie = properties[selected_property].prix * (1 - negociation/100)
-        prix_m2_negocie = prix_negocie / properties[selected_property].surface
+        
+        # Calcul du prix au m² avec vérification de la surface
+        if properties[selected_property].surface and properties[selected_property].surface > 0:
+            prix_m2_negocie = prix_negocie / properties[selected_property].surface
+        else:
+            prix_m2_negocie = 0  # ou None, selon ce qui est préférable pour l'affichage
         
         # Calcul des frais de notaire et du coût total
         if properties[selected_property].frais_agence_acquereur:
@@ -637,7 +642,7 @@ def property_details(properties):
         selected = st.selectbox(
             "Sélectionner un bien",
             options,
-            format_func=lambda x: f"{x} - {properties[x].adresse}" if x in properties else x,
+            format_func=lambda x: x if x == "nouveau bien" else f"{x} - {properties[x].adresse}",
             key="property_selector",
             index=index
         )

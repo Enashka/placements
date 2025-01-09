@@ -30,15 +30,30 @@ schema:
     property:
       type: object
       properties:
+        bien:
+          type: object
+          properties:
+            nb_pieces:
+              type: ["integer", "null"]
+              description: "Nombre de pièces (1 pour studio/T1, 2 pour T2/F2, etc.)"
+            surface:
+              type: number
+              description: Surface en m²
+            etage:
+              type: string
+              description: Étage du bien
+            dpe:
+              type: string
+              description: Classe énergétique DPE
+            ges:
+              type: ["string", "null"]
+              description: Classe GES
         id:
           type: string
           description: Identifiant unique du bien
         adresse:
           type: string
           description: Adresse complète du bien
-        surface:
-          type: number
-          description: Surface en m²
         etage:
           type: string
           description: Étage du bien
