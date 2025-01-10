@@ -539,7 +539,17 @@ def property_details(properties):
             key="property_selector",
             index=index
         )
-    
+
+        # Réinitialiser le champ de texte si la sélection change
+        if "last_selection" not in st.session_state:
+            st.session_state.last_selection = selected
+        if "description_text" not in st.session_state:
+            st.session_state.description_text = ""
+            
+        if st.session_state.last_selection != selected:
+            st.session_state.description_text = ""
+            st.session_state.last_selection = selected
+
     with col_delete:
         if selected != "nouveau bien":
             if st.button("🗑️", key=f"delete_button_{selected}", help="Supprimer ce bien"):
@@ -581,7 +591,9 @@ def property_details(properties):
     else:
         st.markdown('<p style="color: gray;">Décrivez les modifications à apporter au bien.</p>', unsafe_allow_html=True)
     
-    user_input = st.text_area("Description", height=200)
+    user_input = st.text_area("Description", value=st.session_state.description_text, height=200, key="description_input")
+    # Mettre à jour le texte dans le state
+    st.session_state.description_text = user_input
     
     if st.button("Enregistrer"):
         if user_input.strip():

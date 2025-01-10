@@ -1,46 +1,10 @@
 {
   "properties": {
-    "bien-001": {
-      "adresse": "1 Rue Example",
-      "bien": {
-        "surface": 50,
-        "etage": "2",
-        "nb_pieces": 2,
-        "exposition": "Sud",
-        "dpe": "C",
-        "ges": "D",
-        "cave": false,
-        "etat": "Bon état",
-        "type_chauffage": "Individuel électrique"
-      },
-      "prix": {
-        "annonce": 250000,
-        "frais_agence_acquereur": true
-      },
-      "charges": {
-        "mensuelles": 100,
-        "taxe_fonciere": 800,
-        "energie": 80
-      },
-      "metros": [
-        {
-          "ligne": "1",
-          "station": "Example",
-          "distance": 500
-        }
-      ],
-      "atouts": [
-        "Lumineux",
-        "Calme"
-      ],
-      "vigilance": [],
-      "lien_annonce": "https://example.com/annonce"
-    },
     "bien-002": {
-      "id": "824064",
-      "adresse": "4 rue Mathis, 75019 Paris",
+      "id": "bien-002",
+      "adresse": "4 Rue Mathis, 75019 Paris",
       "bien": {
-        "surface": 37,
+        "surface": 37.0,
         "etage": "1/6",
         "nb_pieces": 2,
         "exposition": null,
@@ -48,18 +12,18 @@
         "ges": "D",
         "cave": false,
         "etat": null,
-        "travaux": null,
-        "type_chauffage": "collectif"
+        "type_chauffage": "collectif",
+        "travaux": null
       },
       "prix": {
-        "annonce": 250000,
-        "hors_honoraires": 240000,
-        "frais_agence_acquereur": true,
-        "m2": 6486
+        "annonce": 250000.0,
+        "hors_honoraires": 240000.0,
+        "m2": 6756.76,
+        "frais_agence_acquereur": true
       },
       "charges": {
-        "mensuelles": 195,
-        "taxe_fonciere": null,
+        "mensuelles": 195.0,
+        "taxe_fonciere": 500.0,
         "energie": null,
         "chauffage": "collectif"
       },
@@ -78,7 +42,64 @@
         "Commodités variées à proximité"
       ],
       "vigilance": [
-        "Salon un peu exigu"
+        "Salon un peu exigu",
+        "Bar un peu haut"
+      ],
+      "lien_annonce": null
+    },
+    "bien-003": {
+      "id": "F40/2479",
+      "adresse": "23 ter rue du télégraphe, Paris 20E (75020)",
+      "bien": {
+        "surface": 38.65,
+        "etage": "1er étage",
+        "nb_pieces": 2,
+        "exposition": null,
+        "dpe": "D",
+        "ges": null,
+        "cave": true,
+        "etat": "intérieur à rafraichir un peu",
+        "travaux": null,
+        "type_chauffage": null
+      },
+      "prix": {
+        "annonce": 345000,
+        "hors_honoraires": null,
+        "frais_agence_acquereur": false,
+        "m2": 8926
+      },
+      "charges": {
+        "mensuelles": 100,
+        "taxe_fonciere": 888,
+        "energie": 100,
+        "chauffage": null
+      },
+      "metros": [
+        {
+          "ligne": "métro",
+          "station": "Télégraphe",
+          "distance": 500
+        },
+        {
+          "ligne": "métro",
+          "station": "Saint-Fargeau",
+          "distance": null
+        },
+        {
+          "ligne": "métro",
+          "station": "Pelleport",
+          "distance": null
+        }
+      ],
+      "atouts": [
+        "appartement traversant",
+        "très lumineux",
+        "cuisine américaine",
+        "cave"
+      ],
+      "vigilance": [
+        "pas de coup de coeur",
+        "intérieur à rafraichir un peu"
       ],
       "lien_annonce": null
     }
