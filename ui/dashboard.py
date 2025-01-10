@@ -90,16 +90,20 @@ def scenario_simulation(properties, config):
         col_details, col_negociation = st.columns(2)
         
         # Calculs communs
-        honoraires = properties[selected_property].prix.annonce - (properties[selected_property].prix.hors_honoraires or 0)
-        frais_agence_note = "(en direct)" if honoraires == 0 else "(charge vendeur)"
+        if properties[selected_property].prix.hors_honoraires:
+            honoraires = properties[selected_property].prix.annonce - properties[selected_property].prix.hors_honoraires
+            frais_agence_note = "(charge acquéreur)" if properties[selected_property].prix.frais_agence_acquereur else "(charge vendeur)"
+            frais_agence_line = f'<span style="color: #666666">Frais d\'agence:</span> {honoraires:,.0f}€ {frais_agence_note}<br>'
+        else:
+            honoraires = 0
+            frais_agence_line = ""
         
         # Affichage dans col_details
         with col_details:
             st.markdown(f"""<small>
 <span style="color: #666666">Surface:</span> {properties[selected_property].bien.surface}m² | <span style="color: #666666">Prix initial:</span> {properties[selected_property].prix.annonce:,.0f}€<br>
 <span style="color: #666666">Prix/m²:</span> {properties[selected_property].prix.m2:,.0f}€<br>
-<span style="color: #666666">Frais d'agence:</span> {honoraires:,.0f}€ {frais_agence_note}
-</small>""", unsafe_allow_html=True)
+{frais_agence_line}</small>""", unsafe_allow_html=True)
 
             # Ajout du champ de négociation
             negociation = st.slider(
@@ -118,20 +122,18 @@ def scenario_simulation(properties, config):
         if properties[selected_property].bien.surface and properties[selected_property].bien.surface > 0:
             prix_m2_negocie = prix_negocie / properties[selected_property].bien.surface
         else:
-            prix_m2_negocie = 0  # ou None, selon ce qui est préférable pour l'affichage
+            prix_m2_negocie = 0
         
         # Calcul des frais de notaire et du coût total
         if properties[selected_property].prix.frais_agence_acquereur:
-            # Si frais d'agence à charge acquéreur : base = prix hors honoraires ou prix annoncé si non défini
+            # Si frais d'agence à charge acquéreur : base = prix hors honoraires
             base_frais_notaire = (properties[selected_property].prix.hors_honoraires or properties[selected_property].prix.annonce) * (1 - negociation/100)
-            frais_notaire = base_frais_notaire * 0.08
-            cout_total = prix_negocie + frais_notaire
-            frais_agence_note = "(charge acquéreur)"
         else:
-            # Si frais d'agence à charge vendeur : base = prix total
+            # Si frais d'agence à charge vendeur : base = prix négocié
             base_frais_notaire = prix_negocie
-            frais_notaire = base_frais_notaire * 0.08
-            cout_total = prix_negocie + frais_notaire
+            
+        frais_notaire = base_frais_notaire * 0.08
+        cout_total = prix_negocie + frais_notaire  # Les frais d'agence sont déjà inclus dans prix_negocie
 
         # Affichage dans col_negociation
         with col_negociation:
