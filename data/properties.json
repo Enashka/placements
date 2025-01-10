@@ -102,6 +102,60 @@
         "intérieur à rafraichir un peu"
       ],
       "lien_annonce": null
+    },
+    "bien-004": {
+      "id": "F57/2902",
+      "adresse": "118 avenue Gabriel Peri, Saint-Ouen-Sur-Seine (93400)",
+      "bien": {
+        "surface": 47,
+        "etage": null,
+        "nb_pieces": 2,
+        "exposition": null,
+        "dpe": "C",
+        "ges": null,
+        "cave": true,
+        "etat": "très agréable, aucuns travaux à prévoir",
+        "travaux": null,
+        "type_chauffage": "électrique"
+      },
+      "prix": {
+        "annonce": 332000,
+        "hors_honoraires": null,
+        "frais_agence_acquereur": false,
+        "m2": 7064
+      },
+      "charges": {
+        "mensuelles": 164,
+        "taxe_fonciere": 655,
+        "energie": 68,
+        "chauffage": "électrique"
+      },
+      "metros": [
+        {
+          "ligne": "L13",
+          "station": "Garibaldi",
+          "distance": 350
+        },
+        {
+          "ligne": "L14",
+          "station": "St-Ouen",
+          "distance": 900
+        }
+      ],
+      "atouts": [
+        "appartement charmant et cosy",
+        "cuisine équipée",
+        "parquet en chêne massif",
+        "poutres apparentes",
+        "calme",
+        "propriétaires pressés de vendre"
+      ],
+      "vigilance": [
+        "cave pas très saine",
+        "suspicion de problèmes structurels",
+        "intervention policière mentionnée dans partie commune"
+      ],
+      "lien_annonce": "https://www.pap.fr/annonces/appartement-saint-ouen-sur-seine-93400-r455702902"
     }
   }
 }

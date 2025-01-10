@@ -2,13 +2,13 @@
 scenarios:
   default:
     apport:
-      total: 200000
+      total: 145000
       immobilier: 200000  # montant en euros pour l'apport appartement
     
     credit:
-      taux: 3.32  # pourcentage
-      duree: 20   # années
-      assurance: 0.34  # pourcentage
+      taux: 3.40  # pourcentage
+      duree: 25   # années
+      assurance: 0.40  # pourcentage
 
     rendements:
       epargne_precaution: 3.0  # Livret A actuel
@@ -16,7 +16,7 @@ scenarios:
       evolution_immobilier: 1.5  # Pourcentage annuel moyen
 
     parametres_simulation:
-      horizon: 20  # années
+      horizon: 25  # années
       inflation: 2.0  # pourcentage annuel
       frequence_calcul: "mensuelle"
       

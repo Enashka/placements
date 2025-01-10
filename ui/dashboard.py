@@ -312,6 +312,30 @@ Pénalités (3%): -{penalites:,.0f}€</i><br>
     fig.update_yaxes(tickformat=',d')   # Format des montants avec séparateur de milliers
     
     st.plotly_chart(fig)
+    
+    # Affichage des constantes utilisées dans les calculs
+    st.markdown("---")  # Ligne de séparation
+    col_constantes1, col_constantes2 = st.columns(2)
+    
+    with col_constantes1:
+        st.markdown(f"""
+        <div style="color: #666666; font-style: italic;">
+        <p style="margin: 0;">Hypothèses économiques :</p>
+        • Inflation : {config.inflation}%/an<br>
+        <p style="font-size: 0.8em; margin-top: 0.5em; color: #ff4b4b;">Note : Ces hypothèses sont simplifiées et pourraient varier significativement sur la durée de la simulation ({horizon} ans).</p>
+        </div>
+        """, unsafe_allow_html=True)
+        
+    with col_constantes2:
+        st.markdown(f"""
+        <div style="color: #666666; font-style: italic;">
+        <p style="margin: 0;">Évolution des charges :</p>
+        • Copropriété : {config.evolution_charges['copropriete']}%/an<br>
+        • Taxe foncière : {config.evolution_charges['taxe_fonciere']}%/an<br>
+        • Énergie : {config.evolution_charges['energie']}%/an<br>
+        <p style="font-size: 0.8em; margin-top: 0.5em; color: #ff4b4b;">Note : Ces taux d'évolution sont des moyennes historiques qui pourraient sous-estimer les augmentations futures.</p>
+        </div>
+        """, unsafe_allow_html=True)
 
 def load_prompts():
     """Charge les prompts depuis le fichier YAML."""
