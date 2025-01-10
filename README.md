@@ -78,6 +78,7 @@ Les biens sont stockés au format JSON avec les informations suivantes :
 - Transports à proximité
 - Charges et taxes
 - Points forts et points de vigilance
+- Commentaires additionnels
 
 ### Format des Scénarios (scenarios.yaml)
 ```yaml

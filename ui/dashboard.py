@@ -631,7 +631,7 @@ def property_details(properties):
     # Section Renseignements
     st.subheader("Renseignements", divider="red")
     if selected == "nouveau bien":
-        st.markdown('<p style="color: gray;">Décrivez le nouveau bien en texte libre.</p>', unsafe_allow_html=True)
+        st.markdown('<p style="color: gray;">Décrivez le nouveau bien comme vous voulez, par exemple en copiant-collant la description de l\'annonce. Il nous faut un moins un prix et une superficie.</p>', unsafe_allow_html=True)
     else:
         st.markdown('<p style="color: gray;">Décrivez les modifications à apporter au bien.</p>', unsafe_allow_html=True)
     
