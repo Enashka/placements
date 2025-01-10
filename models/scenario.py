@@ -61,9 +61,13 @@ class Scenario:
     LDD_PLAFOND = 12000
     
     def __init__(self, property: Property, config: ScenarioConfig, cout_total: float = None):
+        """Initialise un scénario de simulation."""
         self.property = property
         self.config = config
         self.cout_total = cout_total if cout_total is not None else property.prix
+        
+        # Calcul de la valeur initiale du bien (sans les frais)
+        self.valeur_initiale = property.prix.hors_honoraires if property.prix.hors_honoraires is not None else property.prix.annonce
         
     def calculate_monthly_payment(self) -> float:
         """Calcule la mensualité totale (crédit + assurance)."""
@@ -113,32 +117,27 @@ class Scenario:
         return evolution
 
     def simulate_patrimoine(self) -> Dict[str, List[float]]:
-        """Simule l'évolution du patrimoine sur l'horizon défini."""
+        """Simule l'évolution du patrimoine sur la durée du crédit."""
+        # Initialisation des tableaux
         nb_mois = self.config.horizon_simulation * 12
-        
-        # Initialisation des composantes du patrimoine
-        apport_immo = self.config.apport_total * (self.config.repartition_immobilier / 100)
-        epargne = self.config.apport_total * (self.config.repartition_epargne / 100)
-        investissement = self.config.apport_total * (self.config.repartition_investissement / 100)
-        
-        # Calcul du prêt
-        montant_pret = self.cout_total - apport_immo
-        # On ne prend que la mensualité du prêt, pas les autres charges
-        mensualite = self.calculate_monthly_payment()
-        
-        # Arrays pour stocker l'évolution
-        valeur_bien = np.zeros(nb_mois + 1)
-        capital_restant = np.zeros(nb_mois + 1)
-        epargne_evolution = np.zeros(nb_mois + 1)
-        investissement_evolution = np.zeros(nb_mois + 1)
         patrimoine_total = np.zeros(nb_mois + 1)
+        capital_restant = np.zeros(nb_mois + 1)
+        valeur_bien = np.zeros(nb_mois + 1)
+        epargne = np.zeros(nb_mois + 1)
+        investissement = np.zeros(nb_mois + 1)
+
+        # Calcul des montants initiaux
+        apport_immo = self.config.apport_total * self.config.repartition_immobilier / 100
+        montant_pret = self.cout_total - apport_immo
+        epargne_initiale = self.config.apport_total * self.config.repartition_epargne / 100
+        investissement_initial = self.config.apport_total * self.config.repartition_investissement / 100
         
-        # Valeurs initiales
-        valeur_bien[0] = self.cout_total
+        # Initialisation des valeurs à t=0
         capital_restant[0] = montant_pret
-        epargne_evolution[0] = epargne
-        investissement_evolution[0] = investissement
-        patrimoine_total[0] = valeur_bien[0] - capital_restant[0] + epargne + investissement
+        valeur_bien[0] = self.valeur_initiale  # Utilisation de la valeur initiale sans les frais
+        epargne[0] = epargne_initiale
+        investissement[0] = investissement_initial
+        patrimoine_total[0] = valeur_bien[0] - capital_restant[0] + epargne[0] + investissement[0]
         
         # Simulation mois par mois
         for mois in range(1, nb_mois + 1):
@@ -148,22 +147,21 @@ class Scenario:
             # Évolution du prêt (uniquement le remboursement, pas les charges)
             taux_mensuel = self.config.taux_credit / 12 / 100
             interet = capital_restant[mois-1] * taux_mensuel
-            capital_amorti = mensualite - interet
+            capital_amorti = self.calculate_monthly_payment() - interet
             capital_restant[mois] = max(0, capital_restant[mois-1] - capital_amorti)
             
             # Évolution épargne et investissements
-            epargne_evolution[mois] = self.simulate_epargne_securisee(epargne, mois)[mois-1]
-            investissement_evolution[mois] = investissement_evolution[mois-1] * (1 + self.config.rendement_investissement/12/100)
+            epargne[mois] = self.simulate_epargne_securisee(epargne[mois-1], mois)[mois-1]
+            investissement[mois] = investissement[mois-1] * (1 + self.config.rendement_investissement/12/100)
             
             # Patrimoine total (valeur bien - capital restant + épargne + investissements)
-            patrimoine_total[mois] = (valeur_bien[mois] - capital_restant[mois] + 
-                                    epargne_evolution[mois] + investissement_evolution[mois])
+            patrimoine_total[mois] = valeur_bien[mois] - capital_restant[mois] + epargne[mois] + investissement[mois]
         
         return {
             'valeur_bien': valeur_bien.tolist(),
             'capital_restant': capital_restant.tolist(),
-            'epargne': epargne_evolution.tolist(),
-            'investissement': investissement_evolution.tolist(),
+            'epargne': epargne.tolist(),
+            'investissement': investissement.tolist(),
             'patrimoine_total': patrimoine_total.tolist()
         }
 
