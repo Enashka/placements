@@ -512,7 +512,7 @@ def property_to_dict(property_obj):
         "metros": [{"ligne": m.ligne, "station": m.station, "distance": m.distance} for m in property_obj.metros],
         "atouts": property_obj.atouts,
         "vigilance": property_obj.vigilance,
-        "lien_annonce": property_obj.lien_annonce
+        "lien_annonce": str(property_obj.lien_annonce) if property_obj.lien_annonce else None
     }
 
 def delete_property(property_id: str):

@@ -156,6 +156,53 @@
         "intervention policière mentionnée dans partie commune"
       ],
       "lien_annonce": "https://www.pap.fr/annonces/appartement-saint-ouen-sur-seine-93400-r455702902"
+    },
+    "bien-005": {
+      "id": "bien-005",
+      "adresse": "89 Rue des Poissoniers, Paris 18e (75018)",
+      "bien": {
+        "surface": 37.0,
+        "etage": "1er étage",
+        "nb_pieces": 2,
+        "exposition": null,
+        "dpe": "E",
+        "ges": "E",
+        "cave": false,
+        "etat": "Interieur tres cosy, bien que necessite quelques menu travaux",
+        "type_chauffage": null,
+        "travaux": "Petit travaux à prévoir (retirer étagères à CD et mur d escalade dans chambre)"
+      },
+      "prix": {
+        "annonce": 345000.0,
+        "hors_honoraires": null,
+        "frais_agence_acquereur": false,
+        "m2": 9324.32
+      },
+      "charges": {
+        "mensuelles": 90.0,
+        "taxe_fonciere": null,
+        "energie": null,
+        "chauffage": null
+      },
+      "metros": [
+        {
+          "ligne": "Marcadet",
+          "station": "Marcadet",
+          "distance": null
+        }
+      ],
+      "atouts": [
+        "calme",
+        "lumineux",
+        "vue sur cour pavée et arborée",
+        "tres bien agencé",
+        "On s'y sent bien"
+      ],
+      "vigilance": [
+        "quartier pas top",
+        "Petit travaux à prévoir (retirer étagères à CD et mur d escalade dans chambre)"
+      ],
+      "lien_annonce": "https://www.jinka.fr/alert_result?token=bc7c0db67b5963e51b937493d9ff841c&ad=61698430&from=jinka_share"
     }
   }
 }
