@@ -175,8 +175,8 @@
       "prix": {
         "annonce": 345000.0,
         "hors_honoraires": null,
-        "frais_agence_acquereur": false,
-        "m2": 9324.32
+        "m2": 9324.32,
+        "frais_agence_acquereur": false
       },
       "charges": {
         "mensuelles": 90.0,
@@ -201,6 +201,9 @@
       "vigilance": [
         "quartier pas top",
         "Petit travaux à prévoir (retirer étagères à CD et mur d escalade dans chambre)"
+      ],
+      "commentaires": [
+        "Les diagnostiques et PVs d'AG ont été reçus."
       ],
       "lien_annonce": "https://www.jinka.fr/alert_result?token=bc7c0db67b5963e51b937493d9ff841c&ad=61698430&from=jinka_share"
     }

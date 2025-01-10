@@ -65,6 +65,7 @@ class Property(BaseModel):
     metros: List[Metro] = []
     atouts: List[str] = []
     vigilance: List[str] = []
+    commentaires: List[str] = []
     lien_annonce: Optional[HttpUrl] = None
     error: Optional[str] = None
 
@@ -174,6 +175,7 @@ class Property(BaseModel):
                     'metros': [Metro(**m) for m in metros],
                     'atouts': prop_data.get('atouts', []),
                     'vigilance': prop_data.get('vigilance', []),
+                    'commentaires': prop_data.get('commentaires', []),
                     'lien_annonce': prop_data.get('lien_annonce')
                 }
                 

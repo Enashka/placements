@@ -463,6 +463,7 @@ def update_properties_json(new_property_data: dict, selected_id: str = None):
                 metros=[],
                 atouts=[],
                 vigilance=[],
+                commentaires=[],
                 lien_annonce=new_property_data.get('lien_annonce')
             )
             
@@ -512,6 +513,7 @@ def property_to_dict(property_obj):
         "metros": [{"ligne": m.ligne, "station": m.station, "distance": m.distance} for m in property_obj.metros],
         "atouts": property_obj.atouts,
         "vigilance": property_obj.vigilance,
+        "commentaires": property_obj.commentaires,
         "lien_annonce": str(property_obj.lien_annonce) if property_obj.lien_annonce else None
     }
 
@@ -884,6 +886,12 @@ def display_property_details(property_data):
             st.markdown('<div class="property-section"><div class="section-title">Points de vigilance</div>', unsafe_allow_html=True)
             for point in property_data.vigilance:
                 st.markdown(f'<div class="property-detail">• {point}</div>', unsafe_allow_html=True)
+                
+        # Commentaires
+        if property_data.commentaires:
+            st.markdown('<div class="property-section"><div class="section-title">Commentaires</div>', unsafe_allow_html=True)
+            for commentaire in property_data.commentaires:
+                st.markdown(f'<div class="property-detail">• {commentaire}</div>', unsafe_allow_html=True)
 
 def format_validation_error(error_msg: str) -> str:
     """Formate le message d'erreur de validation pour un affichage plus clair."""

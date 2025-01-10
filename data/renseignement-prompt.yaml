@@ -147,6 +147,12 @@ response_format:
                 type: "string"
               description: "Liste des points de vigilance"
               default: []
+            commentaires:
+              type: "array"
+              items:
+                type: "string"
+              description: "Liste des commentaires additionnels qui ne concernent pas les points forts ou de vigilance"
+              default: []
             
             # Lien
             lien_annonce:
