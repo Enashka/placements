@@ -2,8 +2,8 @@
 scenarios:
   default:
     apport:
-      total: 145000
-      immobilier: 200000  # montant en euros pour l'apport appartement
+      total: 200000
+      immobilier: 145000  # montant en euros pour l'apport appartement
     
     credit:
       taux: 3.40  # pourcentage
