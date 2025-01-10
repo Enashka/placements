@@ -75,14 +75,14 @@ def scenario_simulation(properties, config):
         col_details, col_negociation = st.columns(2)
         
         # Calculs communs
-        honoraires = properties[selected_property].prix - properties[selected_property].prix_hors_honoraires
+        honoraires = properties[selected_property].prix.annonce - (properties[selected_property].prix.hors_honoraires or 0)
         frais_agence_note = "(en direct)" if honoraires == 0 else "(charge vendeur)"
         
         # Affichage dans col_details
         with col_details:
             st.markdown(f"""<small>
-<span style="color: #666666">Surface:</span> {properties[selected_property].surface}m² | <span style="color: #666666">Prix initial:</span> {properties[selected_property].prix:,.0f}€<br>
-<span style="color: #666666">Prix/m²:</span> {properties[selected_property].prix_m2:,.0f}€<br>
+<span style="color: #666666">Surface:</span> {properties[selected_property].bien.surface}m² | <span style="color: #666666">Prix initial:</span> {properties[selected_property].prix.annonce:,.0f}€<br>
+<span style="color: #666666">Prix/m²:</span> {properties[selected_property].prix.m2:,.0f}€<br>
 <span style="color: #666666">Frais d'agence:</span> {honoraires:,.0f}€ {frais_agence_note}
 </small>""", unsafe_allow_html=True)
 
@@ -96,18 +96,18 @@ def scenario_simulation(properties, config):
                 help="Pourcentage de remise négociée sur le prix"
             )
         
-        prix_negocie = properties[selected_property].prix * (1 - negociation/100)
+        prix_negocie = properties[selected_property].prix.annonce * (1 - negociation/100)
         
         # Calcul du prix au m² avec vérification de la surface
-        if properties[selected_property].surface and properties[selected_property].surface > 0:
-            prix_m2_negocie = prix_negocie / properties[selected_property].surface
+        if properties[selected_property].bien.surface and properties[selected_property].bien.surface > 0:
+            prix_m2_negocie = prix_negocie / properties[selected_property].bien.surface
         else:
             prix_m2_negocie = 0  # ou None, selon ce qui est préférable pour l'affichage
         
         # Calcul des frais de notaire et du coût total
-        if properties[selected_property].frais_agence_acquereur:
-            # Si frais d'agence à charge acquéreur : base = prix hors honoraires
-            base_frais_notaire = properties[selected_property].prix_hors_honoraires * (1 - negociation/100)
+        if properties[selected_property].prix.frais_agence_acquereur:
+            # Si frais d'agence à charge acquéreur : base = prix hors honoraires ou prix annoncé si non défini
+            base_frais_notaire = (properties[selected_property].prix.hors_honoraires or properties[selected_property].prix.annonce) * (1 - negociation/100)
             frais_notaire = base_frais_notaire * 0.08
             cout_total = prix_negocie + frais_notaire
             frais_agence_note = "(charge acquéreur)"
@@ -151,9 +151,9 @@ def scenario_simulation(properties, config):
         
         # Calcul des charges totales
         total_charges = (mensualite_totale + 
-                        properties[selected_property].charges_mensuelles +
-                        (properties[selected_property].energie if properties[selected_property].energie else 0) +
-                        (properties[selected_property].taxe_fonciere/12 if properties[selected_property].taxe_fonciere else 0))
+                        (properties[selected_property].charges.mensuelles or 0) +
+                        (properties[selected_property].charges.energie if properties[selected_property].charges.energie else 0) +
+                        (properties[selected_property].charges.taxe_fonciere/12 if properties[selected_property].charges.taxe_fonciere else 0))
 
         st.metric("Charges totales", f"{total_charges:.2f}€")
         charges_detail = f"""<div style="margin-top: -1rem">
@@ -161,9 +161,9 @@ def scenario_simulation(properties, config):
 <span style="color: #666666">Prêt:</span> {montant_pret:,.0f}€<br>
 <span style="color: #666666">Mensualités:</span> {mensualite:.2f}€<br>
 <span style="color: #666666">Assurance prêt ({config.taux_assurance}%):</span> {assurance_mensuelle:.2f}€<br>
-<span style="color: #666666">Copropriété:</span> {'<span style="color: red">' if properties[selected_property].charges_mensuelles == 0 else ''}{properties[selected_property].charges_mensuelles:.2f}€{'</span>' if properties[selected_property].charges_mensuelles == 0 else ''}<br>
-<span style="color: #666666">Énergie:</span> {'<span style="color: red">' if not properties[selected_property].energie else ''}{properties[selected_property].energie if properties[selected_property].energie else 0:.2f}€{'</span>' if not properties[selected_property].energie else ''}<br>
-<span style="color: #666666">Taxe foncière:</span> {'<span style="color: red">' if not properties[selected_property].taxe_fonciere else ''}{properties[selected_property].taxe_fonciere/12 if properties[selected_property].taxe_fonciere else 0:.2f}€ ({properties[selected_property].taxe_fonciere if properties[selected_property].taxe_fonciere else 0:.0f}€/an){'</span>' if not properties[selected_property].taxe_fonciere else ''}
+<span style="color: #666666">Copropriété:</span> {'<span style="color: red">' if not properties[selected_property].charges.mensuelles else ''}{properties[selected_property].charges.mensuelles or 0:.2f}€{'</span>' if not properties[selected_property].charges.mensuelles else ''}<br>
+<span style="color: #666666">Énergie:</span> {'<span style="color: red">' if not properties[selected_property].charges.energie else ''}{properties[selected_property].charges.energie if properties[selected_property].charges.energie else 0:.2f}€{'</span>' if not properties[selected_property].charges.energie else ''}<br>
+<span style="color: #666666">Taxe foncière:</span> {'<span style="color: red">' if not properties[selected_property].charges.taxe_fonciere else ''}{properties[selected_property].charges.taxe_fonciere/12 if properties[selected_property].charges.taxe_fonciere else 0:.2f}€ ({properties[selected_property].charges.taxe_fonciere if properties[selected_property].charges.taxe_fonciere else 0:.0f}€/an){'</span>' if not properties[selected_property].charges.taxe_fonciere else ''}
 </small>
 </div>"""
         st.markdown(charges_detail, unsafe_allow_html=True)
@@ -334,106 +334,38 @@ Veuillez extraire les informations pertinentes pour créer une nouvelle fiche de
 
         # Appel à l'API avec Structured Output
         response = client.chat.completions.create(
-            model="gpt-4o",
+            model="gpt-4o-mini",
             messages=messages,
-            response_format={
-                "type": "json_schema",
-                "json_schema": {
-                    "name": "property_schema",
-                    "schema": {
-                        "type": "object",
-                        "properties": {
-                            "error": {
-                                "type": "string",
-                                "description": "Message d'erreur si les informations sont insuffisantes"
-                            },
-                            "property": {
-                                "type": "object",
-                                "properties": {
-                                    "adresse": {"type": "string"},
-                                    "lien_annonce": {"type": ["string", "null"]},
-                                    "bien": {
-                                        "type": "object",
-                                        "properties": {
-                                            "type": {"type": "string"},
-                                            "surface": {"type": "number"},
-                                            "etage": {"type": "string"},
-                                            "nb_pieces": {"type": ["integer", "null"]},
-                                            "orientation": {"type": ["string", "null"]},
-                                            "dpe": {"type": ["string", "null"]},
-                                            "ges": {"type": ["string", "null"]},
-                                            "cave": {"type": "boolean"}
-                                        }
-                                    },
-                                    "prix": {
-                                        "type": "object",
-                                        "properties": {
-                                            "annonce": {"type": "number"},
-                                            "hors_honoraires": {"type": "number"},
-                                            "m2": {"type": "number"},
-                                            "honoraires": {
-                                                "type": "object",
-                                                "properties": {
-                                                    "montant": {"type": "number"},
-                                                    "pourcentage": {"type": "number"}
-                                                }
-                                            },
-                                            "frais_agence_acquereur": {"type": "boolean"}
-                                        }
-                                    },
-                                    "charges": {
-                                        "type": "object",
-                                        "properties": {
-                                            "mensuelles": {"type": "number"},
-                                            "taxe_fonciere": {"type": ["number", "null"]},
-                                            "energie": {"type": ["number", "null"]},
-                                            "chauffage": {"type": ["string", "null"]}
-                                        }
-                                    },
-                                    "metros": {
-                                        "type": "array",
-                                        "items": {
-                                            "type": "object",
-                                            "properties": {
-                                                "ligne": {"type": "string"},
-                                                "station": {"type": "string"},
-                                                "distance": {"type": "number"}
-                                            }
-                                        }
-                                    },
-                                    "atouts": {
-                                        "type": "array",
-                                        "items": {"type": "string"}
-                                    },
-                                    "vigilance": {
-                                        "type": "array",
-                                        "items": {"type": "string"}
-                                    }
-                                }
-                            }
-                        }
-                    }
-                }
-            }
+            response_format=prompts["response_format"]
         )
         
         result = response.choices[0].message.content
         result_dict = json.loads(result)
         
         # Si c'est une mise à jour et qu'il n'y a pas d'erreur, utiliser les nouvelles données
-        if existing_property and "property" in result_dict and not result_dict.get("error"):
-            # Utiliser directement les nouvelles données, car l'API a déjà fait la fusion
-            return True, json.dumps(result_dict)
-        elif "property" in result_dict:
-            # Nouveau bien ou mise à jour réussie
-            return True, json.dumps(result_dict)
-        elif result_dict.get("error"):
-            # Erreur retournée par l'API
-            return False, f"Erreur retournée par l'API : {result_dict['error']}"
+        if "property" in result_dict and not result_dict.get("error"):
+            property_data = result_dict["property"]
         else:
-            # Erreur ou données manquantes
-            return False, "La réponse de l'API ne contient pas les informations du bien"
+            # Essayer d'utiliser directement le résultat comme données de propriété
+            property_data = result_dict
             
+        # S'assurer que les objets imbriqués sont présents
+        if "bien" not in property_data:
+            return False, "La réponse doit contenir au moins les informations de base du bien (surface)"
+        if "prix" not in property_data:
+            return False, "La réponse doit contenir au moins les informations de prix"
+        
+        # Si charges n'est pas présent, l'ajouter avec des valeurs par défaut
+        if "charges" not in property_data:
+            property_data["charges"] = {
+                "mensuelles": None,
+                "taxe_fonciere": None,
+                "energie": None,
+                "chauffage": None
+            }
+            
+        # Retourner les données structurées
+        return True, json.dumps(property_data)
     except Exception as e:
         return False, f"Erreur lors de l'appel à l'API : {str(e)}"
 
@@ -462,26 +394,33 @@ def update_properties_json(new_property_data: dict, selected_id: str = None):
             # Créer un Property temporaire pour utiliser generate_id
             temp_property = Property(
                 id="temp",
-                adresse=new_property_data['adresse'],
-                surface=new_property_data['bien']['surface'],
-                etage=new_property_data['bien']['etage'],
-                nb_pieces=new_property_data['bien'].get('nb_pieces'),
-                exposition=new_property_data['bien'].get('exposition'),
-                type_chauffage=new_property_data['bien'].get('type_chauffage'),
-                travaux=new_property_data['bien'].get('travaux'),
-                etat=new_property_data['bien'].get('etat'),
-                prix=new_property_data['prix']['annonce'],
-                prix_hors_honoraires=new_property_data['prix']['hors_honoraires'],
-                prix_m2=new_property_data['prix']['m2'],
-                charges_mensuelles=new_property_data['charges']['mensuelles'],
-                taxe_fonciere=new_property_data['charges'].get('taxe_fonciere'),
-                energie=new_property_data['charges'].get('energie'),
-                dpe=new_property_data['bien']['dpe'],
-                ges=new_property_data['bien'].get('ges'),
+                adresse=new_property_data.get('adresse', 'Adresse inconnue'),
+                bien={
+                    "surface": new_property_data['bien']['surface'],
+                    "etage": new_property_data['bien'].get('etage'),
+                    "nb_pieces": new_property_data['bien'].get('nb_pieces'),
+                    "exposition": new_property_data['bien'].get('exposition'),
+                    "type_chauffage": new_property_data['bien'].get('type_chauffage'),
+                    "travaux": new_property_data['bien'].get('travaux'),
+                    "etat": new_property_data['bien'].get('etat'),
+                    "dpe": new_property_data['bien'].get('dpe', 'NC'),
+                    "ges": new_property_data['bien'].get('ges'),
+                    "cave": new_property_data['bien'].get('cave', False)
+                },
+                prix={
+                    "annonce": new_property_data['prix']['annonce'],
+                    "hors_honoraires": new_property_data['prix'].get('hors_honoraires'),
+                    "frais_agence_acquereur": new_property_data['prix'].get('frais_agence_acquereur', False)
+                },
+                charges={
+                    "mensuelles": new_property_data['charges'].get('mensuelles'),
+                    "taxe_fonciere": new_property_data['charges'].get('taxe_fonciere'),
+                    "energie": new_property_data['charges'].get('energie'),
+                    "chauffage": new_property_data['charges'].get('chauffage')
+                },
                 metros=[],
                 atouts=[],
                 vigilance=[],
-                frais_agence_acquereur=new_property_data['prix']['frais_agence_acquereur'],
                 lien_annonce=new_property_data.get('lien_annonce')
             )
             
@@ -504,29 +443,34 @@ def property_to_dict(property_obj):
     return {
         "id": property_obj.id,
         "adresse": property_obj.adresse,
-        "surface": property_obj.surface,
-        "etage": property_obj.etage,
-        "nb_pieces": property_obj.nb_pieces,
-        "exposition": property_obj.exposition,
-        "prix": property_obj.prix,
-        "prix_hors_honoraires": property_obj.prix_hors_honoraires,
-        "prix_m2": property_obj.prix_m2,
-        "charges_mensuelles": property_obj.charges_mensuelles,
-        "taxe_fonciere": getattr(property_obj, 'taxe_fonciere', None),
-        "frais_agence_acquereur": property_obj.frais_agence_acquereur,
-        "energie": getattr(property_obj, 'energie', None),
-        "type_chauffage": getattr(property_obj, 'type_chauffage', None),
-        "dpe": property_obj.dpe,
-        "ges": getattr(property_obj, 'ges', None),
-        "etat": getattr(property_obj, 'etat', None),
-        "travaux": getattr(property_obj, 'travaux', None),
+        "bien": {
+            "surface": property_obj.bien.surface,
+            "etage": property_obj.bien.etage,
+            "nb_pieces": property_obj.bien.nb_pieces,
+            "exposition": property_obj.bien.exposition,
+            "dpe": property_obj.bien.dpe,
+            "ges": property_obj.bien.ges,
+            "cave": property_obj.bien.cave,
+            "etat": property_obj.bien.etat,
+            "type_chauffage": property_obj.bien.type_chauffage,
+            "travaux": property_obj.bien.travaux
+        },
+        "prix": {
+            "annonce": property_obj.prix.annonce,
+            "hors_honoraires": property_obj.prix.hors_honoraires,
+            "m2": property_obj.prix.m2,
+            "frais_agence_acquereur": property_obj.prix.frais_agence_acquereur
+        },
+        "charges": {
+            "mensuelles": property_obj.charges.mensuelles,
+            "taxe_fonciere": property_obj.charges.taxe_fonciere,
+            "energie": property_obj.charges.energie,
+            "chauffage": property_obj.charges.chauffage
+        },
         "metros": [{"ligne": m.ligne, "station": m.station, "distance": m.distance} for m in property_obj.metros],
         "atouts": property_obj.atouts,
         "vigilance": property_obj.vigilance,
-        "lien_annonce": property_obj.lien_annonce,
-        "bien": {
-            "cave": property_obj.cave
-        }
+        "lien_annonce": property_obj.lien_annonce
     }
 
 def delete_property(property_id: str):
@@ -653,12 +597,29 @@ def property_details(properties):
                     try:
                         result_dict = json.loads(result)
                         
+                        # Vérification de la structure de la réponse
                         if "error" in result_dict and result_dict["error"]:
                             display_error_message(result_dict["error"])
                         elif "property" not in result_dict:
-                            display_error_message("La réponse de l'API ne contient pas les informations du bien")
+                            # Essayer de traiter directement le résultat comme une propriété
+                            try:
+                                property_data = result_dict
+                                success, error = update_properties_json(property_data, selected)
+                                if success:
+                                    st.success("Informations enregistrées avec succès!")
+                                    if selected == "nouveau bien":
+                                        new_properties = Property.load_properties('data/properties.json')
+                                        last_id = max(new_properties.keys())
+                                        st.session_state.last_added_property = last_id
+                                    else:
+                                        st.session_state.last_added_property = selected
+                                    st.rerun()
+                                else:
+                                    display_error_message(f"Erreur lors de la sauvegarde : {error}")
+                            except Exception as e:
+                                display_error_message("La réponse de l'API n'a pas le bon format. Assurez-vous d'inclure au moins le prix et la surface du bien.")
                         else:
-                            # Mettre à jour properties.json avec le résultat
+                            # Traitement normal si la propriété est dans result_dict["property"]
                             success, error = update_properties_json(result_dict["property"], selected)
                             if success:
                                 st.success("Informations enregistrées avec succès!")
@@ -725,25 +686,25 @@ def display_property_details(property_data):
             has_general_info = True
             general_info.append(f'<div class="property-detail"><span class="property-label">Adresse:</span><span class="property-value">{property_data.adresse}</span></div>')
         
-        if property_data.surface:
+        if property_data.bien.surface:
             has_general_info = True
-            general_info.append(f'<div class="property-detail"><span class="property-label">Surface:</span><span class="property-value">{property_data.surface} m²</span></div>')
+            general_info.append(f'<div class="property-detail"><span class="property-label">Surface:</span><span class="property-value">{property_data.bien.surface} m²</span></div>')
         
-        if property_data.etage:
+        if property_data.bien.etage:
             has_general_info = True
-            general_info.append(f'<div class="property-detail"><span class="property-label">Étage:</span><span class="property-value">{property_data.etage}</span></div>')
+            general_info.append(f'<div class="property-detail"><span class="property-label">Étage:</span><span class="property-value">{property_data.bien.etage}</span></div>')
         
-        if property_data.nb_pieces and property_data.nb_pieces > 0:
+        if property_data.bien.nb_pieces and property_data.bien.nb_pieces > 0:
             has_general_info = True
-            general_info.append(f'<div class="property-detail"><span class="property-label">Nombre de pièces:</span><span class="property-value">{property_data.nb_pieces}</span></div>')
+            general_info.append(f'<div class="property-detail"><span class="property-label">Nombre de pièces:</span><span class="property-value">{property_data.bien.nb_pieces}</span></div>')
         
-        if property_data.exposition:
+        if property_data.bien.exposition:
             has_general_info = True
-            general_info.append(f'<div class="property-detail"><span class="property-label">Orientation:</span><span class="property-value">{property_data.exposition}</span></div>')
+            general_info.append(f'<div class="property-detail"><span class="property-label">Orientation:</span><span class="property-value">{property_data.bien.exposition}</span></div>')
         
-        if getattr(property_data, 'cave', None) is not None:
+        if getattr(property_data.bien, 'cave', None) is not None:
             has_general_info = True
-            general_info.append(f'<div class="property-detail"><span class="property-label">Cave:</span><span class="property-value">{"Oui" if property_data.cave else "Non"}</span></div>')
+            general_info.append(f'<div class="property-detail"><span class="property-label">Cave:</span><span class="property-value">{"Oui" if property_data.bien.cave else "Non"}</span></div>')
 
         if has_general_info:
             st.markdown('<div class="property-section"><div class="section-title">Informations générales</div>', unsafe_allow_html=True)
@@ -756,19 +717,19 @@ def display_property_details(property_data):
 
         if property_data.prix:
             has_price_info = True
-            price_info.append(f'<div class="property-detail"><span class="property-label">Prix:</span><span class="property-value">{property_data.prix:,.0f}€</span></div>')
+            price_info.append(f'<div class="property-detail"><span class="property-label">Prix:</span><span class="property-value">{property_data.prix.annonce:,.0f}€</span></div>')
         
-        if property_data.prix_hors_honoraires:
+        if property_data.prix.hors_honoraires:
             has_price_info = True
-            price_info.append(f'<div class="property-detail"><span class="property-label">Prix hors honoraires:</span><span class="property-value">{property_data.prix_hors_honoraires:,.0f}€</span></div>')
+            price_info.append(f'<div class="property-detail"><span class="property-label">Prix hors honoraires:</span><span class="property-value">{property_data.prix.hors_honoraires:,.0f}€</span></div>')
         
-        if property_data.prix_m2:
+        if property_data.prix.m2:
             has_price_info = True
-            price_info.append(f'<div class="property-detail"><span class="property-label">Prix/m²:</span><span class="property-value">{property_data.prix_m2:,.0f}€</span></div>')
+            price_info.append(f'<div class="property-detail"><span class="property-label">Prix/m²:</span><span class="property-value">{property_data.prix.m2:,.0f}€</span></div>')
 
-        if property_data.prix and property_data.prix_hors_honoraires:
-            honoraires = property_data.prix - property_data.prix_hors_honoraires
-            pourcentage = (honoraires / property_data.prix) * 100
+        if property_data.prix and property_data.prix.hors_honoraires:
+            honoraires = property_data.prix.annonce - property_data.prix.hors_honoraires
+            pourcentage = (honoraires / property_data.prix.annonce) * 100
             if honoraires > 0:
                 has_price_info = True
                 price_info.append(f'<div class="property-detail"><span class="property-label">Honoraires:</span><span class="property-value">{honoraires:,.0f}€ ({pourcentage:.1f}%)</span></div>')
@@ -782,21 +743,21 @@ def display_property_details(property_data):
         has_charges_info = False
         charges_info = []
 
-        if property_data.charges_mensuelles:
+        if property_data.charges.mensuelles:
             has_charges_info = True
-            charges_info.append(f'<div class="property-detail"><span class="property-label">Charges mensuelles:</span><span class="property-value">{property_data.charges_mensuelles:,.0f}€</span></div>')
+            charges_info.append(f'<div class="property-detail"><span class="property-label">Charges mensuelles:</span><span class="property-value">{property_data.charges.mensuelles:,.0f}€</span></div>')
         
-        if property_data.energie:
+        if property_data.charges.energie:
             has_charges_info = True
-            charges_info.append(f'<div class="property-detail"><span class="property-label">Électricité:</span><span class="property-value">{property_data.energie:,.0f}€</span></div>')
+            charges_info.append(f'<div class="property-detail"><span class="property-label">Électricité:</span><span class="property-value">{property_data.charges.energie:,.0f}€</span></div>')
         
-        if property_data.taxe_fonciere:
+        if property_data.charges.taxe_fonciere:
             has_charges_info = True
-            charges_info.append(f'<div class="property-detail"><span class="property-label">Taxe foncière:</span><span class="property-value">{property_data.taxe_fonciere:,.0f}€</span></div>')
+            charges_info.append(f'<div class="property-detail"><span class="property-label">Taxe foncière:</span><span class="property-value">{property_data.charges.taxe_fonciere:,.0f}€</span></div>')
         
-        if property_data.type_chauffage:
+        if property_data.bien.type_chauffage:
             has_charges_info = True
-            charges_info.append(f'<div class="property-detail"><span class="property-label">Type de chauffage:</span><span class="property-value">{property_data.type_chauffage}</span></div>')
+            charges_info.append(f'<div class="property-detail"><span class="property-label">Type de chauffage:</span><span class="property-value">{property_data.bien.type_chauffage}</span></div>')
 
         if has_charges_info:
             st.markdown('<div class="property-section"><div class="section-title">Charges et énergie</div>', unsafe_allow_html=True)
@@ -807,7 +768,7 @@ def display_property_details(property_data):
         has_energy_info = False
         energy_info = []
 
-        if property_data.dpe:
+        if property_data.bien.dpe:
             has_energy_info = True
             dpe_colors = {
                 'A': '#51b849',  # Vert
@@ -819,10 +780,10 @@ def display_property_details(property_data):
                 'G': '#ff0000',  # Rouge
                 'NC': '#808080'  # Gris
             }
-            dpe_color = dpe_colors.get(property_data.dpe, '#808080')
-            energy_info.append(f'<div class="property-detail"><span class="property-label">DPE:</span><span class="property-value" style="background-color: {dpe_color}; color: white; padding: 2px 8px; border-radius: 4px;">{property_data.dpe}</span></div>')
+            dpe_color = dpe_colors.get(property_data.bien.dpe, '#808080')
+            energy_info.append(f'<div class="property-detail"><span class="property-label">DPE:</span><span class="property-value" style="background-color: {dpe_color}; color: white; padding: 2px 8px; border-radius: 4px;">{property_data.bien.dpe}</span></div>')
         
-        if property_data.ges:
+        if property_data.bien.ges:
             has_energy_info = True
             ges_colors = {
                 'A': '#51b849',
@@ -833,8 +794,8 @@ def display_property_details(property_data):
                 'F': '#ff5a00',
                 'G': '#ff0000'
             }
-            ges_color = ges_colors.get(property_data.ges, '#808080')
-            energy_info.append(f'<div class="property-detail"><span class="property-label">GES:</span><span class="property-value" style="background-color: {ges_color}; color: white; padding: 2px 8px; border-radius: 4px;">{property_data.ges}</span></div>')
+            ges_color = ges_colors.get(property_data.bien.ges, '#808080')
+            energy_info.append(f'<div class="property-detail"><span class="property-label">GES:</span><span class="property-value" style="background-color: {ges_color}; color: white; padding: 2px 8px; border-radius: 4px;">{property_data.bien.ges}</span></div>')
 
         if has_energy_info:
             st.markdown('<div class="property-section"><div class="section-title">Performance énergétique</div>', unsafe_allow_html=True)

@@ -1,117 +1,86 @@
 {
   "properties": {
     "bien-001": {
-      "adresse": "118 avenue Gabriel Péri, Saint-Ouen-Sur-Seine (93400)",
-      "lien_annonce": "https://www.pap.fr/annonces/appartement-saint-ouen-sur-seine-93400-r455702902",
+      "adresse": "1 Rue Example",
       "bien": {
-        "type": "T2",
-        "surface": 47.0,
-        "etage": "1er étage",
+        "surface": 50,
+        "etage": "2",
         "nb_pieces": 2,
-        "orientation": null,
-        "pieces": {
-          "sejour_cuisine": null,
-          "chambre": null
-        },
+        "exposition": "Sud",
         "dpe": "C",
-        "ges": null,
-        "cave": false
+        "ges": "D",
+        "cave": false,
+        "etat": "Bon état",
+        "type_chauffage": "Individuel électrique"
       },
       "prix": {
-        "annonce": 332000.0,
-        "hors_honoraires": 332000.0,
-        "m2": 7064.0,
-        "honoraires": {
-          "montant": 0.0,
-          "pourcentage": 0.0
-        },
-        "frais_agence_acquereur": false
+        "annonce": 250000,
+        "frais_agence_acquereur": true
       },
       "charges": {
-        "mensuelles": 164.0,
-        "taxe_fonciere": 665.0,
-        "energie": 68.0,
-        "chauffage": "électrique"
+        "mensuelles": 100,
+        "taxe_fonciere": 800,
+        "energie": 80
       },
       "metros": [
         {
-          "ligne": "13",
-          "station": "Garibaldi",
-          "distance": 350
-        },
-        {
-          "ligne": "14",
-          "station": "St-Ouen",
-          "distance": 900
+          "ligne": "1",
+          "station": "Example",
+          "distance": 500
         }
       ],
       "atouts": [
-        "petite copropriété",
-        "salle d'eau avec douche à l'italienne",
-        "cuisine équipée",
-        "parquet en chêne massif",
-        "poutres apparentes",
-        "aucuns travaux à prévoir",
-        "tres bien agencé et posiblité d'amelioration",
-        "propriétaires pressés de vendre pour cause familialles"
+        "Lumineux",
+        "Calme"
       ],
-      "vigilance": [
-        "cave pas très saine et peut presager des problès structurels",
-        "intervention de la police dans les parties communes selon dernier PV d'AG"
-      ]
+      "vigilance": [],
+      "lien_annonce": "https://example.com/annonce"
     },
     "bien-002": {
-      "adresse": "89 rue des Poissonniers, Paris 18e (75018)",
-      "lien_annonce": "https://www.jinka.fr/alert_result?token=bc7c0db67b5963e51b937493d9ff841c&ad=61698430&from=jinka_share",
+      "id": "824064",
+      "adresse": "4 rue Mathis, 75019 Paris",
       "bien": {
-        "type": "T2",
         "surface": 37,
-        "etage": "1er étage",
+        "etage": "1/6",
         "nb_pieces": 2,
-        "orientation": null,
-        "pieces": {
-          "sejour_cuisine": null,
-          "chambre": null
-        },
+        "exposition": null,
         "dpe": "E",
-        "ges": "E",
-        "cave": false
+        "ges": "D",
+        "cave": false,
+        "etat": null,
+        "travaux": null,
+        "type_chauffage": "collectif"
       },
       "prix": {
-        "annonce": 345000,
-        "hors_honoraires": null,
-        "m2": 9324,
-        "honoraires": {
-          "montant": null,
-          "pourcentage": null
-        },
-        "frais_agence_acquereur": false
+        "annonce": 250000,
+        "hors_honoraires": 240000,
+        "frais_agence_acquereur": true,
+        "m2": 6486
       },
       "charges": {
-        "mensuelles": null,
+        "mensuelles": 195,
         "taxe_fonciere": null,
         "energie": null,
-        "chauffage": null
+        "chauffage": "collectif"
       },
       "metros": [
         {
-          "ligne": null,
-          "station": "Marcadet",
+          "ligne": "M",
+          "station": "Crimée",
           "distance": null
         }
       ],
       "atouts": [
-        "calme",
-        "lumineux",
-        "belle vue",
-        "cadre bucolique",
-        "très bien agencé",
-        "Petit cour interieure très sympa"
+        "Prêt à habiter",
+        "Bonne rentabilité en meublé",
+        "Accès facile aux transports en commun",
+        "Proximité du canal de l'Ourcq",
+        "Commodités variées à proximité"
       ],
       "vigilance": [
-        "Un peu de travaux (étagères à CD enlever)",
-        "Quartier pas top"
-      ]
+        "Salon un peu exigu"
+      ],
+      "lien_annonce": null
     }
   }
 }

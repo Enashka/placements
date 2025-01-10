@@ -1,0 +1,122 @@
+messages:
+  - role: system
+    content: |
+      Vous êtes un assistant spécialisé dans l'extraction d'informations immobilières à partir de texte et notamment d'annonces immobilières.
+      Vous devez extraire les informations pertinentes et les structurer en JSON selon le format demandé.
+      Si une information n'est pas présente dans le texte, utilisez null.
+      Pour les champs de type booléen, utilisez false si l'information n'est pas mentionnée.
+
+  - role: user
+    content: |
+      {{#if existing_property}}
+      Voici les détails actuels du bien immobilier :
+      {{existing_property}}
+
+      Voici de nouvelles informations sur ce bien :
+      {{user_input}}
+
+      Veuillez extraire les informations pertinentes et mettre à jour les détails du bien.
+      Conservez les informations existantes si elles ne sont pas modifiées par le nouveau texte.
+      {{else}}
+      Voici les informations sur un nouveau bien immobilier :
+      {{user_input}}
+
+      Veuillez extraire les informations pertinentes pour créer une nouvelle fiche de bien.
+      {{/if}}
+
+response_format:
+  type: json_object
+  schema:
+    type: object
+    properties:
+      id:
+        type: string
+        description: "Identifiant unique du bien"
+      adresse:
+        type: string
+        description: "Adresse complète du bien"
+      surface:
+        type: number
+        description: "Surface en m²"
+      etage:
+        type: string
+        description: "Étage du bien"
+      nb_pieces:
+        type: ["integer", "null"]
+        description: "Nombre de pièces (1 pour studio/T1, 2 pour T2/F2, etc.)"
+      exposition:
+        type: ["string", "null"]
+        description: "Exposition du bien (Nord, Sud, etc.)"
+      prix:
+        type: number
+        description: "Prix annoncé"
+      prix_hors_honoraires:
+        type: number
+        description: "Prix hors honoraires"
+      prix_m2:
+        type: number
+        description: "Prix au m²"
+      charges_mensuelles:
+        type: number
+        description: "Charges mensuelles en euros"
+      taxe_fonciere:
+        type: ["number", "null"]
+        description: "Taxe foncière annuelle en euros"
+      frais_agence_acquereur:
+        type: boolean
+        description: "Indique si les frais d'agence sont à la charge de l'acquéreur"
+      energie:
+        type: ["number", "null"]
+        description: "Coût mensuel estimé de l'énergie"
+      type_chauffage:
+        type: ["string", "null"]
+        description: "Type de chauffage (individuel, collectif, électrique, gaz, etc.)"
+      dpe:
+        type: string
+        description: "Classe énergétique DPE"
+      ges:
+        type: ["string", "null"]
+        description: "Classe GES"
+      etat:
+        type: ["string", "null"]
+        description: "État général du bien (Prêt à habiter, Rafraîchissement nécessaire, etc.)"
+      travaux:
+        type: ["string", "null"]
+        description: "Description des travaux récents ou prévus"
+      metros:
+        type: array
+        items:
+          type: object
+          properties:
+            ligne:
+              type: string
+              description: "Numéro de la ligne de métro"
+            station:
+              type: string
+              description: "Nom de la station"
+            distance:
+              type: integer
+              description: "Distance en mètres"
+          required: ["ligne", "station", "distance"]
+          additionalProperties: false
+        default: []
+      atouts:
+        type: array
+        items:
+          type: string
+        description: "Liste des points forts du bien"
+        default: []
+      vigilance:
+        type: array
+        items:
+          type: string
+        description: "Liste des points de vigilance"
+        default: []
+      lien_annonce:
+        type: ["string", "null"]
+        description: "Lien vers l'annonce immobilière"
+      error:
+        type: string
+        description: "Message d'erreur si l'extraction a échoué, null sinon"
+    required: ["id", "surface", "prix"]
+    additionalProperties: false 

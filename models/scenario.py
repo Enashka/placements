@@ -170,11 +170,11 @@ class Scenario:
     def calculate_metrics(self) -> Dict:
         """Calcule les métriques clés du scénario."""
         mensualite = self.calculate_monthly_payment()
-        charges_totales = mensualite + self.property.charges_mensuelles
-        if self.property.energie:
-            charges_totales += self.property.energie
-        if self.property.taxe_fonciere:
-            charges_totales += self.property.taxe_fonciere / 12
+        charges_totales = mensualite + (self.property.charges.mensuelles or 0)
+        if self.property.charges.energie:
+            charges_totales += self.property.charges.energie
+        if self.property.charges.taxe_fonciere:
+            charges_totales += self.property.charges.taxe_fonciere / 12
             
         simulation = self.simulate_patrimoine()
         patrimoine_initial = simulation['patrimoine_total'][0]
