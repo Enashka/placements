@@ -50,6 +50,10 @@ def scenario_simulation(properties, config):
     """Interface de simulation des scénarios."""
     st.markdown('<p style="color: #ff4b4b; font-size: 1.25rem; font-weight: 600">Simulation des Scénarios</p>', unsafe_allow_html=True)
     
+    # Initialisation de la version des widgets si elle n'existe pas
+    if "widget_version" not in st.session_state:
+        st.session_state.widget_version = 1
+    
     # Vérification s'il y a des biens
     if not properties:
         st.warning("Aucun bien n'est enregistré. Veuillez d'abord ajouter un bien dans l'onglet 'Biens'.")
@@ -59,17 +63,28 @@ def scenario_simulation(properties, config):
     col_gauche, col_droite = st.columns([1, 2])
     
     with col_gauche:
-        montant_total = st.number_input("Total à investir (€)", min_value=0, max_value=1000000, value=int(config.apport_total), step=1000)
-        apport_immo = st.number_input("Apport appartement (€)", min_value=0, max_value=1000000, value=int(config.apport_total * config.repartition_immobilier / 100), step=1000)
-        horizon = st.number_input("Horizon simulation (années)", 5, 30, config.horizon_simulation, step=1)
+        montant_total = st.number_input("Total à investir (€)", min_value=0, max_value=1000000, value=int(config.apport_total), step=1000, key=f"montant_total_{st.session_state.widget_version}")
+        apport_immo = st.number_input("Apport appartement (€)", min_value=0, max_value=1000000, value=int(config.apport_total * config.repartition_immobilier / 100), step=1000, key=f"apport_immo_{st.session_state.widget_version}")
+        horizon = st.number_input("Horizon simulation (années)", 5, 30, config.horizon_simulation, step=1, key=f"horizon_{st.session_state.widget_version}")
 
     with col_droite:
-        # Sélection du bien
-        selected_property = st.selectbox(
-            "Sélectionner un bien",
-            options=list(properties.keys()),
-            format_func=lambda x: properties[x].adresse
-        )
+        # Création de colonnes pour le selectbox et l'icône de réinitialisation
+        col_select_bien, col_reset = st.columns([0.9, 0.1])
+        
+        with col_select_bien:
+            # Sélection du bien
+            selected_property = st.selectbox(
+                "Sélectionner un bien",
+                options=list(properties.keys()),
+                format_func=lambda x: properties[x].adresse,
+                key=f"property_select_{st.session_state.widget_version}"
+            )
+            
+        with col_reset:
+            if st.button("🔄", help="Réinitialiser tous les paramètres"):
+                # Incrémenter la version pour forcer la réinitialisation des widgets
+                st.session_state.widget_version += 1
+                st.rerun()
         
         # Sous-colonnes pour détails et négociation
         col_details, col_negociation = st.columns(2)
@@ -93,7 +108,8 @@ def scenario_simulation(properties, config):
                 max_value=15,
                 value=0,
                 step=1,
-                help="Pourcentage de remise négociée sur le prix"
+                help="Pourcentage de remise négociée sur le prix",
+                key=f"negociation_{st.session_state.widget_version}"
             )
         
         prix_negocie = properties[selected_property].prix.annonce * (1 - negociation/100)
@@ -133,9 +149,9 @@ def scenario_simulation(properties, config):
         st.markdown('<p style="color: #ff4b4b; font-size: 1.25rem; font-weight: 600">Crédit</p>', unsafe_allow_html=True)
         # Calcul du montant du prêt basé uniquement sur l'apport immobilier et le coût total
         montant_pret = max(0, cout_total - apport_immo)  # Ne peut pas être négatif
-        taux = st.number_input("Taux crédit (%)", 0.0, 10.0, config.taux_credit, step=0.05, format="%.2f")
-        duree = st.number_input("Durée crédit (années)", 5, 25, config.duree_credit, step=1)
-        appreciation = st.number_input("Valorisation annuelle (%)", -2.0, 5.0, config.evolution_immobilier, step=0.1, format="%.1f")
+        taux = st.number_input("Taux crédit (%)", 0.0, 10.0, config.taux_credit, step=0.05, format="%.2f", key=f"taux_{st.session_state.widget_version}")
+        duree = st.number_input("Durée crédit (années)", 5, 25, config.duree_credit, step=1, key=f"duree_{st.session_state.widget_version}")
+        appreciation = st.number_input("Valorisation annuelle (%)", -2.0, 5.0, config.evolution_immobilier, step=0.1, format="%.1f", key=f"appreciation_{st.session_state.widget_version}")
 
         # Calcul simple des mensualités
         taux_mensuel = taux / 12 / 100
@@ -172,18 +188,20 @@ def scenario_simulation(properties, config):
         st.markdown('<p style="color: #ff4b4b; font-size: 1.25rem; font-weight: 600">Épargne</p>', unsafe_allow_html=True)
         # Calcul des montants
         montant_hors_immo = montant_total - apport_immo
-        repartition_epargne = st.number_input("Part sécurisée (%)", 0, 100, 50, step=5)
+        repartition_epargne = st.number_input("Part sécurisée (%)", 0, 100, 50, step=5, key=f"repartition_{st.session_state.widget_version}")
         
         montant_securise = montant_hors_immo * (repartition_epargne / 100)
         montant_dynamique = montant_hors_immo * (1 - repartition_epargne / 100)
         
         rdt_securise = st.number_input(
             "Taux placement sécurisé (%)", 
-            0.0, 5.0, config.rendement_epargne, step=0.1, format="%.1f"
+            0.0, 5.0, config.rendement_epargne, step=0.1, format="%.1f",
+            key=f"rdt_securise_{st.session_state.widget_version}"
         )
         rdt_risque = st.number_input(
             "Taux placement dynamique (%)", 
-            2.0, 12.0, config.rendement_investissement, step=0.1, format="%.1f"
+            2.0, 12.0, config.rendement_investissement, step=0.1, format="%.1f",
+            key=f"rdt_risque_{st.session_state.widget_version}"
         )
     
     # Mise à jour de la configuration avec le coût total
