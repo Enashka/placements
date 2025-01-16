@@ -1,5 +1,5 @@
 from pydantic import BaseModel, Field, validator, HttpUrl
-from typing import List, Dict, Optional
+from typing import List, Dict, Optional, Any
 import json
 import re
 from urllib.parse import urlparse, urlunparse, parse_qs
@@ -56,6 +56,11 @@ class Charges(BaseModel):
     energie: Optional[float] = None
     chauffage: Optional[str] = None
 
+class Quartier(BaseModel):
+    prix_moyen: Optional[float] = None
+    transactions: List[Any] = []
+    commentaires: Optional[str] = None
+
 class Property(BaseModel):
     id: str
     adresse: Optional[str] = "Adresse inconnue"
@@ -66,6 +71,7 @@ class Property(BaseModel):
     atouts: List[str] = []
     vigilance: List[str] = []
     commentaires: List[str] = []
+    quartier: Quartier = Field(default_factory=Quartier)
     lien_annonce: Optional[HttpUrl] = None
     error: Optional[str] = None
 
@@ -164,6 +170,13 @@ class Property(BaseModel):
                     'energie': prop_data.get('charges', {}).get('energie'),
                     'chauffage': prop_data.get('charges', {}).get('chauffage')
                 }
+
+                # Construction du quartier
+                quartier_dict = {
+                    'prix_moyen': prop_data.get('quartier', {}).get('prix_moyen'),
+                    'transactions': prop_data.get('quartier', {}).get('transactions', []),
+                    'commentaires': prop_data.get('quartier', {}).get('commentaires')
+                }
                 
                 # Construction du dictionnaire de propriété
                 property_dict = {
@@ -172,6 +185,7 @@ class Property(BaseModel):
                     'bien': bien_dict,
                     'prix': prix_dict,
                     'charges': charges_dict,
+                    'quartier': quartier_dict,
                     'metros': [Metro(**m) for m in metros],
                     'atouts': prop_data.get('atouts', []),
                     'vigilance': prop_data.get('vigilance', []),

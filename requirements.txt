@@ -6,3 +6,4 @@ numpy
 pytest
 openai
 python-dotenv
+pdf2image

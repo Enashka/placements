@@ -154,6 +154,23 @@ response_format:
               description: "Liste des commentaires additionnels qui ne concernent pas les points forts ou de vigilance"
               default: []
             
+            # Quartier
+            quartier:
+              type: "object"
+              properties:
+                prix_moyen:
+                  type: ["number", "null"]
+                  description: "prix moyen par m2 à l'adresse"
+                transactions:
+                  type: "array"
+                  items: {}
+                  description: "transactions récentes à l'adresse"
+                commentaires:
+                  type: ["string", "null"]
+                  description: "commentaires sur le quartier"
+              required: []
+              additionalProperties: false
+              
             # Lien
             lien_annonce:
               type: ["string", "null"]

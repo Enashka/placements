@@ -361,22 +361,14 @@ def call_openai_api(text: str, existing_property=None):
         ]
 
         if existing_property:
-            # Cas de mise à jour : on envoie les détails existants et les nouvelles informations
-            prompt = f"""Voici les détails actuels du bien immobilier :
-{json.dumps(existing_property, ensure_ascii=False, indent=2)}
-
-Voici de nouvelles informations sur ce bien :
-{text}
-
-Veuillez extraire les informations pertinentes et mettre à jour les détails du bien.
-Si une information dans le nouveau texte est différente des détails existants, utilisez la nouvelle information.
-Si une information n'est pas mentionnée dans le nouveau texte, conservez l'information existante."""
+            # Cas de mise à jour : on utilise le prompt update_property
+            prompt = prompts["prompts"]["update_property"].format(
+                existing_property=json.dumps(existing_property, ensure_ascii=False, indent=2),
+                user_input=text
+            )
         else:
-            # Nouveau bien
-            prompt = f"""Voici les informations sur un nouveau bien immobilier :
-{text}
-
-Veuillez extraire les informations pertinentes pour créer une nouvelle fiche de bien."""
+            # Nouveau bien : on utilise le prompt new_property
+            prompt = prompts["prompts"]["new_property"].format(user_input=text)
 
         messages.append({"role": "user", "content": prompt})
 
@@ -487,6 +479,11 @@ def update_properties_json(new_property_data: dict, selected_id: str = None):
                     "taxe_fonciere": new_property_data['charges'].get('taxe_fonciere'),
                     "energie": new_property_data['charges'].get('energie'),
                     "chauffage": new_property_data['charges'].get('chauffage')
+                },
+                quartier={
+                    "prix_moyen": new_property_data.get('quartier', {}).get('prix_moyen'),
+                    "transactions": new_property_data.get('quartier', {}).get('transactions', []),
+                    "commentaires": new_property_data.get('quartier', {}).get('commentaires')
                 },
                 metros=[],
                 atouts=[],
@@ -920,6 +917,30 @@ def display_property_details(property_data):
             st.markdown('<div class="property-section"><div class="section-title">Commentaires</div>', unsafe_allow_html=True)
             for commentaire in property_data.commentaires:
                 st.markdown(f'<div class="property-detail">• {commentaire}</div>', unsafe_allow_html=True)
+
+        # Informations sur le quartier
+        has_quartier_info = False
+        quartier_info = []
+
+        if hasattr(property_data, 'quartier'):
+            if property_data.quartier.prix_moyen:
+                has_quartier_info = True
+                quartier_info.append(f'<div class="property-detail"><span class="property-label">Prix moyen/m²:</span><span class="property-value">{property_data.quartier.prix_moyen:,.0f}€</span></div>')
+            
+            if property_data.quartier.transactions:
+                has_quartier_info = True
+                quartier_info.append('<div class="property-detail"><span class="property-label">Transactions récentes:</span></div>')
+                for transaction in property_data.quartier.transactions:
+                    quartier_info.append(f'<div class="property-detail">• {transaction}</div>')
+            
+            if property_data.quartier.commentaires:
+                has_quartier_info = True
+                quartier_info.append(f'<div class="property-detail"><span class="property-label">Commentaires sur le quartier:</span><br>{property_data.quartier.commentaires}</div>')
+
+        if has_quartier_info:
+            st.markdown('<div class="property-section"><div class="section-title">Informations sur le quartier</div>', unsafe_allow_html=True)
+            for info in quartier_info:
+                st.markdown(info, unsafe_allow_html=True)
 
 def format_validation_error(error_msg: str) -> str:
     """Formate le message d'erreur de validation pour un affichage plus clair."""

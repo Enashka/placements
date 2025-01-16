@@ -211,7 +211,7 @@
       "id": "bien-007",
       "adresse": "60 Rue Guy Moquet, Paris 75017",
       "bien": {
-        "surface": 41.0,
+        "surface": 42.0,
         "etage": "1",
         "nb_pieces": 2,
         "exposition": "Nord",
@@ -219,13 +219,13 @@
         "ges": null,
         "cave": true,
         "etat": "Bon état",
-        "travaux": null,
-        "type_chauffage": "Individuel - Électrique"
+        "type_chauffage": "Individuel - Électrique",
+        "travaux": null
       },
       "prix": {
-        "annonce": 345000.0,
+        "annonce": 330000.0,
         "hors_honoraires": null,
-        "m2": 8414.63,
+        "m2": 7857.14,
         "frais_agence_acquereur": false
       },
       "charges": {
@@ -262,6 +262,13 @@
         "Charges élevées (à vérifier si la copropriété pourrait les baisser à 115€)"
       ],
       "commentaires": [],
+      "quartier": {
+        "prix_moyen": 7785.0,
+        "transactions": [
+          "19/06/2024: Vente d'un 42m2 à 330000€"
+        ],
+        "commentaires": null
+      },
       "lien_annonce": "https://www.hosman.co/a/vente-appartement-41m2-75017-paris-a533b2"
     }
   }
