@@ -35,6 +35,10 @@ else:
 
 from models.property import Property
 from models.scenario import Scenario, ScenarioConfig
+from utils.api_logger import APILogger
+
+# Initialisation du logger
+api_logger = APILogger(pretty=True)
 
 # Constantes pour les plafonds des livrets
 LIVRET_A_PLAFOND = 23000
@@ -376,40 +380,62 @@ Veuillez extraire les informations pertinentes pour créer une nouvelle fiche de
 
         messages.append({"role": "user", "content": prompt})
 
+        # Préparation des données de la requête
+        request_data = {
+            "model": "gpt-4o-mini",
+            "messages": messages,
+            "response_format": prompts["response_format"]
+        }
+
         # Appel à l'API avec Structured Output
-        response = client.chat.completions.create(
-            model="gpt-4o-mini",
-            messages=messages,
-            response_format=prompts["response_format"]
-        )
-        
-        result = response.choices[0].message.content
-        result_dict = json.loads(result)
-        
-        # Si c'est une mise à jour et qu'il n'y a pas d'erreur, utiliser les nouvelles données
-        if "property" in result_dict and not result_dict.get("error"):
-            property_data = result_dict["property"]
-        else:
-            # Essayer d'utiliser directement le résultat comme données de propriété
-            property_data = result_dict
+        try:
+            response = client.chat.completions.create(**request_data)
+            result = response.choices[0].message.content
             
-        # S'assurer que les objets imbriqués sont présents
-        if "bien" not in property_data:
-            return False, "La réponse doit contenir au moins les informations de base du bien (surface)"
-        if "prix" not in property_data:
-            return False, "La réponse doit contenir au moins les informations de prix"
-        
-        # Si charges n'est pas présent, l'ajouter avec des valeurs par défaut
-        if "charges" not in property_data:
-            property_data["charges"] = {
-                "mensuelles": None,
-                "taxe_fonciere": None,
-                "energie": None,
-                "chauffage": None
-            }
+            # Log de l'appel API réussi
+            api_logger.log_api_call(
+                request_data=request_data,
+                response_data={"content": result},
+                status="success"
+            )
             
-        # Retourner les données structurées
-        return True, json.dumps(property_data)
+            result_dict = json.loads(result)
+            
+            # Si c'est une mise à jour et qu'il n'y a pas d'erreur, utiliser les nouvelles données
+            if "property" in result_dict and not result_dict.get("error"):
+                property_data = result_dict["property"]
+            else:
+                # Essayer d'utiliser directement le résultat comme données de propriété
+                property_data = result_dict
+                
+            # S'assurer que les objets imbriqués sont présents
+            if "bien" not in property_data:
+                return False, "La réponse doit contenir au moins les informations de base du bien (surface)"
+            if "prix" not in property_data:
+                return False, "La réponse doit contenir au moins les informations de prix"
+            
+            # Si charges n'est pas présent, l'ajouter avec des valeurs par défaut
+            if "charges" not in property_data:
+                property_data["charges"] = {
+                    "mensuelles": None,
+                    "taxe_fonciere": None,
+                    "energie": None,
+                    "chauffage": None
+                }
+                
+            # Retourner les données structurées
+            return True, json.dumps(property_data)
+            
+        except Exception as api_error:
+            # Log de l'erreur API
+            api_logger.log_api_call(
+                request_data=request_data,
+                response_data=None,
+                status="error",
+                error=str(api_error)
+            )
+            raise api_error
+            
     except Exception as e:
         return False, f"Erreur lors de l'appel à l'API : {str(e)}"
 

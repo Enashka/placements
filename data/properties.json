@@ -206,6 +206,63 @@
         "Les diagnostiques et PVs d'AG ont été reçus."
       ],
       "lien_annonce": "https://www.jinka.fr/alert_result?token=bc7c0db67b5963e51b937493d9ff841c&ad=61698430&from=jinka_share"
+    },
+    "bien-007": {
+      "id": "bien-007",
+      "adresse": "60 Rue Guy Moquet, Paris 75017",
+      "bien": {
+        "surface": 41.0,
+        "etage": "1",
+        "nb_pieces": 2,
+        "exposition": "Nord",
+        "dpe": "E",
+        "ges": null,
+        "cave": true,
+        "etat": "Bon état",
+        "travaux": null,
+        "type_chauffage": "Individuel - Électrique"
+      },
+      "prix": {
+        "annonce": 345000.0,
+        "hors_honoraires": null,
+        "m2": 8414.63,
+        "frais_agence_acquereur": false
+      },
+      "charges": {
+        "mensuelles": 262.0,
+        "taxe_fonciere": 976.0,
+        "energie": null,
+        "chauffage": null
+      },
+      "metros": [
+        {
+          "ligne": "13",
+          "station": null,
+          "distance": null
+        },
+        {
+          "ligne": "14",
+          "station": null,
+          "distance": null
+        },
+        {
+          "ligne": "2",
+          "station": null,
+          "distance": null
+        }
+      ],
+      "atouts": [
+        "Ascenseur",
+        "Cave",
+        "Local à vélo",
+        "Parties communes rénovées il y a 2 ans",
+        "Localisation recherchée"
+      ],
+      "vigilance": [
+        "Charges élevées (à vérifier si la copropriété pourrait les baisser à 115€)"
+      ],
+      "commentaires": [],
+      "lien_annonce": "https://www.hosman.co/a/vente-appartement-41m2-75017-paris-a533b2"
     }
   }
 }
