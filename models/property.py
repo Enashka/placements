@@ -174,7 +174,7 @@ class Property(BaseModel):
                 # Construction du quartier
                 quartier_dict = {
                     'prix_moyen': prop_data.get('quartier', {}).get('prix_moyen'),
-                    'transactions': prop_data.get('quartier', {}).get('transactions', []),
+                    'transactions': prop_data.get('quartier', {}).get('transactions', []) or [],
                     'commentaires': prop_data.get('quartier', {}).get('commentaires')
                 }
                 

@@ -13,7 +13,10 @@ prompts:
     {user_input}
 
     Veuillez extraire les informations pertinentes et mettre à jour les détails du bien.
-    Conservez les informations existantes si elles ne sont pas modifiées par le nouveau texte.
+    IMPORTANT : 
+    - Conservez TOUTES les informations existantes si elles ne sont pas explicitement modifiées par le nouveau texte
+    - Pour le quartier, conservez le prix_moyen existant et ajoutez les nouvelles transactions à la liste existante
+    - Ne remettez PAS à null les champs existants s'ils ne sont pas mentionnés dans les nouvelles informations
 
   new_property: |
     Voici les informations sur un nouveau bien immobilier :
@@ -160,11 +163,12 @@ response_format:
               properties:
                 prix_moyen:
                   type: ["number", "null"]
-                  description: "prix moyen par m2 à l'adresse"
+                  description: "prix moyen par m2 à l'adresse - CONSERVER LA VALEUR EXISTANTE"
                 transactions:
                   type: "array"
-                  items: {}
-                  description: "transactions récentes à l'adresse"
+                  items:
+                    type: "string"
+                  description: "transactions récentes à l'adresse sous forme de texte avec uniquement l'année, surface et prix (ex: '2021: 43m2 à 395,000€')"
                 commentaires:
                   type: ["string", "null"]
                   description: "commentaires sur le quartier"

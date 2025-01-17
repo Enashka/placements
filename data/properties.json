@@ -205,6 +205,13 @@
       "commentaires": [
         "Les diagnostiques et PVs d'AG ont été reçus."
       ],
+      "quartier": {
+        "prix_moyen": 7893,
+        "transactions": [
+          "20/05/2020: 37m² à 395,000€"
+        ],
+        "commentaires": null
+      },
       "lien_annonce": "https://www.jinka.fr/alert_result?token=bc7c0db67b5963e51b937493d9ff841c&ad=61698430&from=jinka_share"
     },
     "bien-007": {

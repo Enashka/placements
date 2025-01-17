@@ -50,18 +50,13 @@ def load_data():
     config = ScenarioConfig.from_yaml('data/scenarios.yaml')
     return properties, config
 
-def scenario_simulation(properties, config):
+def scenario_simulation(properties, config, selected_property):
     """Interface de simulation des scénarios."""
     st.markdown('<p style="color: #ff4b4b; font-size: 1.25rem; font-weight: 600">Simulation des Scénarios</p>', unsafe_allow_html=True)
     
     # Initialisation de la version des widgets si elle n'existe pas
     if "widget_version" not in st.session_state:
         st.session_state.widget_version = 1
-    
-    # Vérification s'il y a des biens
-    if not properties:
-        st.warning("Aucun bien n'est enregistré. Veuillez d'abord ajouter un bien dans l'onglet 'Biens'.")
-        return
     
     # Création des colonnes principales (1:2 ratio)
     col_gauche, col_droite = st.columns([1, 2])
@@ -72,24 +67,6 @@ def scenario_simulation(properties, config):
         horizon = st.number_input("Horizon simulation (années)", 5, 30, config.horizon_simulation, step=1, key=f"horizon_{st.session_state.widget_version}")
 
     with col_droite:
-        # Création de colonnes pour le selectbox et l'icône de réinitialisation
-        col_select_bien, col_reset = st.columns([0.9, 0.1])
-        
-        with col_select_bien:
-            # Sélection du bien
-            selected_property = st.selectbox(
-                "Sélectionner un bien",
-                options=list(properties.keys()),
-                format_func=lambda x: properties[x].adresse,
-                key=f"property_select_{st.session_state.widget_version}"
-            )
-            
-        with col_reset:
-            if st.button("🔄", help="Réinitialiser tous les paramètres"):
-                # Incrémenter la version pour forcer la réinitialisation des widgets
-                st.session_state.widget_version += 1
-                st.rerun()
-        
         # Sous-colonnes pour détails et négociation
         col_details, col_negociation = st.columns(2)
         
@@ -447,6 +424,25 @@ def update_properties_json(new_property_data: dict, selected_id: str = None):
         
         if selected_id and selected_id != "nouveau bien":
             # Mise à jour d'un bien existant
+            existing_data = data['properties'][selected_id]
+            
+            # Fusion spéciale pour le quartier
+            if 'quartier' in new_property_data:
+                # Si le prix_moyen n'est pas explicitement défini dans les nouvelles données, garder l'ancien
+                if new_property_data['quartier'].get('prix_moyen') is None and 'quartier' in existing_data:
+                    new_property_data['quartier']['prix_moyen'] = existing_data['quartier'].get('prix_moyen')
+                
+                # Pour les transactions, fusionner les listes
+                if 'transactions' in new_property_data['quartier']:
+                    existing_transactions = existing_data.get('quartier', {}).get('transactions', [])
+                    new_transactions = new_property_data['quartier']['transactions']
+                    # Éviter les doublons en vérifiant si la transaction existe déjà
+                    for transaction in new_transactions:
+                        if transaction not in existing_transactions:
+                            existing_transactions.append(transaction)
+                    new_property_data['quartier']['transactions'] = existing_transactions
+            
+            # Mise à jour des données
             data['properties'][selected_id] = new_property_data
         else:
             # Nouveau bien : générer un nouvel ID
@@ -559,9 +555,8 @@ def delete_property(property_id: str):
     except Exception as e:
         return False, str(e)
 
-def property_details(properties):
+def property_details(properties, selected):
     """Interface pour la gestion des biens."""
-    st.header("Gestion des Biens", divider="red")
     
     # Style CSS pour l'icône de suppression
     st.markdown("""
@@ -581,77 +576,6 @@ def property_details(properties):
         }
         </style>
     """, unsafe_allow_html=True)
-    
-    # Création de colonnes pour le selectbox et l'icône de suppression
-    col_select, col_delete = st.columns([0.9, 0.1])
-    
-    with col_select:
-        # Sélection du bien
-        if 'last_added_property' not in st.session_state:
-            st.session_state.last_added_property = "nouveau bien"
-            
-        # Création de la liste des options
-        options = ["nouveau bien"] + list(properties.keys())
-        
-        # Calcul de l'index
-        if st.session_state.last_added_property in properties:
-            # Si le bien existe, on calcule son index dans la liste complète
-            index = 1 + list(properties.keys()).index(st.session_state.last_added_property)
-        else:
-            # Sinon, on sélectionne "nouveau bien"
-            index = 0
-            
-        selected = st.selectbox(
-            "Sélectionner un bien",
-            options,
-            format_func=lambda x: x if x == "nouveau bien" else f"{x} - {properties[x].adresse}",
-            key="property_selector",
-            index=index
-        )
-
-        # Réinitialiser le champ de texte si la sélection change
-        if "last_selection" not in st.session_state:
-            st.session_state.last_selection = selected
-        if "description_text" not in st.session_state:
-            st.session_state.description_text = ""
-            
-        if st.session_state.last_selection != selected:
-            st.session_state.description_text = ""
-            st.session_state.last_selection = selected
-
-    with col_delete:
-        if selected != "nouveau bien":
-            if st.button("🗑️", key=f"delete_button_{selected}", help="Supprimer ce bien"):
-                # Création d'une clé unique pour le modal de confirmation
-                modal_key = f"delete_confirm_{selected}"
-                if modal_key not in st.session_state:
-                    st.session_state[modal_key] = False
-                
-                st.session_state[modal_key] = True
-    
-    # Affichage du modal de confirmation en dehors des colonnes
-    modal_key = f"delete_confirm_{selected}"
-    if modal_key in st.session_state and st.session_state[modal_key]:
-        st.markdown('<div style="display: flex; align-items: center; gap: 0.5rem; margin-top: 1rem;"><span style="color: #ffd700; font-size: 1.5rem;">⚠️</span><span style="font-size: 1.2rem;">Confirmation de suppression</span></div>', unsafe_allow_html=True)
-        st.markdown(f"Êtes-vous sûr de vouloir supprimer le bien **{selected}** ?")
-        
-        # Affichage des boutons côte à côte sans colonnes
-        c1, c2, c3, c4, c5 = st.columns([0.4, 0.1, 0.1, 0.1, 0.3])
-        with c2:
-            if st.button("Oui", type="primary", key=f"confirm_yes_{selected}"):
-                success, error = delete_property(selected)
-                if success:
-                    st.success("Bien supprimé avec succès!")
-                    st.session_state[modal_key] = False
-                    st.session_state.last_added_property = "nouveau bien"
-                    st.rerun()
-                else:
-                    st.error(f"Erreur lors de la suppression : {error}")
-        
-        with c3:
-            if st.button("Non", key=f"confirm_no_{selected}"):
-                st.session_state[modal_key] = False
-                st.rerun()
     
     # Section Renseignements
     st.subheader("Renseignements", divider="red")
@@ -989,14 +913,100 @@ def main():
     # Chargement des données
     properties, config = load_data()
     
+    # Vérification s'il y a des biens
+    if not properties:
+        st.warning("Aucun bien n'est enregistré. Veuillez d'abord ajouter un bien.")
+        return
+    
+    # Menu de sélection du bien
+    if 'last_added_property' not in st.session_state:
+        st.session_state.last_added_property = "nouveau bien"
+    
+    # Création de la liste des options
+    options = ["nouveau bien"] + list(properties.keys())
+    
+    # Calcul de l'index
+    if st.session_state.last_added_property in properties:
+        # Si le bien existe, on calcule son index dans la liste complète
+        index = 1 + list(properties.keys()).index(st.session_state.last_added_property)
+    else:
+        # Sinon, on sélectionne "nouveau bien"
+        index = 0
+    
+    # Création de colonnes pour le selectbox, l'icône de suppression et l'icône de réinitialisation
+    col_select, col_delete, col_reset = st.columns([0.8, 0.1, 0.1])
+    
+    with col_select:
+        selected = st.selectbox(
+            "Sélectionner un bien",
+            options,
+            format_func=lambda x: x if x == "nouveau bien" else f"{x} - {properties[x].adresse}",
+            key="property_selector",
+            index=index
+        )
+        
+        # Réinitialiser le champ de texte si la sélection change
+        if "last_selection" not in st.session_state:
+            st.session_state.last_selection = selected
+        if "description_text" not in st.session_state:
+            st.session_state.description_text = ""
+            
+        if st.session_state.last_selection != selected:
+            st.session_state.description_text = ""
+            st.session_state.last_selection = selected
+    
+    with col_delete:
+        if selected != "nouveau bien":
+            if st.button("🗑️", key=f"delete_button_{selected}", help="Supprimer ce bien"):
+                # Création d'une clé unique pour le modal de confirmation
+                modal_key = f"delete_confirm_{selected}"
+                if modal_key not in st.session_state:
+                    st.session_state[modal_key] = False
+                st.session_state[modal_key] = True
+    
+    with col_reset:
+        if st.button("🔄", help="Réinitialiser tous les paramètres"):
+            # Incrémenter la version pour forcer la réinitialisation des widgets
+            if "widget_version" not in st.session_state:
+                st.session_state.widget_version = 1
+            st.session_state.widget_version += 1
+            st.rerun()
+    
+    # Affichage du modal de confirmation
+    modal_key = f"delete_confirm_{selected}"
+    if modal_key in st.session_state and st.session_state[modal_key]:
+        st.markdown('<div style="display: flex; align-items: center; gap: 0.5rem; margin-top: 1rem;"><span style="color: #ffd700; font-size: 1.5rem;">⚠️</span><span style="font-size: 1.2rem;">Confirmation de suppression</span></div>', unsafe_allow_html=True)
+        st.markdown(f"Êtes-vous sûr de vouloir supprimer le bien **{selected}** ?")
+        
+        # Affichage des boutons côte à côte sans colonnes
+        c1, c2, c3, c4, c5 = st.columns([0.4, 0.1, 0.1, 0.1, 0.3])
+        with c2:
+            if st.button("Oui", type="primary", key=f"confirm_yes_{selected}"):
+                success, error = delete_property(selected)
+                if success:
+                    st.success("Bien supprimé avec succès!")
+                    st.session_state[modal_key] = False
+                    st.session_state.last_added_property = "nouveau bien"
+                    st.rerun()
+                else:
+                    st.error(f"Erreur lors de la suppression : {error}")
+        
+        with c3:
+            if st.button("Non", key=f"confirm_no_{selected}"):
+                st.session_state[modal_key] = False
+                st.rerun()
+    
     # Tabs pour la navigation
     tab1, tab2 = st.tabs(["Simulation", "Biens"])
     
     with tab1:
-        scenario_simulation(properties, config)
+        if selected != "nouveau bien":
+            scenario_simulation(properties, config, selected)
+        else:
+            st.warning("Veuillez sélectionner un bien existant pour la simulation.")
     
     with tab2:
-        property_details(properties)
+        property_details(properties, selected)
 
 if __name__ == "__main__":
     main() 
