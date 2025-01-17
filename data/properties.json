@@ -277,6 +277,123 @@
         "commentaires": null
       },
       "lien_annonce": "https://www.hosman.co/a/vente-appartement-41m2-75017-paris-a533b2"
+    },
+    "bien-008": {
+      "id": "bien-008",
+      "adresse": "76 Rue Belgrand, Paris 20e (75020)",
+      "bien": {
+        "surface": 41.0,
+        "etage": null,
+        "nb_pieces": 2,
+        "exposition": null,
+        "dpe": "D",
+        "ges": null,
+        "cave": false,
+        "etat": "bien régulièrement rénové",
+        "travaux": "isolation, électricité, etc ...",
+        "type_chauffage": null
+      },
+      "prix": {
+        "annonce": 359000.0,
+        "hors_honoraires": null,
+        "frais_agence_acquereur": false,
+        "m2": 8756.1
+      },
+      "charges": {
+        "mensuelles": 120,
+        "taxe_fonciere": null,
+        "energie": null,
+        "chauffage": null
+      },
+      "metros": [
+        {
+          "ligne": "Métro",
+          "station": "Gambetta",
+          "distance": 200
+        }
+      ],
+      "atouts": [
+        "beaucoup de charme",
+        "style haussmannien",
+        "parquet chêne",
+        "moulures",
+        "environnement calme",
+        "petite copropriété",
+        "proche de la place Edith Piaf"
+      ],
+      "vigilance": [],
+      "commentaires": [
+        "face à la campagne à Paris"
+      ],
+      "quartier": {
+        "prix_moyen": null,
+        "transactions": [],
+        "commentaires": null
+      },
+      "lien_annonce": null
+    },
+    "bien-009": {
+      "id": "bien-009",
+      "adresse": "Boulevard McDonald, Paris 75019",
+      "bien": {
+        "surface": 38.0,
+        "etage": "5ᵉ",
+        "nb_pieces": 2,
+        "exposition": null,
+        "dpe": "B",
+        "ges": "A",
+        "cave": false,
+        "etat": null,
+        "type_chauffage": null,
+        "travaux": null
+      },
+      "prix": {
+        "annonce": 315000.0,
+        "hors_honoraires": null,
+        "m2": 8289.47,
+        "frais_agence_acquereur": false
+      },
+      "charges": {
+        "mensuelles": null,
+        "taxe_fonciere": null,
+        "energie": null,
+        "chauffage": null
+      },
+      "metros": [
+        {
+          "ligne": "7",
+          "station": "Corentin-Cariou",
+          "distance": 200
+        },
+        {
+          "ligne": "7",
+          "station": "Porte de la Villette",
+          "distance": 200
+        },
+        {
+          "ligne": "T3b",
+          "station": "Canal Saint-Denis",
+          "distance": 200
+        }
+      ],
+      "atouts": [
+        "Proche du parc de La Villette",
+        "Vue dégagée",
+        "Immeuble sécurisé avec ascenseur",
+        "Beaucoup de rangements",
+        "Local à vélo"
+      ],
+      "vigilance": [],
+      "commentaires": [
+        "Peut se vendre avec ou sans locataire",
+        "Opportunité dans un quartier dynamique"
+      ],
+      "quartier": {
+        "prix_moyen": null,
+        "transactions": [],
+        "commentaires": null
+      },
+      "lien_annonce": "https://www.leboncoin.fr/ad/ventes_immobilieres/2907831205"
     }
   }
 }
