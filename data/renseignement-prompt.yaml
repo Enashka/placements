@@ -168,7 +168,7 @@ response_format:
                   type: "array"
                   items:
                     type: "string"
-                  description: "transactions récentes à l'adresse sous forme de texte avec uniquement l'année, surface et prix (ex: '2021: 43m2 à 395,000€')"
+                  description: "si renseigné, transactions récentes déjà effectuées à l'adresse, sous forme de texte avec uniquement l'année, surface et prix (ex: '2021: 43m2 à 395,000€')"
                 commentaires:
                   type: ["string", "null"]
                   description: "commentaires sur le quartier"

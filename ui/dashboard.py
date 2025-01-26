@@ -90,7 +90,7 @@ def scenario_simulation(properties, config, selected_property):
             negociation = st.slider(
                 "Négociation (%)",
                 min_value=0,
-                max_value=15,
+                max_value=20,
                 value=0,
                 step=1,
                 help="Pourcentage de remise négociée sur le prix",
@@ -997,16 +997,16 @@ def main():
                 st.rerun()
     
     # Tabs pour la navigation
-    tab1, tab2 = st.tabs(["Simulation", "Biens"])
+    tab1, tab2 = st.tabs(["Biens", "Simulation"])
     
     with tab1:
+        property_details(properties, selected)
+    
+    with tab2:
         if selected != "nouveau bien":
             scenario_simulation(properties, config, selected)
         else:
             st.warning("Veuillez sélectionner un bien existant pour la simulation.")
-    
-    with tab2:
-        property_details(properties, selected)
 
 if __name__ == "__main__":
     main() 

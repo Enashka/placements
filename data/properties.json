@@ -1,108 +1,5 @@
 {
   "properties": {
-    "bien-002": {
-      "id": "bien-002",
-      "adresse": "4 Rue Mathis, 75019 Paris",
-      "bien": {
-        "surface": 37.0,
-        "etage": "1/6",
-        "nb_pieces": 2,
-        "exposition": null,
-        "dpe": "E",
-        "ges": "D",
-        "cave": false,
-        "etat": null,
-        "type_chauffage": "collectif",
-        "travaux": null
-      },
-      "prix": {
-        "annonce": 250000.0,
-        "hors_honoraires": 240000.0,
-        "m2": 6756.76,
-        "frais_agence_acquereur": true
-      },
-      "charges": {
-        "mensuelles": 195.0,
-        "taxe_fonciere": 500.0,
-        "energie": null,
-        "chauffage": "collectif"
-      },
-      "metros": [
-        {
-          "ligne": "M",
-          "station": "Crimée",
-          "distance": null
-        }
-      ],
-      "atouts": [
-        "Prêt à habiter",
-        "Bonne rentabilité en meublé",
-        "Accès facile aux transports en commun",
-        "Proximité du canal de l'Ourcq",
-        "Commodités variées à proximité"
-      ],
-      "vigilance": [
-        "Salon un peu exigu",
-        "Bar un peu haut"
-      ],
-      "lien_annonce": null
-    },
-    "bien-003": {
-      "id": "F40/2479",
-      "adresse": "23 ter rue du télégraphe, Paris 20E (75020)",
-      "bien": {
-        "surface": 38.65,
-        "etage": "1er étage",
-        "nb_pieces": 2,
-        "exposition": null,
-        "dpe": "D",
-        "ges": null,
-        "cave": true,
-        "etat": "intérieur à rafraichir un peu",
-        "travaux": null,
-        "type_chauffage": null
-      },
-      "prix": {
-        "annonce": 345000,
-        "hors_honoraires": null,
-        "frais_agence_acquereur": false,
-        "m2": 8926
-      },
-      "charges": {
-        "mensuelles": 100,
-        "taxe_fonciere": 888,
-        "energie": 100,
-        "chauffage": null
-      },
-      "metros": [
-        {
-          "ligne": "métro",
-          "station": "Télégraphe",
-          "distance": 500
-        },
-        {
-          "ligne": "métro",
-          "station": "Saint-Fargeau",
-          "distance": null
-        },
-        {
-          "ligne": "métro",
-          "station": "Pelleport",
-          "distance": null
-        }
-      ],
-      "atouts": [
-        "appartement traversant",
-        "très lumineux",
-        "cuisine américaine",
-        "cave"
-      ],
-      "vigilance": [
-        "pas de coup de coeur",
-        "intérieur à rafraichir un peu"
-      ],
-      "lien_annonce": null
-    },
     "bien-004": {
       "id": "F57/2902",
       "adresse": "118 avenue Gabriel Peri, Saint-Ouen-Sur-Seine (93400)",
@@ -175,12 +72,12 @@
       "prix": {
         "annonce": 345000.0,
         "hors_honoraires": null,
-        "m2": 9324.32,
-        "frais_agence_acquereur": false
+        "frais_agence_acquereur": false,
+        "m2": 9324.32
       },
       "charges": {
         "mensuelles": 90.0,
-        "taxe_fonciere": null,
+        "taxe_fonciere": 470,
         "energie": null,
         "chauffage": null
       },
@@ -226,13 +123,13 @@
         "ges": null,
         "cave": true,
         "etat": "Bon état",
-        "type_chauffage": "Individuel - Électrique",
-        "travaux": null
+        "travaux": null,
+        "type_chauffage": "Individuel - Électrique"
       },
       "prix": {
-        "annonce": 330000.0,
+        "annonce": 345000.0,
         "hors_honoraires": null,
-        "m2": 7857.14,
+        "m2": 8223.81,
         "frais_agence_acquereur": false
       },
       "charges": {
@@ -270,7 +167,7 @@
       ],
       "commentaires": [],
       "quartier": {
-        "prix_moyen": 7785.0,
+        "prix_moyen": 7785,
         "transactions": [
           "19/06/2024: Vente d'un 42m2 à 330000€"
         ],
@@ -394,6 +291,401 @@
         "commentaires": null
       },
       "lien_annonce": "https://www.leboncoin.fr/ad/ventes_immobilieres/2907831205"
+    },
+    "bien-010": {
+      "id": "2373",
+      "adresse": "233 rue de Crimée, Paris 19ème",
+      "bien": {
+        "surface": 52,
+        "etage": null,
+        "nb_pieces": 2,
+        "exposition": "EST",
+        "dpe": "NC",
+        "ges": null,
+        "cave": true,
+        "etat": null,
+        "travaux": null,
+        "type_chauffage": null
+      },
+      "prix": {
+        "annonce": 370000,
+        "hors_honoraires": null,
+        "frais_agence_acquereur": false,
+        "m2": 7115.38
+      },
+      "charges": {
+        "mensuelles": null,
+        "taxe_fonciere": null,
+        "energie": null,
+        "chauffage": null
+      },
+      "metros": [
+        {
+          "ligne": "7",
+          "station": "Crimée",
+          "distance": 200
+        }
+      ],
+      "atouts": [
+        "Deux balcons",
+        "Fort potentiel pour transformation",
+        "Immeuble sécurisé",
+        "Proximité des transports",
+        "Proximité des commerces"
+      ],
+      "vigilance": [],
+      "commentaires": [
+        "Possibilité de transformer la cuisine en chambre bébé ou bureau"
+      ],
+      "quartier": {
+        "prix_moyen": null,
+        "transactions": [],
+        "commentaires": null
+      },
+      "lien_annonce": null
+    },
+    "bien-011": {
+      "id": "bien-011",
+      "adresse": "80bis Boulevard Ornano, Paris 75018",
+      "bien": {
+        "surface": 35.0,
+        "etage": "4ème",
+        "nb_pieces": 2,
+        "exposition": null,
+        "dpe": "F",
+        "ges": null,
+        "cave": false,
+        "etat": "tout entièrement rénové en 2024",
+        "type_chauffage": null,
+        "travaux": null
+      },
+      "prix": {
+        "annonce": 299000.0,
+        "hors_honoraires": null,
+        "m2": 8542.86,
+        "frais_agence_acquereur": false
+      },
+      "charges": {
+        "mensuelles": 125.0,
+        "taxe_fonciere": null,
+        "energie": null,
+        "chauffage": null
+      },
+      "metros": [
+        {
+          "ligne": "4",
+          "station": "Porte de Clignancourt",
+          "distance": 500
+        },
+        {
+          "ligne": "12",
+          "station": "Jules Joffrin",
+          "distance": null
+        },
+        {
+          "ligne": "4",
+          "station": "Simplon",
+          "distance": null
+        }
+      ],
+      "atouts": [
+        "bien disposé",
+        "lumineux",
+        "charme de l'ancien",
+        "dispose d'un ascenseur"
+      ],
+      "vigilance": [
+        "Pas une très belle vue"
+      ],
+      "commentaires": [
+        "situé dans un joli immeuble datant de fin 19ème",
+        "copropriété très bien entretenue"
+      ],
+      "quartier": {
+        "prix_moyen": 7160,
+        "transactions": [
+          "2019: 34m² à 237,000€"
+        ],
+        "commentaires": null
+      },
+      "lien_annonce": "https://www.leboncoin.fr/ad/ventes_immobilieres/2920539852"
+    },
+    "bien-012": {
+      "id": "bien-012",
+      "adresse": "70 Rue de Tolbiac, 75013 Paris 13e (bibliothèque - Dunois - Jeanne D'arc)",
+      "bien": {
+        "surface": 38.0,
+        "etage": "3e étage (sur 6)",
+        "nb_pieces": 2,
+        "exposition": "Sud-Ouest",
+        "dpe": "E",
+        "ges": null,
+        "cave": true,
+        "etat": "à rafraîchir",
+        "travaux": "Des travaux de rafraîchissement sont à prévoir",
+        "type_chauffage": "électrique individuel"
+      },
+      "prix": {
+        "annonce": 318000.0,
+        "hors_honoraires": null,
+        "m2": 8368.42,
+        "frais_agence_acquereur": false
+      },
+      "charges": {
+        "mensuelles": 127.0,
+        "taxe_fonciere": 525.0,
+        "energie": null,
+        "chauffage": null
+      },
+      "metros": [],
+      "atouts": [],
+      "vigilance": [],
+      "commentaires": [
+        "envellope travaux 10k"
+      ],
+      "quartier": {
+        "prix_moyen": 8388,
+        "transactions": [
+          "2024: 42m² à 370,000€"
+        ],
+        "commentaires": null
+      },
+      "lien_annonce": "https://www.bienici.com/annonce/vente/paris-13e/appartement/2pieces/safti-1-1413277?q=%2Fmon-alerte%2F00175456d0cc9a95cffd38391516e4e93afb7965fe9f80bbd958b59a1488cc18%2F&at_canal=CRM&at_medium=alertes&at_campaign=search_alert&at_link=Voir_Annonce&at_id_compte=677692db3624e100af655d8a&at_type_emailing=email_auto"
+    },
+    "bien-013": {
+      "id": "bien-013",
+      "adresse": "225 Rue de Crimée, Paris 19e (75019)",
+      "bien": {
+        "surface": 51.2,
+        "etage": "4ème",
+        "nb_pieces": 2,
+        "exposition": null,
+        "dpe": "E",
+        "ges": null,
+        "cave": true,
+        "etat": "Travaux à prévoir",
+        "type_chauffage": "Chauffage collectif gaz",
+        "travaux": "Des travaux sont à prévoir."
+      },
+      "prix": {
+        "annonce": 325000.0,
+        "hors_honoraires": null,
+        "m2": 6347.66,
+        "frais_agence_acquereur": true
+      },
+      "charges": {
+        "mensuelles": null,
+        "taxe_fonciere": null,
+        "energie": null,
+        "chauffage": null
+      },
+      "metros": [],
+      "atouts": [],
+      "vigilance": [],
+      "commentaires": [],
+      "quartier": {
+        "prix_moyen": null,
+        "transactions": [],
+        "commentaires": null
+      },
+      "lien_annonce": "https://www.jinka.fr/ad/94c7e5a1-6fae-4bc8-91c3-d90d3224a1a2?from=jinka_share"
+    },
+    "bien-014": {
+      "id": "bien-014",
+      "adresse": "24 Rue Eugène Et Marie Louise Cornet, Pantin (93500)",
+      "bien": {
+        "surface": 45.0,
+        "etage": "0/6",
+        "nb_pieces": 2,
+        "exposition": "Est",
+        "dpe": "E",
+        "ges": null,
+        "cave": true,
+        "etat": "entièrement rénové en 2019",
+        "type_chauffage": "chauffage par le sol",
+        "travaux": null
+      },
+      "prix": {
+        "annonce": 299000.0,
+        "hors_honoraires": null,
+        "m2": 6644.44,
+        "frais_agence_acquereur": false
+      },
+      "charges": {
+        "mensuelles": null,
+        "taxe_fonciere": 1606.0,
+        "energie": null,
+        "chauffage": null
+      },
+      "metros": [
+        {
+          "ligne": "RER E",
+          "station": "Gare Pantin",
+          "distance": 1000
+        },
+        {
+          "ligne": "Metro",
+          "station": "Hoche",
+          "distance": null
+        }
+      ],
+      "atouts": [
+        "Appartement rénové en 2019",
+        "Balcon spacieux",
+        "Vue sur jardin",
+        "Quartier bien desservi par les transports",
+        "Cave incluse"
+      ],
+      "vigilance": [],
+      "commentaires": [],
+      "quartier": {
+        "prix_moyen": null,
+        "transactions": [],
+        "commentaires": null
+      },
+      "lien_annonce": "https://www.seloger.com/annonces/achat/appartement/pantin-93/ourcq-hoche/230967719.htm?utm_source=Email_B2C&utm_medium=MLP_ContactAnnonce&utm_campaign=Service_20250120&utm_content=lien_annonce_principale_cta"
+    },
+    "bien-015": {
+      "id": "bien-015",
+      "adresse": "75017 Paris 17e (epinettes - Bessières)",
+      "bien": {
+        "surface": 40.0,
+        "etage": "étage par escalier",
+        "nb_pieces": 3,
+        "exposition": null,
+        "dpe": "F",
+        "ges": null,
+        "cave": true,
+        "etat": "Excellent état",
+        "type_chauffage": null,
+        "travaux": null
+      },
+      "prix": {
+        "annonce": 330000.0,
+        "hors_honoraires": null,
+        "m2": 8250.0,
+        "frais_agence_acquereur": false
+      },
+      "charges": {
+        "mensuelles": 90.0,
+        "taxe_fonciere": null,
+        "energie": null,
+        "chauffage": null
+      },
+      "metros": [
+        {
+          "ligne": "3",
+          "station": "Brochant",
+          "distance": null
+        }
+      ],
+      "atouts": [
+        "Excellent état",
+        "Plan optimal",
+        "Situé à proximité des transports et commerces"
+      ],
+      "vigilance": [],
+      "commentaires": [],
+      "quartier": {
+        "prix_moyen": null,
+        "transactions": [],
+        "commentaires": null
+      },
+      "lien_annonce": null
+    },
+    "bien-016": {
+      "id": "bien-016",
+      "adresse": "56 Rue de Meaux, 75019 Paris",
+      "bien": {
+        "surface": 36.2,
+        "etage": "2ème étage",
+        "nb_pieces": 2,
+        "exposition": null,
+        "dpe": "E",
+        "ges": null,
+        "cave": true,
+        "etat": "bon état",
+        "travaux": null,
+        "type_chauffage": null
+      },
+      "prix": {
+        "annonce": 329000.0,
+        "hors_honoraires": null,
+        "m2": 9088.4,
+        "frais_agence_acquereur": false
+      },
+      "charges": {
+        "mensuelles": 118.0,
+        "taxe_fonciere": 548.0,
+        "energie": null,
+        "chauffage": null
+      },
+      "metros": [],
+      "atouts": [
+        "bel immeuble ancien",
+        "calme",
+        "lumineux",
+        "bon état",
+        "bonne circulation des lieux",
+        "agencement optimisé",
+        "nombreux rangements"
+      ],
+      "vigilance": [],
+      "commentaires": [],
+      "quartier": {
+        "prix_moyen": 8114,
+        "transactions": [
+          "2022: 36m2 à 369,840€"
+        ],
+        "commentaires": null
+      },
+      "lien_annonce": null
+    },
+    "bien-017": {
+      "id": "null",
+      "adresse": "null",
+      "bien": {
+        "surface": 45.02,
+        "etage": "Rez-de-Chaussée",
+        "nb_pieces": 2,
+        "exposition": "Nord-Est",
+        "dpe": "E",
+        "ges": null,
+        "cave": true,
+        "etat": "Rénové",
+        "travaux": "Rénovation en 2023",
+        "type_chauffage": "Collectif au gaz"
+      },
+      "prix": {
+        "annonce": 299000,
+        "hors_honoraires": null,
+        "frais_agence_acquereur": false,
+        "m2": 6633.33
+      },
+      "charges": {
+        "mensuelles": null,
+        "taxe_fonciere": 1252,
+        "energie": null,
+        "chauffage": "Collectif au gaz"
+      },
+      "metros": [],
+      "atouts": [
+        "Résidence classée",
+        "Sans vis-à-vis",
+        "Exposition Nord-Est",
+        "Chauffage collectif au gaz",
+        "Cave",
+        "Place de parking en jouissance",
+        "Services de gardiennage, local à vélos, digicode, interphone"
+      ],
+      "vigilance": [],
+      "commentaires": [],
+      "quartier": {
+        "prix_moyen": null,
+        "transactions": [],
+        "commentaires": null
+      },
+      "lien_annonce": null
     }
   }
 }
