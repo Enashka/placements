@@ -105,7 +105,7 @@ response_format:
               properties:
                 mensuelles:
                   type: ["number", "null"]
-                  description: "Charges mensuelles en euros"
+                  description: "Charges mensuelles en euros. (les calculer si trouvées en annuelles ou trimestrielles)"
                 taxe_fonciere:
                   type: ["number", "null"]
                   description: "Taxe foncière annuelle"
@@ -168,7 +168,7 @@ response_format:
                   type: "array"
                   items:
                     type: "string"
-                  description: "si renseigné, transactions récentes déjà effectuées à l'adresse, sous forme de texte avec uniquement l'année, surface et prix (ex: '2021: 43m2 à 395,000€')"
+                  description: "si explicitement renseigné comme telles, transactions récentes déjà effectuées à l'adresse, sous forme de texte avec uniquement l'année, surface et prix (ex: '2021: 43m2 à 395,000€')"
                 commentaires:
                   type: ["string", "null"]
                   description: "commentaires sur le quartier"

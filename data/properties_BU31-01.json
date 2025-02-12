@@ -70,14 +70,14 @@
         "travaux": "Petit travaux à prévoir (retirer étagères à CD et mur d escalade dans chambre)"
       },
       "prix": {
-        "annonce": 319000.0,
+        "annonce": 345000.0,
         "hors_honoraires": null,
         "frais_agence_acquereur": false,
-        "m2": 8611.11
+        "m2": 9324.32
       },
       "charges": {
         "mensuelles": 90.0,
-        "taxe_fonciere": 470.0,
+        "taxe_fonciere": 470,
         "energie": null,
         "chauffage": null
       },
@@ -175,6 +175,60 @@
       },
       "lien_annonce": "https://www.hosman.co/a/vente-appartement-41m2-75017-paris-a533b2"
     },
+    "bien-008": {
+      "id": "bien-008",
+      "adresse": "76 Rue Belgrand, Paris 20e (75020)",
+      "bien": {
+        "surface": 41.0,
+        "etage": null,
+        "nb_pieces": 2,
+        "exposition": null,
+        "dpe": "D",
+        "ges": null,
+        "cave": false,
+        "etat": "bien régulièrement rénové",
+        "travaux": "isolation, électricité, etc ...",
+        "type_chauffage": null
+      },
+      "prix": {
+        "annonce": 359000.0,
+        "hors_honoraires": null,
+        "frais_agence_acquereur": false,
+        "m2": 8756.1
+      },
+      "charges": {
+        "mensuelles": 120,
+        "taxe_fonciere": null,
+        "energie": null,
+        "chauffage": null
+      },
+      "metros": [
+        {
+          "ligne": "Métro",
+          "station": "Gambetta",
+          "distance": 200
+        }
+      ],
+      "atouts": [
+        "beaucoup de charme",
+        "style haussmannien",
+        "parquet chêne",
+        "moulures",
+        "environnement calme",
+        "petite copropriété",
+        "proche de la place Edith Piaf"
+      ],
+      "vigilance": [],
+      "commentaires": [
+        "face à la campagne à Paris"
+      ],
+      "quartier": {
+        "prix_moyen": null,
+        "transactions": [],
+        "commentaires": null
+      },
+      "lien_annonce": null
+    },
     "bien-009": {
       "id": "bien-009",
       "adresse": "Boulevard McDonald, Paris 75019",
@@ -237,6 +291,58 @@
         "commentaires": null
       },
       "lien_annonce": "https://www.leboncoin.fr/ad/ventes_immobilieres/2907831205"
+    },
+    "bien-010": {
+      "id": "2373",
+      "adresse": "233 rue de Crimée, Paris 19ème",
+      "bien": {
+        "surface": 52,
+        "etage": null,
+        "nb_pieces": 2,
+        "exposition": "EST",
+        "dpe": "NC",
+        "ges": null,
+        "cave": true,
+        "etat": null,
+        "travaux": null,
+        "type_chauffage": null
+      },
+      "prix": {
+        "annonce": 370000,
+        "hors_honoraires": null,
+        "frais_agence_acquereur": false,
+        "m2": 7115.38
+      },
+      "charges": {
+        "mensuelles": null,
+        "taxe_fonciere": null,
+        "energie": null,
+        "chauffage": null
+      },
+      "metros": [
+        {
+          "ligne": "7",
+          "station": "Crimée",
+          "distance": 200
+        }
+      ],
+      "atouts": [
+        "Deux balcons",
+        "Fort potentiel pour transformation",
+        "Immeuble sécurisé",
+        "Proximité des transports",
+        "Proximité des commerces"
+      ],
+      "vigilance": [],
+      "commentaires": [
+        "Possibilité de transformer la cuisine en chambre bébé ou bureau"
+      ],
+      "quartier": {
+        "prix_moyen": null,
+        "transactions": [],
+        "commentaires": null
+      },
+      "lien_annonce": null
     },
     "bien-011": {
       "id": "bien-011",
@@ -536,10 +642,10 @@
       "lien_annonce": null
     },
     "bien-017": {
-      "id": "bien-017",
-      "adresse": "8 Pass. Privé, 93500 Pantin",
+      "id": "null",
+      "adresse": "null",
       "bien": {
-        "surface": 45.0,
+        "surface": 45.02,
         "etage": "Rez-de-Chaussée",
         "nb_pieces": 2,
         "exposition": "Nord-Est",
@@ -551,14 +657,14 @@
         "type_chauffage": "Collectif au gaz"
       },
       "prix": {
-        "annonce": 299000.0,
+        "annonce": 299000,
         "hors_honoraires": null,
         "frais_agence_acquereur": false,
-        "m2": 6644.44
+        "m2": 6633.33
       },
       "charges": {
-        "mensuelles": 151.41666666666666,
-        "taxe_fonciere": 1252.0,
+        "mensuelles": null,
+        "taxe_fonciere": 1252,
         "energie": null,
         "chauffage": "Collectif au gaz"
       },
@@ -570,259 +676,16 @@
         "Chauffage collectif au gaz",
         "Cave",
         "Place de parking en jouissance",
-        "Services de gardiennage, local à vélos, digicode, interphone",
-        "Bien agencé",
-        "Très bien situé à Pantin, en face du cinéma"
+        "Services de gardiennage, local à vélos, digicode, interphone"
       ],
-      "vigilance": [
-        "La fenêtre de la chambre donne sur une rue privée avec voitures"
-      ],
+      "vigilance": [],
       "commentaires": [],
       "quartier": {
         "prix_moyen": null,
         "transactions": [],
         "commentaires": null
       },
-      "lien_annonce": "https://www.imkiz.com/immo/B5VN10XO/a-vendre-appartement-2-pieces-1-chambre-pantin-93500-299000-euro"
-    },
-    "bien-018": {
-      "id": "bien-018",
-      "adresse": "5 Rue des Berges, Pantin",
-      "bien": {
-        "surface": 46.0,
-        "etage": null,
-        "nb_pieces": 2,
-        "exposition": null,
-        "dpe": "D",
-        "ges": null,
-        "cave": true,
-        "etat": "récente",
-        "type_chauffage": null,
-        "travaux": null
-      },
-      "prix": {
-        "annonce": 330000.0,
-        "hors_honoraires": null,
-        "m2": 7173.91,
-        "frais_agence_acquereur": false
-      },
-      "charges": {
-        "mensuelles": 127.0,
-        "taxe_fonciere": null,
-        "energie": null,
-        "chauffage": null
-      },
-      "metros": [
-        {
-          "ligne": "métro Eglise de Pantin",
-          "station": "Eglise de Pantin",
-          "distance": null
-        }
-      ],
-      "atouts": [
-        "situation exceptionnelle",
-        "calme",
-        "deux terrasses",
-        "ascenseur",
-        "parc avec accès exclusif au canal",
-        "moderne",
-        "deux grands balcons",
-        "place de parking"
-      ],
-      "vigilance": [],
-      "commentaires": [
-        "Copropriété de 375 lots",
-        "Pas de procédures en cours"
-      ],
-      "quartier": {
-        "prix_moyen": 7080,
-        "transactions": [],
-        "commentaires": null
-      },
       "lien_annonce": null
-    },
-    "bien-019": {
-      "id": "bien-019",
-      "adresse": "15 Rue Doudeauville",
-      "bien": {
-        "surface": 40.0,
-        "etage": "2ème étage",
-        "nb_pieces": 2,
-        "exposition": "Sud",
-        "dpe": "F",
-        "ges": null,
-        "cave": true,
-        "etat": "Habitable de suite",
-        "type_chauffage": "Gaz",
-        "travaux": "Pas de gros travaux à prévoir"
-      },
-      "prix": {
-        "annonce": 315000.0,
-        "hors_honoraires": null,
-        "m2": 7875.0,
-        "frais_agence_acquereur": false
-      },
-      "charges": {
-        "mensuelles": 120.0,
-        "taxe_fonciere": 672.0,
-        "energie": null,
-        "chauffage": null
-      },
-      "metros": [
-        {
-          "ligne": "4",
-          "station": "Marx Dormoy",
-          "distance": null
-        },
-        {
-          "ligne": "12",
-          "station": "Marcadet Poissonniers",
-          "distance": null
-        }
-      ],
-      "atouts": [
-        "Belle exposition",
-        "Vue dégagée",
-        "Pas de vis-à-vis",
-        "Très jolie vue degagée sur les rails du salon",
-        "Coup de coeur"
-      ],
-      "vigilance": [
-        "DPE mauvais mais ameliorable",
-        "Cuisine indépendante et vétuste"
-      ],
-      "commentaires": [
-        "Propriétaire qui part à la retraite dans le sud"
-      ],
-      "quartier": {
-        "prix_moyen": 7477,
-        "transactions": [
-          "2023: 41m2 à 285,000€",
-          "2022: 38m2 à 290,000€",
-          "2021: 43m2 à 395,000€"
-        ],
-        "commentaires": null
-      },
-      "lien_annonce": "https://www.jinka.fr/alert_result?token=bc7c0db67b5963e51b937493d9ff841c&ad=74329545&from=jinka_share"
-    },
-    "bien-020": {
-      "id": "bien-020",
-      "adresse": "27 Rue Leon",
-      "bien": {
-        "surface": 37.0,
-        "etage": "2",
-        "nb_pieces": 2,
-        "exposition": null,
-        "dpe": "E",
-        "ges": null,
-        "cave": true,
-        "etat": "bon",
-        "travaux": "léger rafraichissement",
-        "type_chauffage": "individuel au gaz"
-      },
-      "prix": {
-        "annonce": 277000.0,
-        "hors_honoraires": null,
-        "frais_agence_acquereur": true,
-        "m2": 7486.49
-      },
-      "charges": {
-        "mensuelles": 147.33,
-        "taxe_fonciere": 660,
-        "energie": null,
-        "chauffage": null
-      },
-      "metros": [
-        {
-          "ligne": "12",
-          "station": "Marcadet-Poissonniers",
-          "distance": 400
-        },
-        {
-          "ligne": "4",
-          "station": "Marcadet-Poissonniers",
-          "distance": 400
-        }
-      ],
-      "atouts": [
-        "Idéalement situé",
-        "Lumineux",
-        "Calme",
-        "Petite copropriété bien entretenue",
-        "Beaux volumes",
-        "Fenêtres PVC double vitrage",
-        "Belle hauteur sous plafond",
-        "Plan optimisé"
-      ],
-      "vigilance": [
-        "Aucun ascenseur"
-      ],
-      "commentaires": [
-        "Idéal pour une première acquisition ou un investissement locatif (très bonne rentabilité)"
-      ],
-      "quartier": {
-        "prix_moyen": null,
-        "transactions": [],
-        "commentaires": null
-      },
-      "lien_annonce": null
-    },
-    "bien-021": {
-      "id": "bien-021",
-      "adresse": "24 Rue Anatole France",
-      "bien": {
-        "surface": 41.0,
-        "etage": "9ème",
-        "nb_pieces": 2,
-        "exposition": null,
-        "dpe": "D",
-        "ges": null,
-        "cave": true,
-        "etat": "bien entretenu",
-        "travaux": null,
-        "type_chauffage": "électrique"
-      },
-      "prix": {
-        "annonce": 195000.0,
-        "hors_honoraires": null,
-        "frais_agence_acquereur": false,
-        "m2": 4756.1
-      },
-      "charges": {
-        "mensuelles": 205.0,
-        "taxe_fonciere": 1646.0,
-        "energie": null,
-        "chauffage": null
-      },
-      "metros": [
-        {
-          "ligne": "5",
-          "station": "Raymond Queneau",
-          "distance": 170
-        }
-      ],
-      "atouts": [
-        "bel appartement",
-        "vue dégagée",
-        "lumineux",
-        "bien agencé",
-        "cuisine séparée aménagée",
-        "cave en sous/sol"
-      ],
-      "vigilance": [],
-      "commentaires": [
-        "Possibilité d'une place de parking en sus.",
-        "Emplacement idéal avec toutes les commodités à proximité.",
-        "depenses annuelles d energie 550euros"
-      ],
-      "quartier": {
-        "prix_moyen": null,
-        "transactions": [
-
-        ],
-        "commentaires": null
-      },
-      "lien_annonce": "https://www.seloger.com/annonces/achat-de-prestige/appartement/pantin-93/haut-pantin-charles-auray/235734743.htm"
     }
   }
 }
